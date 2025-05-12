@@ -22,6 +22,7 @@ export interface MarketValuation {
     name: string;
     value: number;
     condition: string;
+    confidence: number;
   }[];
 }
 
@@ -76,17 +77,19 @@ export const analyzeImage = async (
                 - name (be specific, include brand/model if visible)
                 - estimated market value (numeric)
                 - condition (short description)
+                - confidence (numeric between 0.0-1.0, how confident you are in this identification)
 
                 Important: the item name should be more defined and it's brand/model should be included if visible.
                 -the items name for market valuation so its should be more defined.
-                - your a pro real estate appraizer.
+                - you're a pro real estate appraiser.
                 Respond in this JSON format:
                 {
                   "items": [
                     {
                       "name": "item_name",
                       "value": estimated_value,
-                      "condition": "condition_description"
+                      "condition": "condition_description",
+                      "confidence": confidence_level
                     }
                   ]
                 }
@@ -129,6 +132,7 @@ export const analyzeImage = async (
                 name: item.name || "Unknown Item",
                 value: Number(item.value) || 0,
                 condition: item.condition || "Unknown Condition",
+                confidence: Number(item.confidence) || 0.7,
               }))
             : [],
         };
@@ -198,7 +202,23 @@ export const analyzeImagesBatch = async (
           content: [
             {
               type: "text",
-              text: `These images show different angles of the same car and its accessories. Provide a single entry for each unique item, even if it appears in multiple images. Do not list the same car or accessory more than once. Group all information about each item together. For each item, provide:\n- name (be specific, include brand/model if visible)\n- estimated market value (numeric)\n- condition (short description)\nRespond in this JSON format:\n{\n  \"items\": [\n    {\n      \"name\": \"item_name\",\n      \"value\": estimated_value,\n      \"condition\": \"condition_description\"\n    }\n  ]\n}\nOnly include items that are relevant to property value. Do not add any explanations or extra text.`,
+              text: `These images show different angles of the same car and its accessories. Provide a single entry for each unique item, even if it appears in multiple images. Do not list the same car or accessory more than once. Group all information about each item together. For each item, provide:
+- name (be specific, include brand/model if visible)
+- estimated market value (numeric)
+- condition (short description)
+- confidence (numeric between 0.0-1.0, how confident you are in this identification)
+Respond in this JSON format:
+{
+  "items": [
+    {
+      "name": "item_name",
+      "value": estimated_value,
+      "condition": "condition_description",
+      "confidence": confidence_level
+    }
+  ]
+}
+Only include items that are relevant to property value. Do not add any explanations or extra text.`,
             },
             ...imageBuffers.map((imageBuffer) => ({
               type: "image_url",

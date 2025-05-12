@@ -19,7 +19,15 @@ const calculateImageHash = async (imagePath: string): Promise<string> => {
     .join("");
 };
 
-export const processVideo = async (filePath: string) => {
+// Import the options interface from imageService
+import { ImageProcessingOptions } from "./imageService";
+
+// Define video processing options interface extending the image options
+export interface VideoProcessingOptions extends ImageProcessingOptions {
+  frameInterval?: number; // Optional frame interval in seconds
+}
+
+export const processVideo = async (filePath: string, options?: VideoProcessingOptions) => {
   try {
     const frames = await extractFrames(filePath);
     const uniqueFrames = [];
