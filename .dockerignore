@@ -1,0 +1,51 @@
+# Version control
+.git
+.gitignore
+
+# Node.js dependencies
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Build output
+dist
+build
+
+# Environment variables
+.env
+.env.local
+.env.*
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Test files
+__tests__
+*.test.js
+*.spec.js
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# Temporary files
+tmp
+temp
+
+# Media files that shouldn't be included in the image
+uploads/*
+frames/*
+!uploads/.gitkeep
+!frames/.gitkeep

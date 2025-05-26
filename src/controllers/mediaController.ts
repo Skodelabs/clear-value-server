@@ -1,17 +1,21 @@
 import { Request, Response } from "express";
-import { processImage, processImageBatch } from "../services/imageService";
-import { generatePDFReport } from "../utils/pdfGenerator";
-import { getMarketResearch } from "../services/marketResearchService";
 import { processVideo } from "../services/videoService";
-import { MarketValuation } from "../services/openaiService";
+import { analyzeProductFromImage, analyzeProductFromImageBatch, ProductItem } from "../services/productAnalysisService";
 
-// Define result types to fix TypeScript errors
+// Use the ProductAnalysisResult type from the service
+import { ProductAnalysisResult } from "../services/productAnalysisService";
+
+// Define video result types
+type VideoFrameResult = {
+  productAnalysis: ProductAnalysisResult;
+  processedImagePath: string;
+  frame: string;
+};
+
 type ImageResult = {
   type: 'image';
   filename: string | any[];
-  aiValuation: MarketValuation;
-  processedImagePath?: string;
-  processedImagePaths?: string[];
+  productAnalysis: ProductAnalysisResult;
   batchProcessed?: boolean;
   imageCount?: number;
 };
@@ -22,34 +26,27 @@ type VideoResult = {
   totalFrames: number;
   uniqueFrames: number;
   processedFrames: number;
-  results: ({
-    aiValuation: MarketValuation;
-    processedImagePath: string;
-    frame: string;
-  } | null)[];
+  results: (VideoFrameResult | null)[];
 };
 
 type MediaResult = ImageResult | VideoResult;
 
+/**
+ * Processes media files (images/videos) and returns AI analysis of products
+ * This controller focuses only on product identification and analysis
+ */
 export const processMedia = async (req: Request, res: Response) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: "No files uploaded" });
     }
     
-    // Parse toggle options from front-end with default values
+    console.log("Received files:", req.files);
+
+    // Parse options from front-end with default values
     const options = {
       singleItem: req.body.singleItem === 'true' || false,       // Single item mode vs. multiple items
-      fullReport: req.body.fullReport === 'true' || false,       // Generate full detailed report
-      currency: (req.body.currency || 'USD').toUpperCase(),      // USD or CAD
-      includeTearWear: req.body.includeTearWear === 'true' || false,  // Include tear/wear analysis
-      
-      // Additional report options if fullReport is true
-      reportOptions: {
-        includeMarketComparison: req.body.includeMarketComparison === 'true' || false,
-        includeConditionDetails: req.body.includeConditionDetails === 'true' || false,
-        includePriceHistory: req.body.includePriceHistory === 'true' || false
-      }
+      includeTearWear: req.body.includeTearWear === 'true' || false  // Include tear/wear analysis
     };
 
     const files = Array.isArray(req.files) ? req.files : [req.files];
@@ -71,13 +68,33 @@ export const processMedia = async (req: Request, res: Response) => {
       if (typeof file.path === 'string') {
         // Pass options to processVideo
         const result = await processVideo(file.path, {
-          includeTearWear: options.includeTearWear,
-          currency: options.currency
+          includeTearWear: options.includeTearWear
         });
+        
+        // The video service now returns results in the new format
+        // No conversion needed as analyzeProductFromImage is already used
+        const videoResults = result.results.map(frameResult => {
+          if (frameResult) {
+            return {
+              productAnalysis: frameResult.productAnalysis || {
+                success: false,
+                items: [],
+                rawAiResponse: { items: [], description: '', estimatedValue: 0, confidence: 0, factors: [] }
+              },
+              processedImagePath: frameResult.processedImagePath || '',
+              frame: frameResult.frame
+            };
+          }
+          return null;
+        });
+        
         results.push({
           type: 'video',
           filename: file.originalname,
-          ...result,
+          totalFrames: result.totalFrames,
+          uniqueFrames: result.uniqueFrames,
+          processedFrames: result.processedFrames,
+          results: videoResults
         });
       }
     }
@@ -93,33 +110,33 @@ export const processMedia = async (req: Request, res: Response) => {
         .map((file: any) => file.path as string);
       
       if (imagePaths.length > 0) {
-        // Pass options to processImageBatch
-        const batchResult = await processImageBatch(imagePaths, {
+        // Pass options to analyzeProductFromImageBatch
+        const result = await analyzeProductFromImageBatch(imagePaths, {
           includeTearWear: options.includeTearWear,
-          currency: options.currency,
-          singleItem: options.singleItem
+          singleItem: true
         });
+      
         results.push({
           type: 'image',
-          filename: imageFiles.map((f: any) => f.originalname),
+          filename: imageFiles.map((file: any) => file.originalname),
+          productAnalysis: result,
           batchProcessed: true,
-          imageCount: imagePaths.length,
-          ...batchResult,
+          imageCount: imagePaths.length
         });
       }
     } else {
       // Process each image individually
       for (const file of imageFiles) {
         if (typeof file.path === 'string') {
-          // Pass options to processImage
-          const result = await processImage(file.path, {
-            includeTearWear: options.includeTearWear,
-            currency: options.currency
+          // Pass options to analyzeProductFromImage
+          const result = await analyzeProductFromImage(file.path, {
+            includeTearWear: options.includeTearWear
           });
+        
           results.push({
             type: 'image',
             filename: file.originalname,
-            ...result,
+            productAnalysis: result
           });
         }
       }
@@ -128,8 +145,8 @@ export const processMedia = async (req: Request, res: Response) => {
     // Extract product names with confidence levels first
     let productSummary = results.flatMap(result => {
       // Handle image results
-      if (result.type === 'image' && result.aiValuation && Array.isArray(result.aiValuation.items)) {
-        return result.aiValuation.items.map((item: { name: string; confidence: number; value: number; condition: string }) => ({
+      if (result.type === 'image' && result.productAnalysis.rawAiResponse && Array.isArray(result.productAnalysis.rawAiResponse.items)) {
+        const aiValuation = result.productAnalysis.rawAiResponse.items.map((item: { name: string; confidence: number; value: number; condition: string }) => ({
           name: item.name,
           confidence: item.confidence,
           value: item.value,
@@ -137,19 +154,21 @@ export const processMedia = async (req: Request, res: Response) => {
           source: result.batchProcessed ? 'image-batch' : 'image',
           filename: typeof result.filename === 'string' ? result.filename : 'multiple-files'
         }));
+        return aiValuation;
       }
       // Handle video results which have nested structure
       if (result.type === 'video' && (result as VideoResult).results && Array.isArray((result as VideoResult).results)) {
-        return (result as VideoResult).results.flatMap((frameResult: any) => {
-          if (frameResult && frameResult.aiValuation && Array.isArray(frameResult.aiValuation.items)) {
-            return frameResult.aiValuation.items.map((item: { name: string; confidence: number; value: number; condition: string }) => ({
+        return (result as VideoResult).results.flatMap(frameResult => {
+          if (frameResult && frameResult.productAnalysis && frameResult.productAnalysis.rawAiResponse && Array.isArray(frameResult.productAnalysis.rawAiResponse.items)) {
+            const aiValuation = frameResult.productAnalysis.rawAiResponse.items.map((item: { name: string; confidence: number; value: number; condition: string }) => ({
               name: item.name,
               confidence: item.confidence,
               value: item.value,
               condition: item.condition,
-              source: `${result.type} (frame: ${frameResult.frame || 'unknown'})`,
-              filename: typeof result.filename === 'string' ? result.filename : 'multiple-files'
+              source: 'video-frame',
+              filename: `${typeof result.filename === 'string' ? result.filename : 'video'}-frame-${frameResult.frame}`
             }));
+            return aiValuation;
           }
           return [];
         });
@@ -178,13 +197,17 @@ export const processMedia = async (req: Request, res: Response) => {
         condition: combinedCondition || mainItem.condition,
         source: 'consolidated',
         filename: 'multiple-files',
-        originalItems: productSummary.length,
-        itemDetails: productSummary
+        // Add these as custom properties with type assertion
+        ...({
+          originalItems: productSummary.length,
+          itemDetails: productSummary
+        } as any)
       }];
     }
     
     // Sort by confidence level (highest first)
     productSummary.sort((a, b) => b.confidence - a.confidence);
+    console.log("Product summary:", productSummary);
     
     // If we're not in single item mode, group similar items
     // Otherwise, we've already consolidated everything into a single item
@@ -224,62 +247,32 @@ export const processMedia = async (req: Request, res: Response) => {
         highestConfidence: item.confidence,
         totalValue: item.value,
         isSingleItem: true,
-        originalItems: item.originalItems || 1,
-        itemDetails: item.itemDetails || [item]
+        // Add these as custom properties with type assertion
+        ...({
+          originalItems: (item as any).originalItems || 1,
+          itemDetails: (item as any).itemDetails || [item]
+        } as any)
       }));
     }
     
-    // Generate reports
-    if (hasVideo) {
-      // For videos, generate a single comprehensive report
-      const videoResults = results.filter((r) => r.type === 'video');
-      const marketResearch = await getMarketResearch();
-      const reportPath = await generatePDFReport({
-        type: 'video',
-        results: videoResults,
-        marketResearch,
-        options: {
-          fullReport: options.fullReport,
-          currency: options.currency,
-          includeTearWear: options.includeTearWear,
-          ...options.reportOptions
-        }
-      });
-      return res.json({
-        status: 'success',
-        type: 'video',
-        totalFiles: files.length,
-        processedFiles: results.length,
-        consolidatedProducts,  // Grouped products with highest confidence
-        productSummary,        // Detailed product list
-        reportPath,
-        results: videoResults,
-      });
-    } else {
-      // For images, generate a single comprehensive report for all images
-      const marketResearch = await getMarketResearch();
-      const reportPath = await generatePDFReport({
-        type: 'image',
-        results, // All image results
-        marketResearch,
-        options: {
-          fullReport: options.fullReport,
-          currency: options.currency,
-          includeTearWear: options.includeTearWear,
-          ...options.reportOptions
-        }
-      });
-      return res.json({
-        status: 'success',
-        type: 'image',
-        totalFiles: files.length,
-        processedFiles: results.length,
-        consolidatedProducts,  // Grouped products with highest confidence
-        productSummary,        // Detailed product list
-        reportPath,
-        results,
-      });
-    }
+    // Return product analysis results in the new format
+    // Collect all items from all processed results
+    const allItems = results.flatMap(result => {
+      if (result.type === 'image' && result.productAnalysis && result.productAnalysis.items) {
+        return result.productAnalysis.items;
+      } else if (result.type === 'video' && result.results) {
+        // Collect items from video frames
+        return result.results
+          .filter(frameResult => frameResult && frameResult.productAnalysis && frameResult.productAnalysis.items)
+          .flatMap(frameResult => frameResult!.productAnalysis.items);
+      }
+      return [];
+    });
+    
+    return res.json({
+      success: true,
+      items: allItems,
+    });
   } catch (error) {
     console.error("Error processing media:", error);
     return res.status(500).json({ error: "Failed to process media" });

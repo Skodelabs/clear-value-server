@@ -1,5 +1,7 @@
 import express from 'express';
 import authRoutes from './routes/authRoutes';
+import mediaRoutes from './routes/mediaRoutes';
+import reportRoutes from './routes/reportRoutes';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
@@ -18,6 +20,8 @@ app.get('/', (req, res) => {
 
 // Routes - update the path to match frontend
 app.use('/auth', authRoutes);  // Changed from '/api/auth' to '/auth'
+app.use('/media', mediaRoutes);  // Routes for image/video processing and AI analysis
+app.use('/reports', reportRoutes);  // Routes for market research and report generation
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

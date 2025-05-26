@@ -1,5 +1,5 @@
 import { extractFrames } from "../utils/videoProcessor";
-import { processImage } from "./imageService";
+import { analyzeProductFromImage } from "./productAnalysisService";
 import path from "path";
 import fs from "fs";
 import sharp from "sharp";
@@ -19,11 +19,11 @@ const calculateImageHash = async (imagePath: string): Promise<string> => {
     .join("");
 };
 
-// Import the options interface from imageService
-import { ImageProcessingOptions } from "./imageService";
+// Import the options interface from productAnalysisService
+import { ProductAnalysisOptions } from "./productAnalysisService";
 
-// Define video processing options interface extending the image options
-export interface VideoProcessingOptions extends ImageProcessingOptions {
+// Define video processing options interface extending the product analysis options
+export interface VideoProcessingOptions extends ProductAnalysisOptions {
   frameInterval?: number; // Optional frame interval in seconds
 }
 
@@ -53,10 +53,11 @@ export const processVideo = async (filePath: string, options?: VideoProcessingOp
       const batchResults = await Promise.all(
         batch.map(async (framePath) => {
           try {
-            const result = await processImage(framePath);
+            const result = await analyzeProductFromImage(framePath, options);
             return {
               frame: path.basename(framePath),
-              ...result,
+              productAnalysis: result,
+              processedImagePath: result.processedImagePath || ''
             };
           } catch (error) {
             console.error(`Error processing frame ${framePath}:`, error);
