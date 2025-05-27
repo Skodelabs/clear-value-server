@@ -58,6 +58,14 @@ export const processMedia = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Only one video can be uploaded per request" });
     }
     
+    // Validate: maximum number of images (50)
+    const MAX_IMAGES = 50;
+    if (imageFiles.length > MAX_IMAGES) {
+      console.log(`User attempted to upload ${imageFiles.length} images, limiting to ${MAX_IMAGES}`);
+      // We'll just use the first MAX_IMAGES images rather than returning an error
+      imageFiles.splice(MAX_IMAGES);
+    }
+    
     const results: MediaResult[] = [];
 
     // Process videos (only one video supported per request)
@@ -99,15 +107,17 @@ export const processMedia = async (req: Request, res: Response) => {
       }
     }
 
-    // Process images (multiple allowed)
+    // Process images (multiple allowed, up to 50)
     // Use singleItem option or batch parameter to determine processing mode
     const processBatchParam = req.query.batch === 'true' || options.singleItem;
     
-    if (processBatchParam && imageFiles.length > 1) {
-      // Process all images as a batch (different angles of the same item)
+    if (processBatchParam && imageFiles.length > 0) {
+      // Process all images as a batch (different angles of the same item or multiple items)
       const imagePaths = imageFiles
         .filter((file: any) => typeof file.path === 'string')
         .map((file: any) => file.path as string);
+      
+      console.log(`Processing ${imagePaths.length} images in batch mode`);
       
       if (imagePaths.length > 0) {
         // Pass options to analyzeProductFromImageBatch

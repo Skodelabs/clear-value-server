@@ -338,10 +338,15 @@ Remember: It's better to identify an item with a generic description than to mis
   throw new AppError("Maximum retries exceeded for OpenAI image analysis", 500);
 };
 
-// New: Analyze multiple images as different angles of the same item
+// Analyze multiple images (up to 50) as a batch
 export const analyzeImagesBatch = async (
   imageBuffers: Buffer[]
 ): Promise<MarketValuation> => {
+  // Ensure we don't exceed the maximum number of images (50)
+  const MAX_IMAGES = 50;
+  const processedBuffers = imageBuffers.slice(0, MAX_IMAGES);
+  
+  console.log(`Processing ${processedBuffers.length} images in a batch`);
   let retries = 0;
   while (retries <= MAX_RETRIES) {
     try {
@@ -357,11 +362,11 @@ export const analyzeImagesBatch = async (
           content: [
             {
               type: "text",
-              text: `You are a professional property appraiser analyzing multiple images of the same space from different angles. Your task is to create a comprehensive inventory of ALL unique items visible across these images.
+              text: `You are a professional property appraiser analyzing multiple images. Your task is to create a comprehensive inventory of ALL unique items visible across these images.
 
 CRITICAL INSTRUCTIONS:
 
-1. IDENTIFY UNIQUE ITEMS: These images show the same space from different angles. Identify each unique item only ONCE, even if it appears in multiple images.
+1. IDENTIFY UNIQUE ITEMS: These images may show the same space from different angles or completely different items. Identify each unique item only ONCE, even if it appears in multiple images.
 
 2. DETECT SAME ITEMS FROM DIFFERENT ANGLES: 
    - Recognize when the same physical item appears in different images, even if:
@@ -386,6 +391,12 @@ CRITICAL INSTRUCTIONS:
    - condition: Detailed condition assessment (new, excellent, good, fair, poor, damaged)
    - details: Comprehensive description including all visible features from ALL angles
 
+6. HANDLE LARGE BATCHES EFFICIENTLY:
+   - This batch contains up to 50 images
+   - Process ALL images thoroughly, not just the first few
+   - Maintain consistent attention to detail across all images
+   - Group similar items appropriately
+
 Respond ONLY in this JSON format:
 {
   "items": [
@@ -399,7 +410,7 @@ Respond ONLY in this JSON format:
 
 REMEMBER: It's better to provide a complete inventory with some generic descriptions than to miss items entirely.`,
             },
-            ...imageBuffers.map((imageBuffer) => ({
+            ...processedBuffers.map((imageBuffer) => ({
               type: "image_url",
               image_url: {
                 url: `data:image/jpeg;base64,${imageBuffer.toString("base64")}`,

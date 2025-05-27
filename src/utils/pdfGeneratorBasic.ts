@@ -18,14 +18,15 @@ export const generateBasicReport = async (data: ReportData): Promise<{ filePath:
     // Add cover page
     addCoverPage(doc, data.options);
     
-    // Add header to first content page
-    addHeader(doc, getReportTitle(data.options));
+    // Add header to first content page only
+    const title = getReportTitle(data.options);
+    addHeader(doc, title);
     
     // Add introduction
     addIntroduction(doc, data.options);
     
-    // Add items table
-    addItemsTable(doc, data.items, data.options);
+    // Add items table - pass isFirstPage=true to indicate this is the first content page
+    addItemsTable(doc, data.items, data.options, true);
     
     // Add footer to all pages
     addFooter(doc);
@@ -80,7 +81,7 @@ const addIntroduction = (doc: PDFKit.PDFDocument, options: ReportOptions) => {
 };
 
 // Add the items table with ID, description, condition, and price
-const addItemsTable = (doc: PDFKit.PDFDocument, items: any[], options: ReportOptions) => {
+const addItemsTable = (doc: PDFKit.PDFDocument, items: any[], options: ReportOptions, isFirstPage: boolean = false) => {
   // Set default currency symbol
   const currencySymbol = options.currency === 'CAD' ? 'CA$' : '$';
   
@@ -106,28 +107,49 @@ const addItemsTable = (doc: PDFKit.PDFDocument, items: any[], options: ReportOpt
   const rowHeight = 30;
   let y = doc.y;
   
-  // Table header
-  doc.save();
-  doc.rect(margin, y, tableWidth, rowHeight).fill("#374151");
-  doc.fillColor("#ffffff").font("Helvetica-Bold").fontSize(12);
-  doc.text("ID", colPositions[0] + 5, y + 10, { width: tableWidth * colWidths[0] - 10 });
-  doc.text("Description", colPositions[1] + 5, y + 10, { width: tableWidth * colWidths[1] - 10 });
-  doc.text("Condition", colPositions[2] + 5, y + 10, { width: tableWidth * colWidths[2] - 10 });
-  doc.text("Price", colPositions[3] + 5, y + 10, { width: tableWidth * colWidths[3] - 10, align: "right" });
-  doc.restore();
+  // Function to draw table header
+  const drawTableHeader = () => {
+    doc.save();
+    doc.rect(margin, y, tableWidth, rowHeight).fill("#374151");
+    doc.fillColor("#ffffff").font("Helvetica-Bold").fontSize(12);
+    doc.text("ID", colPositions[0] + 5, y + 10, { width: tableWidth * colWidths[0] - 10 });
+    doc.text("Description", colPositions[1] + 5, y + 10, { width: tableWidth * colWidths[1] - 10 });
+    doc.text("Condition", colPositions[2] + 5, y + 10, { width: tableWidth * colWidths[2] - 10 });
+    doc.text("Price", colPositions[3] + 5, y + 10, { width: tableWidth * colWidths[3] - 10, align: "right" });
+    doc.restore();
+    y += rowHeight;
+  };
   
-  y += rowHeight;
+  // Draw initial table header
+  drawTableHeader();
   
   // Table rows
   let total = 0;
+  let currentPage = doc.bufferedPageRange().count;
   
   items.forEach((item, index) => {
     // Check if we need a new page
-    if (y + rowHeight > doc.page.height - 50) {
+    if (y + rowHeight > doc.page.height - 100) {
+      // End current page properly
       doc.addPage();
+      
+      // Reset Y position for the new page
+      y = 100; // Start below the header
+      
+      // Only add page number and minimal header on subsequent pages
+      // We don't want to repeat the main heading
+      doc.font('Helvetica')
+         .fontSize(10)
+         .text(`Page ${doc.bufferedPageRange().count}`, doc.page.width / 2, 40, { align: 'center' });
+      
+      // Redraw table header on the new page
+      drawTableHeader();
+      
+      // Add footer to the new page
       addFooter(doc);
-      addHeader(doc, getReportTitle(options));
-      y = doc.y;
+      
+      // Track that we're on a new page
+      currentPage = doc.bufferedPageRange().count;
     }
     
     // Row background (alternating colors)
@@ -143,9 +165,10 @@ const addItemsTable = (doc: PDFKit.PDFDocument, items: any[], options: ReportOpt
     doc.text(String(item.id || index + 1), colPositions[0] + 5, y + 10, 
              { width: tableWidth * colWidths[0] - 10 });
     
-    // Description column
-    doc.text(item.description || "", colPositions[1] + 5, y + 10, 
-             { width: tableWidth * colWidths[1] - 10 });
+    // Description column - truncate if too long
+    const description = item.description || item.name || "";
+    doc.text(description, colPositions[1] + 5, y + 10, 
+             { width: tableWidth * colWidths[1] - 10, ellipsis: true });
     
     // Condition column
     doc.text(item.condition || "", colPositions[2] + 5, y + 10, 
@@ -159,6 +182,19 @@ const addItemsTable = (doc: PDFKit.PDFDocument, items: any[], options: ReportOpt
     total += price;
     y += rowHeight;
   });
+  
+  // Check if total row needs a new page
+  if (y + rowHeight > doc.page.height - 100) {
+    doc.addPage();
+    y = 100; // Start below the header
+    
+    // Only add page number on subsequent pages, not the main heading
+    doc.font('Helvetica')
+       .fontSize(10)
+       .text(`Page ${doc.bufferedPageRange().count}`, doc.page.width / 2, 40, { align: 'center' });
+       
+    addFooter(doc);
+  }
   
   // Total row
   doc.save();
