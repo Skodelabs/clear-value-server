@@ -11,7 +11,75 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Roboto', Arial, sans-serif;
+        }
+        
+        .header {
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            padding: 5px 20px;
+            background: white;
+            text-align: right;
+            z-index: 1000;
+            border-bottom: 1px solid #eee;
+            height: 60px;
+            box-sizing: border-box;
+        }
+        
+        .header img {
+            height: 50px;
+            width: auto;
+            max-width: 200px;
+            object-fit: contain;
+        }
+        
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 9px;
+            color: #666;
+            padding: 8px 0;
+            border-top: 1px solid #eee;
+            background: white;
+            z-index: 1000;
+            line-height: 1.4;
+            height: 30px;
+            box-sizing: border-box;
+        }
+        
+        .page {
+            position: relative;
+            width: 210mm;
+            height: 297mm;
+            padding: 20mm 20mm 20mm;
+            margin: 0 auto;
+            background: white;
+            page-break-after: always;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        /* Remove page break after the last page */
+        
+        .page:last-child {
+            page-break-after: auto;
+            margin-bottom: 0;
+        }
+        /* First page specific styling */
+        
+        #cover-page {
+            padding: 0 !important;
+            margin: 0 auto !important;
+            height: 297mm !important;
+            page-break-after: always !important;
+        }
+        
+        @page {
+            size: A4;
+            margin: 0;
         }
         
         body {
@@ -19,59 +87,23 @@
             line-height: 1.5;
             color: #333;
             width: 210mm;
-            /* A4 width */
-            margin: 0 auto;
-        }
-        
-        .page {
-            width: 210mm;
-            height: 297mm;
-            padding: 20mm;
-            position: relative;
-            page-break-after: always;
-            background-color: white;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .header img {
-            max-width: 150px;
-            margin-bottom: 10px;
-        }
-        
-        .header-address {
-            font-size: 10px;
-            color: #666;
-            margin-bottom: 5px;
-        }
-        
-        .header-contact {
-            font-size: 10px;
-            color: #666;
-        }
-        
-        .footer {
-            position: absolute;
-            bottom: 20mm;
-            left: 20mm;
-            right: 20mm;
-            text-align: center;
-            font-size: 10px;
-            color: #666;
-            border-top: 1px solid #ddd;
-            padding-top: 5px;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', Arial, sans-serif;
         }
         
         .page-number {
             position: absolute;
-            bottom: 25mm;
+            bottom: 15mm;
             left: 0;
             width: 100%;
             text-align: center;
             font-size: 10px;
+        }
+        
+        .page-number.right {
+            right: 0;
+            left: auto;
         }
         
         h1,
@@ -85,12 +117,16 @@
         h1 {
             font-size: 24px;
             text-align: center;
+            margin-top: 20px;
+            margin-bottom: 25px;
         }
         
         h2 {
             font-size: 18px;
             border-bottom: 1px solid #ddd;
             padding-bottom: 5px;
+            margin-top: 25px;
+            margin-bottom: 20px;
         }
         
         h3 {
@@ -232,6 +268,17 @@
 </head>
 
 <body>
+    <!-- Global Header -->
+    <div class="header">
+        <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
+    </div>
+
+    <!-- Global Footer -->
+    <div class="footer">
+        <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
+        <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
+    </div>
+
     <!-- Cover Page -->
     <div class="page" style="padding: 0; position: relative; overflow: hidden;" id="cover-page">
         <!-- Light Background Logo -->
@@ -288,7 +335,7 @@
             </div>
 
             <!-- Footer -->
-            <div style="position: absolute; bottom: 20px; left: 0; right: 0; text-align: center; font-size: 10px; color: #666;">
+            <div class="footer">
                 <div class="page-number right">2 | Page</div>
                 <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
                 <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
@@ -297,14 +344,11 @@
     </div>
 
     <!-- Transmittal Letter Page -->
-    <div class="page" style="padding: 13mm;" id="transmittal-letter">
-        <!-- Header with Logo -->
-        <div style="margin-bottom: 17px;">
-            <img src="<%= options.logoUrl || 'https://placeholder.com/150x50' %>" alt="Company Logo" style="height: 27px;">
-        </div>
+    <div class="page" style="padding: 25mm 20mm 20mm;" id="transmittal-letter">
+        <!-- Removed duplicate header -->
 
         <!-- Letter Content -->
-        <div style="line-height: 1.3; margin-bottom: 17px; font-size: 10px;">
+        <div style="line-height: 1.5; margin-top: 10px; margin-bottom: 17px; font-size: 18px;">
             <p>Dear
                 <%= options.recipientName %>,</p>
 
@@ -340,16 +384,16 @@
         </div>
 
         <div style="margin-top: 25px;">
-            <p style="margin-bottom: 17px;">Sincerely,</p>
+            <p style="margin-bottom: 17px; font-size: 15px;">Sincerely,</p>
             <div style="margin-bottom: 4px;">
                 <div style="width: 230px;">
-                    <div style="margin-bottom: 2px;">
+                    <div style="margin-bottom: 2px; font-size: 15px;">
                         <strong><%= options.appraiserName %></strong>, CPPA
                     </div>
-                    <div style="margin-bottom: 2px; font-size: 9px;">
+                    <div style="margin-bottom: 2px; font-size: 15px;">
                         Certified Appraiser
                     </div>
-                    <div style="border-bottom: 1px solid #000; padding-bottom: 1px;">
+                    <div style="border-bottom: 1px solid #000; padding-bottom: 1px; font-size: 15px;">
                         <strong><%= options.companyName %></strong>, Ltd.
                     </div>
                 </div>
@@ -357,22 +401,17 @@
         </div>
 
         <!-- Footer -->
-        <div style="position: absolute; bottom: 13mm; left: 13mm; right: 13mm;">
-            <div style="text-align: center; font-size: 8px; color: #666;">
-                <div class="page-number" style="float: right;">3 | Page</div>
-                <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
-                <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
-            </div>
+        <div class="footer">
+            <div class="page-number right">3 | Page</div>
+            <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
+            <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
         </div>
     </div>
 
     <!-- Table of Contents Page -->
     <div class="page" id="table-of-contents">
-        <div class="header">
-            <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
-        </div>
 
-        <h2>TABLE OF CONTENTS</h2>
+        <h3 style="font-size: 16px;">TABLE OF CONTENTS</h3>
 
         <div class="toc">
             <div class="toc-item">
@@ -428,455 +467,465 @@
             <div class="toc-item">
                 <span class="toc-text">SUMMARY OF VALUE CONCLUSIONS</span>
                 <span class="toc-dots">....................................................................................................................</span>
-            </div>pan class="toc-page">7</span>
+                <span class="toc-page">7</span>
+            </div>
             <div class="toc-item">
-                <span class="toc-text">SUMMARY OF VALUE CONCLUSIONS</span>
-                <span class="toc-dots">....................................................................................................................</span>
-                <span class="toc-page">7</span>..............................................................................................................................................</span>pan class="toc-page">7</span>
-                <div class="toc-item">
-                    <span class="toc-text">SCOPE OF WORK</span>
-                    <span class="toc-dots">......................................................................................................................................................</span>
-                    <span class="toc-page">7</span>.............................................................................................................................</span>
-                </div>pan class="toc-page">8</span>
-                <div class="toc-item">
-                    <span class="toc-text">FACTORS AFFECTING VALUE</span>
-                    <span class="toc-dots">.....................................................................................................................................</span>
-                    <span class="toc-page">8</span>....................................................................................................................................</span>
-                </div>pan class="toc-page">8</span>
-                <div class="toc-item">
-                    <span class="toc-text">VALUE TERMINOLOGY</span>
-                    <span class="toc-dots">............................................................................................................................................</span>
-                    <span class="toc-page">8</span>..........................................................................................</span>
-                </div>pan class="toc-page">8</span>
-                <div class="toc-item">
-                    <span class="toc-text">LIMITING CONDITIONS AND CRITICAL ASSUMPTIONS</span>
-                    <span class="toc-dots">..................................................................................................</span>
-                    <span class="toc-page">8</span>....................................................................................................................................................................</span>
-                </div>pan class="toc-page">9</span>
-                <div class="toc-item">
-                    <span class="toc-text">CODE OF ETHICS</span>
-                    <span class="toc-dots">............................................................................................................................................................................</span>
-                    <span class="toc-page">9</span>..............................................................................................................................</span>
-                </div>pan class="toc-page">10</span>
-                <div class="toc-item">
-                    <span class="toc-text">SCHEDULE "A"</span>
-                    <span class="toc-dots">......................................................................................................................................</span>
-                    <span class="toc-page">10</span>
-                </div>lass="page-number right">4 | Page</div>
-        </div>iv>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
-    <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
-    <div class="footer">
-        <div class="page-number right">4 | Page</div>
-        <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
-        <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
-    </div>lass="header">
-    </div> <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
+                <span class="toc-text">SCOPE OF WORK</span>
+                <span class="toc-dots">......................................................................................................................................................</span>
+                <span class="toc-page">7</span>
+            </div>
+            <div class="toc-item">
+                <span class="toc-text">FACTORS AFFECTING VALUE</span>
+                <span class="toc-dots">.....................................................................................................................................</span>
+                <span class="toc-page">8</span>
+            </div>
+            <div class="toc-item">
+                <span class="toc-text">VALUE TERMINOLOGY</span>
+                <span class="toc-dots">............................................................................................................................................</span>
+                <span class="toc-page">8</span>
+            </div>
+            <div class="toc-item">
+                <span class="toc-text">LIMITING CONDITIONS AND CRITICAL ASSUMPTIONS</span>
+                <span class="toc-dots">..................................................................................................</span>
+                <span class="toc-page">8</span>
+            </div>
+            <div class="toc-item">
+                <span class="toc-text">CODE OF ETHICS</span>
+                <span class="toc-dots">............................................................................................................................................................................</span>
+                <span class="toc-page">9</span>
+            </div>
+            <div class="toc-item">
+                <span class="toc-text">SCHEDULE "A"</span>
+                <span class="toc-dots">......................................................................................................................................</span>
+                <span class="toc-page">10</span>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="page-number right">3 | Page</div>
+            <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
+            <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
+        </div>
+    </div>
+
     <!-- Certificate of Value Page -->
     <div class="page" id="certificate-of-value">
-        <div class="header">ate">
-            <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
-        </div>>Proof of certification that on this given date,<br>the specified assets belonging to:</p>
+
+        <h2>CERTIFICATE OF VALUE</h2>
+        <p>Proof of certification that on this given date,<br>the specified assets belonging to:</p>
         <h3 style="margin: 20px 0;">
-            <div class="certificate">isedEntity || options.ownerName || 'Owner Name' %>
-                <h2>CERTIFICATE OF VALUE</h2>
-                <p>Proof of certification that on this given date,<br>the specified assets belonging to:</p>
-                <h3 style="margin: 20px 0;">Fair Market Value' %> of:</p>
-                    <%= options.appraisedEntity || options.ownerName || 'Owner Name' %>
-                </h3>%= options.totalValue || '$0' %>
-                <p>Were personally inspected in order to determine<br>a
-                    <%= options.premise || 'Fair Market Value' %> of:</p>
-                <h3 style="margin: 20px 0;">Total:in-top: 60px; margin-left: 20px;">
-                    <%= options.totalValue || '$0' %> #000; width: 200px; margin-bottom: 5px;"></div>
-            </h3>div>XXX, CPPA</div>
-    <div>Certified Appraiser</div>
-    <div style="text-align: left; margin-top: 60px; margin-left: 20px;">
-        <div style="border-top: 1px solid #000; width: 200px; margin-bottom: 5px;"></div>
-        <div>XXX, CPPA</div>
-        <div>Certified Appraiser</div>
-        <div>McDougall Auctioneers Ltd.</div>
-    </div>lass="page-number right">5 | Page</div>
+            <%= options.appraisedEntity || options.ownerName || 'Owner Name' %>
+        </h3>
+        <p>Were personally inspected in order to determine<br>a
+            <%= options.premise || 'Fair Market Value' %> of:</p>
+        <h3 style="margin: 20px 0;">Total:
+            <%= options.totalValue || '$0' %>
+        </h3>
+
+        <!-- Appraiser Signature Block -->
+        <div style="position: absolute; bottom: 80px; left: 20mm; width: 200px;">
+            <div style="margin-bottom: 5px; font-weight: bold;">
+                <%= options.appraiserName || 'Appraiser Name' %>, CPPA
+            </div>
+            <div style="margin-bottom: 5px; font-size: 11px;">
+                Certified Appraiser
+            </div>
+            <div style="border-top: 1px solid #000; padding-top: 5px; font-weight: bold;">
+                McDougall Auctioneers Ltd.
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="page-number right">4 | Page</div>
+            <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
+            <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
+        </div>
     </div>
-    </div>
-    <div class="footer">
-        <div class="page-number right">5 | Page</div>
-    </div>="page">
-    </div>iv class="header">
-    <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
+
     <!-- Certification of Inspection Page -->
     <div class="page" id="certification-of-inspection">
-        <div class="header"> AN APPRAISAL REPORT. THE APPRAISAL REPORT MUST BE READ IN ITS ENTIRETY.
-            <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
-        </div>
-        <div class="disclaimer" style="text-align: center; font-weight: bold;">
-            THIS PAGE IS NOT AN APPRAISAL REPORT. THE APPRAISAL REPORT MUST BE READ IN ITS ENTIRETY.
-        </div>o hereby certify that:</p>
+        <p style="font-style: italic; margin-bottom: 20px; text-align: center;">THIS PAGE IS NOT AN APPRAISAL REPORT. THE APPRAISAL REPORT MUST BE READ IN ITS ENTIRETY.</p>
 
-        <h2>CERTIFICATION OF INSPECTION AND APPRAISAL</h2>">
-        <li style="margin-bottom: 10px;">The statement of fact contained in this appraisal report, upon which the analysis, opinions and conclusions expressed herein are based, are true and accurate.</li>
-        <p>I do hereby certify that:</p>px;">The reported analyses, opinions and conclusions are limited only by the reported assumptions and limiting conditions and are our personal, unbiased professional analyses, opinions and conclusions.</li>
-        <li style="margin-bottom: 10px;">We have no present or prospective interest in the subject property or assets which are the subject of this report, and we have no personal interest or bias with respect to the parties involved.</li>
-        <ul style="margin-left: 20px; margin-bottom: 20px;">
-            <li style="margin-bottom: 10px;">The statement of fact contained in this appraisal report, upon which the analysis, opinions and conclusions expressed herein are based, are true and accurate.</li>erty Appraisers' Group of Canada, and is a member in good standing. This report
-            was prepared
-            <li style="margin-bottom: 10px;">The reported analyses, opinions and conclusions are limited only by the reported assumptions and limiting conditions and are our personal, unbiased professional analyses, opinions and conclusions.</li>
-            <li style="margin-bottom: 10px;">We have no present or prospective interest in the subject property or assets which are the subject of this report, and we have no personal interest or bias with respect to the parties involved.</li>
-            <li style="margin-bottom: 10px;">Our compensation was not contingent upon the reporting of a predetermined value, the amount of the value opinion, the attainment of a stipulated result, or the occurrence of a subsequent event directly related to the intended use of this appraisal.</li>
-            <%= options.appraiserName || 'Appraiser Name' %> of McDougall Auctioneers Ltd. has successfully completed the personal property appraiser certification program with the Certified Personal Property Appraisers' Group of Canada, and is a member in good standing. This report was prepared in
-                accordance with the standards and practices of the Certified Personal Property Appraisers Group, which has review authority of this report.</li>
-                <li style="margin-bottom: 10px;">Our engagement was not contingent upon developing or reporting predetermined results.</li>
-                <li style="margin-bottom: 10px;">Our compensation was not contingent upon the reporting of a predetermined value, the amount of the value opinion, the attainment of a stipulated result, or the occurrence of a subsequent event directly related to the intended use of this
-                    appraisal.
-                </li>
-                <li style="margin-bottom: 10px;">An inspection of the assets included in this report was made by
-                    <%= options.appraiserName || 'Appraiser Name' %> on> examined and compared asking prices on the assets appraised.</li>
-                <%= new Date().toLocaleDateString() %>.</li>
-                    <li style="margin-bottom: 10px;">No one other than the undersigned and any listed personnel provided significant appraisal assistance in the preparation, analysis, opinions, and conclusions concerning the property that is set forth in this appraisal report.
-                        <%= options.appraiserName || 'Appraiser Name' %> conducted the site visits and research.
-                            <%= options.appraiserName || 'Appraiser Name' %> examined and compared asking prices on the assets appraised.</li>
-        </ul>p>
-        <%= options.appraiserName || 'Appraiser Name' %>, CPPA</p>
-            <div class="signature" style="margin-top: 30px;">
-                <p>Sincerely,</p>ioneers Ltd.</p>
+        <h2 style="text-align: center; margin-bottom: 20px;">CERTIFICATION OF INSPECTION AND APPRAISAL</h2>
+
+        <p style="margin-bottom: 20px;">I do hereby certify that:</p>
+
+        <ul style="list-style-type: none; margin: 20px 0; padding-left: 20px;">
+            <li style="margin-bottom: 15px; position: relative; padding-left: 25px;">
+                <span style="position: absolute; left: 0;">•</span> The statement of fact contained in this appraisal report, upon which the analysis, opinions and conclusions expressed herein are based, are true and accurate.
+            </li>
+
+            <li style="margin-bottom: 15px; position: relative; padding-left: 25px;">
+                <span style="position: absolute; left: 0;">•</span> The reported analyses, opinions and conclusions are limited only by the reported assumptions and limiting conditions and are our personal, unbiased professional analyses, opinions and
+                conclusions.
+            </li>
+
+            <li style="margin-bottom: 15px; position: relative; padding-left: 25px;">
+                <span style="position: absolute; left: 0;">•</span> We have no present or prospective interest in the subject property or assets which are the subject of this report, and we have no personal interest or bias with respect to the parties
+                involved.
+            </li>
+
+            <li style="margin-bottom: 15px; position: relative; padding-left: 25px;">
+                <span style="position: absolute; left: 0;">•</span>
+                <%= options.appraiserName || 'Appraiser Name' %> of McDougall Auctioneers Ltd. has successfully completed the personal property appraiser certification program with the Certified Personal Property Appraisers' Group of Canada, and is a member in good standing. This report was prepared
+                    in accordance with the standards and practices of the Certified Personal Property Appraisers Group, which has review authority of this report.
+            </li>
+
+            <li style="margin-bottom: 15px; position: relative; padding-left: 25px;">
+                <span style="position: absolute; left: 0;">•</span> Our engagement was not contingent upon developing or reporting predetermined results.
+            </li>
+
+            <li style="margin-bottom: 15px; position: relative; padding-left: 25px;">
+                <span style="position: absolute; left: 0;">•</span> Our compensation was not contingent upon the reporting of a predetermined value, the amount of the value opinion, the attainment of a stipulated result, or the occurrence of a subsequent
+                event directly related to the intended use of this appraisal.
+            </li>
+
+            <li style="margin-bottom: 15px; position: relative; padding-left: 25px;">
+                <span style="position: absolute; left: 0;">•</span> An inspection of the assets included in this report was made by
+                <%= options.appraiserName || 'Appraiser Name' %> on
+                    <%= new Date().toLocaleDateString() %>.
+            </li>
+
+            <li style="margin-bottom: 15px; position: relative; padding-left: 25px;">
+                <span style="position: absolute; left: 0;">•</span> No one other than the undersigned and any listed personnel provided significant appraisal assistance in the preparation, analysis, opinions, and conclusions concerning the property that
+                is set forth in this appraisal report.
+                <%= options.appraiserName || 'Appraiser Name' %> conducted the site visits and research.
+                    <%= options.appraiserName || 'Appraiser Name' %> examined and compared asking prices on the assets appraised.
+            </li>
+        </ul>
+
+        <div style="margin-top: 50px;">
+            <p>Sincerely,</p>
+            <div style="margin-top: 50px;">
+                <div style="border-top: 1px solid #000; width: 200px; margin-bottom: 5px;"></div>
                 <p>
-                    <%= options.appraiserName || 'Appraiser Name' %>, CPPA</p>
-                <p>Certified Appraiser</p>
-                <p>McDougall Auctioneers Ltd.</p>| Page</div>
-    </div>iv>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
-    <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
-    <div class="footer">
-        <div class="page-number right">6 | Page</div>
-        <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
-        <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
-    </div>="page">
-    </div>iv class="header">
-    <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
+                    <%= options.appraiserName || 'Appraiser Name' %><br>Certified Personal Property Appraiser</p>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="page-number right">5 | Page</div>
+            <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
+            <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
+        </div>
+    </div>
+
     <!-- Company Overview Page -->
     <div class="page" id="company-overview">
-        <div class="header"> AND CONTACT INFORMATION</h2>
-            <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
-        </div>lass="company-info">
-        <div class="info-item">
-            <h2>COMPANY OVERVIEW AND CONTACT INFORMATION</h2>n>
-            <%= options.ownerName || 'Owner Name' %>
-                <div class="company-info">
-                    <div class="info-item">
-                        <span class="info-label">Owner Name:</span>
-                        <%= options.ownerName || 'Owner Name' %>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Industry:</span>ted:</span>
-                        <%= options.industry || 'Industry' %>cation' %>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Locations Inspected:</span>
-                        <%= options.locationsInspected || 'Location' %>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Company Contacts:</span>
-                        <%= options.companyContacts || 'Contact' %>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Company Website:</span>pan>
-                        <%= options.companyWebsite || 'Website' %> %>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-label">Head Office Address:</span>
-                        <%= options.headOfficeAddress || 'Address' %>
-                    </div>
-                </div>lass="company-info">
-                <div class="info-item">
-                    <h2>APPRAISAL OVERVIEW</h2>abel">Method of Valuation:</span>
-                    <%= options.valuationMethod || 'Fair Market Value' %>
-                        <div class="company-info">
-                            <div class="info-item">
-                                <span class="info-label">Method of Valuation:</span>
-                                <%= options.valuationMethod || 'Fair Market Value' %>ng() %>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Date of Valuation:</span>
-                                <%= options.reportDate || new Date().toLocaleDateString() %>) %>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Inspection Date:</span>
-                                <%= options.inspectionDate || new Date().toLocaleDateString() %>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Effective Date:</span>
-                                <%= options.effectiveDate || new Date().toLocaleDateString() %>
-                            </div>
-                        </div>lass="company-info">
-                        <div class="info-item">
-                            <h2>ASSET OVERVIEW</h2>fo-label">Asset Type:</span>
-                            <%= options.assetType || 'Asset Type' %>
-                                <div class="company-info">
-                                    <div class="info-item">
-                                        <span class="info-label">Asset Type:</span>span>
-                                        <%= options.assetType || 'Asset Type' %>' %>
-                                    </div>
-                                    <div class="info-item">
-                                        <span class="info-label">Asset Condition:</span>
-                                        <%= options.assetCondition || 'Condition' %>
-                                    </div>lass="page-number right">7 | Page</div>
-                        </div>iv>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
-                <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
-                <div class="footer">
-                    <div class="page-number right">7 | Page</div>
-                    <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
-                    <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
-                </div>="page">
-        </div>iv class="header">
-        <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
-        <!-- Conditions of Appraisal Page -->01-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
-    <div class="page" id="conditions-of-appraisal">
-        <div class="header">
-            <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
-            <div class="header-address">301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
-            <div class="header-contact">www.mcdougallauction.com (306)757-1747 remarketing@mcdauction.com</div>
-        </div> value stated in this appraisal report is based on the best judgement of the appraiser, given the facts and conditions available at the date of valuation.</p>
+        <!-- Appraiser Info at top left -->
+        <div style="position: absolute; top: 20mm; left: 20mm; font-size: 11px;">
+            <div style="font-weight: bold;">
+                <%= options.appraiserName || 'Appraiser Name' %>, CPPA</div>
+            <div>Certified Appraiser</div>
+            <div style="font-weight: bold;">McDougall Auctioneers Ltd.</div>
+        </div>
 
-        <h2>CONDITIONS OF APPRAISAL</h2>ited to the purpose of determining the value of the assets. This report is to be used in its entirety only.</p>
+        <h2 style="text-align: center; margin-top: 30px; margin-bottom: 20px;">COMPANY OVERVIEW AND CONTACT INFORMATION</h2>
 
-        <p>The value stated in this appraisal report is based on the best judgement of the appraiser, given the facts and conditions available at the date of valuation.</p>
-
-        <p>The use of this report is limited to the purpose of determining the value of the assets. This report is to be used in its entirety only.</p>
-        <%= options.appraisalPurpose || 'internal consideration' %> and to assist in establishing a current
-            <h2>PURPOSE OF THIS REPORT</h2>'Fair Market Value' %> for financial considerations.</p>
-
-            <p>The purpose of this appraisal report is to provide an opinion of value of the Subject for appraisal, we have valued the subject assets under the premise of
-                <%= options.appraisalPurpose || 'internal consideration' %> and to assist in establishing a current
-                    <%= options.premise || 'Fair Market Value' %> for financial considerations.</p>
-            <h2>SUMMARY OF VALUE CONCLUSIONS</h2>
-            <p>This report is not intended to be used for any other purpose. Based on the purpose of the appraisal, we have valued the subject assets under the premise of
-                <%= options.premise || 'Fair Market Value' %>.</p>ate the
-            <%= options.valueEstimate || 'Fair Market Value' %>.</p>
-                <h2>SUMMARY OF VALUE CONCLUSIONS</h2>
-                <p>The scope of my work was an examination of information supplied by
-                    <p>Based upon my analysis and the methodology, I estimate the|| options.ownerName || 'Owner' %>.</p>
-                    <%= options.valueEstimate || 'Fair Market Value' %>.</p>
-                <p>In my analysis, I considered all the approaches to value (i.e., the cost approach, the sales comparison approach, and the income approach). The appropriate approaches were then utilized, and the resulting value conclusions were reconciled.</p>
-                <p>The scope of my work was an examination of information supplied by
-                    <%= options.informationSource || options.appraisedEntity || options.ownerName || 'Owner' %>.</p>tions presented in the accompanying appraisal report.</p>
-
-                <p>In my analysis, I considered all the approaches to value (i.e., the cost approach, the sales comparison approach, and the income approach). The appropriate approaches were then utilized, and the resulting value conclusions were reconciled.</p>
-                <%= options.clientName || 'Client' %>.</p>
-                    <p>The value opinions expressed in this appraisal are contingent upon the analysis, facts, and conditions presented in the accompanying appraisal report.</p>
-                    <h2>SCOPE OF WORK</h2>
-                    <p>I, the appraiser do understand that this valuation is being prepared for financial consideration by
-                        <%= options.clientName || 'Client' %>.</p>aiser employed the following procedures to determine the value conclusions rendered herein:</p>
-
-                    <h2>SCOPE OF WORK</h2>: 20px; margin-bottom: 20px;">
-                    <li style="margin-bottom: 10px;">Review and analysis of asset records and other informational materials.</li>
-                    <p>Valuation process and methodology, the appraiser employed the following procedures to determine the value conclusions rendered herein:</p>
-                    </ul>
-                    <ul style="margin-left: 20px; margin-bottom: 20px;">
-                        <li style="margin-bottom: 10px;">Review and analysis of asset records and other informational materials.</li>
-                        <li style="margin-bottom: 10px;">Attended asset location to inspect and analyze the assets and equipment.</li>
-                    </ul>>
-    </div>
-    <div class="footer">
-        <div class="page-number">7 | Page</div>
-    </div>="page">
-    </div>iv class="header">
-    <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
-    <!-- Factors Affecting Value Page -->01-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
-    <div class="page" id="factors-affecting-value">
-        <div class="header">
-            <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
-            <div class="header-address">301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
-            <div class="header-contact">www.mcdougallauction.com (306)757-1747 remarketing@mcdauction.com</div>
-        </div>E & CONDITION:</h3>
-        <p>The equipment is of average age and appears to be in average condition. Regular maintenance and cleaning appears to have been completed as required. This is based on a visual inspection only and not a review of maintenance records.</p>
-        <h2>FACTORS AFFECTING VALUE</h2>
-        <h3>QUALITY:</h3>
-        <h3>AGE & CONDITION:</h3>er quality with some recognized brand names within the industry.</p>
-        <p>The equipment is of average age and appears to be in average condition. Regular maintenance and cleaning appears to have been completed as required. This is based on a visual inspection only and not a review of maintenance records.</p>
-        <h3>ANALYSIS:</h3>
-        <h3>QUALITY:</h3>view listing of this equipment has been conducted for this report.</p>
-        <p>Some items are of better quality with some recognized brand names within the industry.</p>
-        <h2>VALUE TERMINOLOGY</h2>
-        <h3>ANALYSIS:</h3>
-        <p>A general overview listing of this equipment has been conducted for this report.</p>lling buyer and a willing seller, neither being under compulsion to buy or compulsion to sell and both having reasonable knowledge of relevant facts.</p>
-
-        <h2>VALUE TERMINOLOGY</h2>
-        <p>
-            <p>Fair Market Value is the price at which the property would change hands between a willing buyer and a willing seller, neither being under compulsion to buy or compulsion to sell and both having reasonable knowledge of relevant facts.</p>
-        </p>
-        <h3>Market Analysis</h3>
-        <p>>LIMITING CONDITIONS AND CRITICAL ASSUMPTIONS</h2>
-            <%= options.marketAnalysis || 'Market analysis shows stable conditions for this type of asset with moderate demand in the current economic climate.' %>
-        </p>his appraisal report and the above noted recovery values are based on a subject to the following conditions, qualifications, assumptions, and limitations:</p>
-
-        <h2>LIMITING CONDITIONS AND CRITICAL ASSUMPTIONS</h2>
-        <p>No investigation has been made of, and no responsibility is assumed for, the legal description or for legal matters including title or encumbrances. Unless otherwise noted in this report, title to the property is assumed to be good and marketable.
-            <p>This appraisal report and the above noted recovery values are based on a subject to the following conditions, qualifications, assumptions, and limitations:</p> assumed to lie within property boundaries. Conducting a title search is outside
-            the scope of this appraisal.</p>
-        <h3>TITLE TO THE ASSETS</h3>
-        <p>No investigation has been made of, and no responsibility is assumed for, the legal description or for legal matters including title or encumbrances. Unless otherwise noted in this report, title to the property is assumed to be good and marketable.
-            The property is valued as if it is free and clear of liens, easements, encroachments, and other encumbrances unless otherwise stated, and all improvements are assumed to lie within property boundaries. Conducting a title search is outside
-            the scope of this appraisal.</p>
-    </div>
-    <div class="footer">
-        <div class="page-number">8 | Page</div>
-    </div>="page">
-    </div>iv class="header">
-    <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
-    <!-- Limiting Conditions Continued Page -->Great Plains Rd Emerald Park, SK S4L 1C6</div>
-    <div class="page">
-        <div class="header">
-            <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
-            <div class="header-address">301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
-            <div class="header-contact">www.mcdougallauction.com (306)757-1747 remarketing@mcdauction.com</div>
-        </div>ance has been made for possible liens or encumbrances that may be against the property other than those discussed in the report.</p>
-    </div>
-    <h3>STATED PURPOSE</h3>
-    <h3>RESPONSIBLE OWNERSHIP</h3>ave been made only for the purpose stated within the transmittal letter and the body of this appraisal report. This report cannot be used for any other purpose.</p>
-    <p>It is assumed that subject assets are under responsible ownership and competent management. No allowance has been made for possible liens or encumbrances that may be against the property other than those discussed in the report.</p>
-    <h3>VALUATION DATE</h3>
-    <h3>STATED PURPOSE</h3>o which the conclusions and opinions expressed in this report apply is set forth in the transmittal letter and in the report. The dollar amount of any value reported is based on the purchasing power of the Canadian dollar (or
-    <p>This appraisal and report have been made only for the purpose stated within the transmittal letter and the body of this appraisal report. This report cannot be used for any other purpose.</p>
-
-    <h3>VALUATION DATE</h3>
-    <p>The valuation date to which the conclusions and opinions expressed in this report apply is set forth in the transmittal letter and in the report. The dollar amount of any value reported is based on the purchasing power of the Canadian dollar (or the
-        currency specified in the report) as of that date.</p>
-    <h3>HAZARDOUS SUBSTANCES</h3>
-    <h3>INSPECTION</h3> been made nor was any consideration given to potential environmental problems and the possible impact those problems would have on the findings withing this appraisal. It is assumed that there is full compliance with all applicable
-    <p>The subject assets were inspected as noted in the body of the report. When the date of inspection differs from the valuation date, we have assumed no material change in the condition of the property unless otherwise noted in the report.</p>t on or
-    near the property. The presence of potentially hazardous substances such as asbestos, urea-formaldehyde foam insulation, industrial wastes, etc. may affect the value of the property. The value estimate herein is predicated on the assumption
-    <h3>HAZARDOUS SUBSTANCES</h3>erial on, in or near the property that would cause a loss in vale. No responsibility is assumed for any such conditions or for any expertise or engineering knowledge required to discover them. The client should retain
-    <p>No allowance has been made nor was any consideration given to potential environmental problems and the possible impact those problems would have on the findings withing this appraisal. It is assumed that there is full compliance with all applicable
-        environmental regulations and laws unless non-compliance is stated, defined and considered in the appraisal report. We have not been engaged nor are we qualified to detect the existence of hazardous material, which may or may not be present on
-        or near the property. The presence of potentially hazardous substances such as asbestos, urea-formaldehyde foam insulation, industrial wastes, etc. may affect the value of the property. The value estimate herein is predicated on the assumption
-        that there is no such material on, in or near the property that would cause a loss in vale. No responsibility is assumed for any such conditions or for any expertise or engineering knowledge required to discover them. The client should retain
-        an expert in this field if further information is desired.</p>
-    <p>Under CPPAG, McDougall Auctioneers Ltd. must disclose if there is a lack of knowledge and/or experience that would not allow us to complete this appraisal in a competent manner or to develop credible results.</p>
-    <h2>CODE OF ETHICS</h2>
-    <p>McDougall Auctioneers Ltd. and the appraiser performing this appraisal have performed valuations of assets similar to the Subject Assets for various purposes in the past. In addition, the appraiser performing this appraisal has the appropriate
-        <h3>COMPETENCY</h3>xperience to be able to develop credible results for the purpose and use outlined in this report.</p>
-    <p>Under CPPAG, McDougall Auctioneers Ltd. must disclose if there is a lack of knowledge and/or experience that would not allow us to complete this appraisal in a competent manner or to develop credible results.</p>
-    <div class="footer">
-        <p>McDougall Auctioneers Ltd. and the appraiser performing this appraisal have performed valuations of assets similar to the Subject Assets for various purposes in the past. In addition, the appraiser performing this appraisal has the appropriate
-            knowledge and experience to be able to develop credible results for the purpose and use outlined in this report.</p>
-    </div>
-    <div class="footer">
-        <div class="page-number">9 | Page</div>
-    </div>="page">
-    </div>iv class="header">
-    <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
-    <!-- Schedule A Page -->er-address">301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
-    <div class="page" id="schedule-a">
-        <div class="header">
-            <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
-            <div class="header-address">301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
-            <div class="header-contact">www.mcdougallauction.com (306)757-1747 remarketing@mcdauction.com</div>
-        </div>lass="signature" style="margin-bottom: 15px;">
-        <p>
-            <h2>Schedule "A"</h2>ppraiserName || 'Appraiser Name' %>, CPPA</p>
-        <p style="font-size: 10px;">Certified Appraiser</p>
-        <p style="font-size: 10px;">
-            <%= options.appraiserCompany || 'McDougall Auctioneers Ltd.' %>
-        </p>
-    </div>
-
-    <table style="font-size: 10px;">
-        <thead>
+        <!-- Company Info Table -->
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px;">
             <tr>
-                <th style="width: 10%; padding: 5px;">Item #</th>
-                <th style="width: 50%; padding: 5px;">Description</th>
-                <th style="width: 20%; padding: 5px;">Condition</th>
-                <th style="width: 20%; padding: 5px;">Value</th>
+                <td style="width: 30%; padding: 3px 0;"><strong>Owner Name:</strong></td>
+                <td style="width: 70%; padding: 3px 0;">
+                    <%= options.ownerName || 'Owner Name' %>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            <% 
+            <tr>
+                <td style="padding: 3px 0;"><strong>Industry:</strong></td>
+                <td style="padding: 3px 0;">
+                    <%= options.industry || 'Industry' %>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 3px 0;"><strong>Locations Inspected:</strong></td>
+                <td style="padding: 3px 0;">
+                    <%= options.locationsInspected || 'Location' %>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 3px 0;"><strong>Company Contacts:</strong></td>
+                <td style="padding: 3px 0;">
+                    <%= options.companyContacts || 'Contact' %>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 3px 0;"><strong>Company Website:</strong></td>
+                <td style="padding: 3px 0;">
+                    <%= options.companyWebsite || 'Website' %>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 3px 0;"><strong>Head Office Address:</strong></td>
+                <td style="padding: 3px 0; white-space: pre-line;">
+                    <%= options.headOfficeAddress || 'Address' %>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Appraisal Overview -->
+        <h3 style="border-top: 1px solid #000; padding-top: 10px; margin: 25px 0 10px 0; font-size: 14px;">APPRAISAL OVERVIEW</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px;">
+            <tr>
+                <td style="width: 30%; padding: 3px 0;"><strong>Method of Valuation:</strong></td>
+                <td style="width: 70%; padding: 3px 0;">
+                    <%= options.valuationMethod || 'Method' %>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 3px 0;"><strong>Date of Valuation:</strong></td>
+                <td style="padding: 3px 0;">
+                    <%= options.valuationDate || 'Same Date' %>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 3px 0;"><strong>Inspection Date:</strong></td>
+                <td style="padding: 3px 0;">
+                    <%= options.inspectionDate || 'Same Date' %>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 3px 0;"><strong>Effective Date:</strong></td>
+                <td style="padding: 3px 0;">
+                    <%= options.effectiveDate || 'Same Date' %>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Asset Overview -->
+        <h3 style="border-top: 1px solid #000; padding-top: 10px; margin: 25px 0 10px 0; font-size: 14px;">ASSET OVERVIEW</h3>
+        <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+            <tr>
+                <td style="width: 30%; padding: 3px 0;"><strong>Asset Type:</strong></td>
+                <td style="width: 70%; padding: 3px 0;">
+                    <%= options.assetType || 'Asset Type' %>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 3px 0;"><strong>Asset Condition:</strong></td>
+                <td style="padding: 3px 0;">
+                    <%= options.assetCondition || 'Condition' %>
+                </td>
+            </tr>
+        </table>
+        <div class="footer">
+            <div class="page-number right">6 | Page</div>
+            <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
+            <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
+        </div>
+    </div>
+
+    <!-- Conditions of Appraisal Page -->
+    <div class="page" id="conditions-of-appraisal">
+        <h2 style="text-align: center; margin-bottom: 20px;">CONDITIONS OF APPRAISAL</h2>
+
+        <div style="margin-bottom: 20px; font-size: 11px; line-height: 1.5;">
+            <p>The value stated in this appraisal report is based on the best judgement of the appraiser, given the facts and conditions available at the date of valuation.</p>
+            <p>The use of this report is limited to the purpose of determining the value of the assets. This report is to be used in its entirety only.</p>
+        </div>
+
+        <h3 style="margin: 25px 0 10px 0; font-size: 14px; border-bottom: 1px solid #000; padding-bottom: 5px;">PURPOSE OF THIS REPORT</h3>
+        <div style="margin-bottom: 20px; font-size: 11px; line-height: 1.5;">
+            <p>The purpose of this appraisal report is to provide an opinion of value of the Subject for internal consideration and to assist in establishing a current for financial considerations.</p>
+            <p>This report is not intended to be used for any other purpose. Based on the purpose of the appraisal, we have valued the subject assets under the premise of <strong><%= options.valuationPremise || '[Valuation Premise]' %></strong>.</p>
+        </div>
+
+        <h3 style="margin: 25px 0 10px 0; font-size: 14px; border-bottom: 1px solid #000; padding-bottom: 5px;">SUMMARY OF VALUE CONCLUSIONS</h3>
+        <div style="margin-bottom: 20px; font-size: 11px; line-height: 1.5;">
+            <p>Based upon my analysis and the methodology, I estimate the <strong><%= options.valuationType || '[Valuation Type]' %></strong> value of <strong>$<%= options.estimatedValue || 'XXX' %></strong>.</p>
+            <p>The scope of my work was an examination of information supplied by <strong><%= options.informationSource || '[Information Source]' %></strong>.</p>
+            <p>In my analysis, I considered all the approaches to value (i.e., the cost approach, the sales comparison approach, and the income approach). The appropriate approaches were then utilized, and the resulting value conclusions were reconciled.</p>
+            <p>The value opinions expressed in this appraisal are contingent upon the analysis, facts, and conditions presented in the accompanying appraisal report.</p>
+            <p>I, the appraiser do understand that this valuation is being prepared for financial consideration by <strong><%= options.valuationRecipient || '[Recipient]' %></strong>.</p>
+        </div>
+
+        <h3 style="margin: 25px 0 10px 0; font-size: 14px; border-bottom: 1px solid #000; padding-bottom: 5px;">SCOPE OF WORK</h3>
+        <div style="margin-bottom: 20px; font-size: 11px; line-height: 1.5;">
+            <p>Valuation process and methodology, the appraiser employed the following procedures to determine the value conclusions rendered herein:</p>
+            <ul style="margin: 10px 0 10px 20px; padding: 0;">
+                <li style="margin-bottom: 5px;">Review and analysis of asset records and other informational materials.</li>
+                <li style="margin-bottom: 5px;">Attended asset location to inspect and analyze the assets and equipment.</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <div class="page-number right">7 | Page</div>
+            <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
+            <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
+        </div>
+    </div>
+
+    <!-- Factors Affecting Value Page -->
+    <div class="page" id="factors-affecting-value">
+        <h2 style="text-align: center; margin-bottom: 20px;">FACTORS AFFECTING VALUE</h2>
+
+        <div style="margin-bottom: 20px; font-size: 11px; line-height: 1.5;">
+            <h3 style="font-size: 13px; margin: 15px 0 5px 0;">AGE & CONDITION:</h3>
+            <p>The equipment is of average age and appears to be in average condition. Regular maintenance and cleaning appears to have been completed as required. This is based on a visual inspection only and not a review of maintenance records.</p>
+
+            <h3 style="font-size: 13px; margin: 15px 0 5px 0;">QUALITY:</h3>
+            <p>Some items are of better quality with some recognized brand names within the industry.</p>
+
+            <h3 style="font-size: 13px; margin: 15px 0 5px 0;">ANALYSIS:</h3>
+            <p>A general overview listing of this equipment has been conducted for this report.</p>
+
+            <h2 style="text-align: center; margin: 30px 0 15px 0; font-size: 16px;">VALUE TERMINOLOGY</h2>
+            <p>Fair Market Value is the price at which the property would change hands between a willing buyer and a willing seller, neither being under compulsion to buy or compulsion to sell and both having reasonable knowledge of relevant facts.</p>
+
+            <h3 style="font-size: 13px; margin: 25px 0 5px 0;">Market Analysis</h3>
+            <p>This section will be unique to AI creating a simple section here of trends of the asset that is being appraised.</p>
+
+            <h2 style="text-align: center; margin: 30px 0 15px 0; font-size: 16px;">LIMITING CONDITIONS AND CRITICAL ASSUMPTIONS</h2>
+            <p>This appraisal report and the above noted recovery values are based on a subject to the following conditions, qualifications, assumptions, and limitations:</p>
+
+            <h3 style="font-size: 13px; margin: 15px 0 5px 0;">TITLE TO THE ASSETS</h3>
+            <p>No investigation has been made of, and no responsibility is assumed for, the legal description or for legal matters including title or encumbrances. Unless otherwise noted in this report, title to the property is assumed to be good and marketable.
+                The property is valued as if it is free and clear of liens, easements, encroachments, and other encumbrances unless otherwise stated, and all improvements are assumed to lie within property boundaries. Conducting a title search is outside
+                the scope of this appraisal.</p>
+
+            <h3 style="font-size: 13px; margin: 15px 0 5px 0;">RESPONSIBLE OWNERSHIP</h3>
+            <p>It is assumed that subject assets are under responsible ownership and competent management. No allowance has been made for possible liens or encumbrances that may be against the property other than those discussed in the report.</p>
+
+            <h3 style="font-size: 13px; margin: 15px 0 5px 0;">STATED PURPOSE</h3>
+            <p>This appraisal and report have been made only for the purpose stated within the transmittal letter and the body of this appraisal report. This report cannot be used for any other purpose.</p>
+        </div>
+        <div class="footer">
+            <div class="page-number right">8 | Page</div>
+            <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
+            <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
+        </div>
+    </div>
+
+    <!-- Limiting Conditions Continued Page -->
+    <div class="page">
+        <div style="margin-bottom: 20px; font-size: 11px; line-height: 1.5;">
+            <h3 style="font-size: 13px; margin: 15px 0 5px 0;">VALUATION DATE</h3>
+            <p>The valuation date to which the conclusions and opinions expressed in this report apply is set forth in the transmittal letter and in the report. The dollar amount of any value reported is based on the purchasing power of the Canadian dollar
+                (or the currency specified in the report) as of that date.</p>
+
+            <h3 style="font-size: 13px; margin: 15px 0 5px 0;">INSPECTION</h3>
+            <p>The subject assets were inspected as noted in the body of the report. When the date of inspection differs from the valuation date, we have assumed no material change in the condition of the property unless otherwise noted in the report.</p>
+
+            <h3 style="font-size: 13px; margin: 15px 0 5px 0;">HAZARDOUS SUBSTANCES</h3>
+            <p>No allowance has been made nor was any consideration given to potential environmental problems and the possible impact those problems would have on the findings within this appraisal. It is assumed that there is full compliance with all applicable
+                environmental regulations and laws unless non-compliance is stated, defined and considered in the appraisal report. We have not been engaged nor are we qualified to detect the existence of hazardous material, which may or may not be present
+                on or near the property. The presence of potentially hazardous substances such as asbestos, urea-formaldehyde foam insulation, industrial wastes, etc. may affect the value of the property. The value estimate herein is predicated on the
+                assumption that there is no such material on, in or near the property that would cause a loss in value. No responsibility is assumed for any such conditions or for any expertise or engineering knowledge required to discover them. The client
+                should retain an expert in this field if further information is desired.</p>
+
+            <h3 style="font-size: 13px; margin: 15px 0 5px 0;">CHANGE IN MARKET CONDITIONS</h3>
+            <p>McDougall Auctioneers Ltd. is not responsible for changes in market conditions and no obligation is assumed to revise this report to reflect events or conditions which occur subsequent to the valuation date. Additionally, McDougall Auctioneers
+                Ltd. cannot be held responsible for the inability of the owner to locate a purchaser at the appraised value.</p>
+
+            <h3 style="font-size: 13px; margin: 15px 0 5px 0;">UNEXPECTED CONDITIONS</h3>
+            <p>It is assumed that there are no hidden or non-apparent conditions of the property that would affect the value of the subject assets. No responsibility is assumed for such conditions or for arranging for engineering studies that may be required
+                to discover them.</p>
+
+            <h3 style="font-size: 13px; margin: 15px 0 5px 0;">CONFIDENTIALITY / MARKETING</h3>
+            <p>This report and supporting files documentation are confidential. No part of the contents of this appraisal (including the report and the supporting file documentation) shall be disclosed to any party, or conveyed orally or in writing through
+                advertising, public relations, news, sales, or in any other manner without the prior written consent and approval of both McDougall Auctioneers Ltd. and the client.</p>
+
+            <h3 style="font-size: 13px; margin: 15px 0 5px 0;">COURT TESTIMONY</h3>
+            <p>Neither McDougall Auctioneers Ltd. or any individuals signing or associated with this report shall be required by reason of this report to give further consultation, to provide testimony, or appear in court or other legal proceedings unless
+                specific arrangements for such services have been made.</p>
+            <p>Since conclusions by the appraiser are based upon judgements, isolation of any single element as the sole basis for comparison to the whole appraisal may be inaccurate.</p>
+            <p>The effective date of the appraisal establishes the current value and is not prospective or retrospective.</p>
+        </div>
+        <div class="footer">
+            <div class="page-number right">9 | Page</div>
+            <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
+            <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
+        </div>
+    </div>
+
+    <!-- Code of Ethics Page -->
+    <div class="page" id="code-of-ethics">
+        <h2 style="text-align: center; margin-bottom: 20px;">CODE OF ETHICS</h2>
+
+        <div style="margin-bottom: 20px; font-size: 11px; line-height: 1.5;">
+            <h3 style="font-size: 13px; margin: 20px 0 8px 0; font-weight: bold;">COMPETENCY</h3>
+            <p>Under CPPAG, McDougall Auctioneers Ltd. must disclose if there is a lack of knowledge and/or experience that would not allow us to complete this appraisal in a competent manner or to develop credible results.</p>
+            <p>McDougall Auctioneers Ltd. and the appraiser performing this appraisal have performed valuations of assets similar to the Subject Assets for various purposes in the past. In addition, the appraiser performing this appraisal has the appropriate
+                knowledge and experience to be able to develop credible results for the purpose and use outlined in this report.</p>
+
+            <h3 style="font-size: 13px; margin: 20px 0 8px 0; font-weight: bold;">CONFIDENTIALITY</h3>
+            <p>This report and supporting file documentation are confidential. Neither all nor any part of the contents of this appraisal (including the report and the supporting file documentation) shall be disclosed to any party, or conveyed orally or
+                in writing through advertising, public relations, news, sales, or in any other manner without the prior written consent and approval of McDougall Auctioneers Ltd.</p>
+            <p>This Appraisal Report provides a summary discussion of the data, analysis, and reasoning used by the appraiser to arrive at the opinions of value identified herein. A copy of this report and the data, reasoning, and analysis supporting our
+                value conclusions shall remain in our files and be retained for a period of at least five (5) years after preparation, or at least two (2) years after final disposition of any judicial proceeding as required by the Records Keeping section
+                of CPPAG.</p>
+            <p>As this is an Appraisal Report, the conclusions and data contained herein can only be used by the Client for the purpose stated. The opinions and conclusions set forth in this report may not be understood properly by anyone else without additional
+                information which is contained in the appraiser's workfile. Neither this report, nor any of the data contained herein should be distributed to another party.</p>
+
+            <div style="margin-top: 40px;">
+                <p>Sincerely,</p>
+                <div style="margin-top: 40px;">
+                    <p><strong><%= options.appraiserName || 'Appraiser Name' %></strong></p>
+                    <p><strong><%= options.appraiserName || 'Appraiser Name' %>, CPPA</strong></p>
+                    <p>Certified Appraiser</p>
+                    <p>McDougall Auctioneers Ltd.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="page-number right">10 | Page</div>
+            <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
+            <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
+        </div>
+    </div>
+
+    <!-- Schedule A Page -->
+    <div class="page" id="schedule-a">
+        <h2>Schedule "A"</h2>
+        <table style="font-size: 10px;">
+            <thead>
+                <tr>
+                    <th style="width: 10%; padding: 5px;">Item #</th>
+                    <th style="width: 50%; padding: 5px;">Description</th>
+                    <th style="width: 20%; padding: 5px;">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% 
                     let total = 0;
                     if (items && items.length > 0) {
                         items.forEach((item, index) => {
                             const price = typeof item.price === 'number' ? item.price : 0;
                             total += price;
-                    %>
-                <tr>
-                    <td style="padding: 5px;">
-                        <%= item.id || index + 1 %>
-                    </td>
-                    <td style="padding: 5px;">
-                        <strong><%= item.name %></strong>
-                        <% if (item.description) { %>
-                            <br>
-                            <%= item.description %>
-                                <% } %>
-                    </td>
-                    <td style="padding: 5px;">
-                        <%= item.condition %>
-                    </td>
-                    <td style="text-align: right; padding: 5px;">
-                        <%= options.currency || 'CAD' %>
-                            <%= price.toLocaleString() %>
-                    </td>
-                </tr>
-                <% }); } else { %>
+                %>
                     <tr>
-                        <td colspan="4" style="text-align: center; padding: 5px;">No items to display</td>
+                        <td style="padding: 5px;">
+                            <%= item.id || index + 1 %>
+                        </td>
+                        <td style="padding: 5px;">
+                            <strong><%= item.name %></strong>
+                            <% if (item.description) { %>
+                                <br>
+                                <%= item.description %>
+                                    <% } %>
+                        </td>
+                        <td style="text-align: right; padding: 5px;">
+                            <%= options.currency || '$' %>
+                                <%= price.toLocaleString() %>
+                        </td>
                     </tr>
-                    <% } %>
+                    <% }); } else { %>
                         <tr>
-                            <td colspan="3" style="text-align: right; font-weight: bold; padding: 5px;">Total:</td>
-                            <td style="text-align: right; font-weight: bold; padding: 5px;">
-                                <%= options.currency || 'CAD' %>
-                                    <%= total.toLocaleString() %>
-                            </td>
+                            <td colspan="3" style="text-align: center; padding: 5px;">No items to display</td>
                         </tr>
-        </tbody>
-    </table>
-
-    <h3 style="margin-top: 20px; font-size: 12px; page-break-before: always;">AI Analysis Summary</h3>
-
-    <table style="margin-top: 10px; font-size: 10px;">
-        <thead>
-            <tr>
-                <th style="width: 10%; padding: 5px;">ID</th>
-                <th style="width: 60%; padding: 5px;">Product/Item Name</th>
-                <th style="width: 30%; padding: 5px;">Value</th>
-            </tr>
-        </thead>
-        <tbody>
-            <% 
-                    let aiTotal = 0;
-                    if (items && items.length > 0) {
-                        items.forEach((item, index) => {
-                            const price = typeof item.price === 'number' ? item.price : 0;
-                            aiTotal += price;
-                    %>
-                <tr>
-                    <td style="padding: 5px;">
-                        <%= item.id || index + 1 %>
-                    </td>
-                    <td style="padding: 5px;">
-                        <%= item.name %>
-                    </td>
-                    <td style="text-align: right; padding: 5px;">
-                        <%= options.currency || 'CAD' %>
-                            <%= price.toLocaleString() %>
-                    </td>
-                </tr>
-                <% }); } else { %>
-                    <tr>
-                        <td colspan="3" style="text-align: center; padding: 5px;">No items to display</td>
-                    </tr>
-                    <% } %>
-                        <tr>
-                            <td colspan="2" style="text-align: right; font-weight: bold; padding: 5px;">Total:</td>
-                            <td style="text-align: right; font-weight: bold; padding: 5px;">
-                                <%= options.currency || 'CAD' %>
-                                    <%= aiTotal.toLocaleString() %>
-                            </td>
-                        </tr>
-        </tbody>
-    </table>
-
-    <div class="footer">
-        <div class="page-number">10 | Page</div>
-    </div>
-    </div>
+                        <% } %>
+                            <tr>
+                                <td colspan="2" style="text-align: right; font-weight: bold; padding: 5px;">Total:</td>
+                                <td style="text-align: right; font-weight: bold; padding: 5px;">
+                                    <%= options.currency || '$' %>
+                                        <%= total.toLocaleString() %>
+                                </td>
+                            </tr>
+            </tbody>
+        </table>
+        <div class="footer">
+            <div class="page-number">11 | Page</div>
+            <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
+            <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
+        </div>
     </div>
 </body>
 
