@@ -35,27 +35,118 @@
         }
         
         .footer {
-            position: fixed;
+            position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            text-align: center;
-            font-size: 9px;
-            color: #666;
-            padding: 8px 0;
-            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 5px 20mm 10px;
+            font-size: 10px;
+            color: #333;
+            border-top: 1px solid #ddd;
             background: white;
-            z-index: 1000;
-            line-height: 1.4;
-            height: 30px;
+            min-height: 50px;
             box-sizing: border-box;
+            line-height: 1.4;
+        }
+        
+        .footer-left {
+            text-align: left;
+            flex: 1;
+            padding-right: 20px;
+        }
+        
+        .footer-right {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-left: auto;
+            padding-right: 20px;
+        }
+        
+        .footer-contact {
+            display: flex;
+            align-items: center;
+            margin-bottom: 3px;
+            justify-content: flex-end;
+        }
+        
+        .footer-contact i {
+            margin-right: 5px;
+            width: 12px;
+            text-align: center;
+        }
+        
+        /* Style for email and website links */
+        .footer a[href^="mailto:"],
+        .footer a[href^="http"] {
+            color: #0066cc; /* Light blue color for email and web links */
+            text-decoration: underline;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .footer a[href^="mailto:"]:hover,
+        .footer a[href^="http"]:hover {
+            color: #004080; /* Darker blue on hover */
+        }
+        
+        /* Style for phone number */
+        .footer a[href^="tel:"] {
+            color: inherit; /* Inherit color from parent */
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            cursor: default;
+        }
+        /* Icons */
+        
+        @font-face {
+            font-family: 'Material Icons';
+            font-style: normal;
+            font-weight: 400;
+            src: url(https://fonts.gstatic.com/s/materialicons/v139/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
+        }
+        
+        .material-icons {
+            font-family: 'Material Icons';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 14px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+            margin-right: 5px;
+        }
+        
+        .footer-content {
+            text-align: left;
+            line-height: 1.4;
+        }
+        
+        .page-number {
+            font-size: 11px;
+            position: absolute;
+            right: 20mm;
+            bottom: 10px;
         }
         
         .page {
             position: relative;
             width: 210mm;
-            height: 297mm;
-            padding: 20mm 20mm 20mm;
+            min-height: 297mm;
+            padding: 20mm 20mm 70px;
+            /* Extra padding at bottom for fixed footer */
             margin: 0 auto;
             background: white;
             page-break-after: always;
@@ -273,14 +364,32 @@
         <img src="<%= options.logoUrl || 'https://placeholder.com/logo.png' %>" alt="Company Logo">
     </div>
 
-    <!-- Global Footer -->
-    <div class="footer">
-        <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
-        <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
-    </div>
+    <!-- Footer will be included in each page div -->
 
     <!-- Cover Page -->
     <div class="page" style="padding: 0; position: relative; overflow: hidden;" id="cover-page">
+        <div class="footer">
+            <div class="footer-left">
+                <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-contact">
+                    <a href="mailto:remarketing@mcdauction.com">
+                        <span class="material-icons">email</span> remarketing@mcdauction.com
+                    </a>
+                </div>
+                <div class="footer-contact">
+                    <a href="https://www.mcdougallauction.com" target="_blank">
+                        <span class="material-icons">language</span> www.mcdougallauction.com
+                    </a>
+                    <span style="margin: 0 10px;">|</span>
+                    <a href="tel:3067571747">
+                        <span class="material-icons">phone</span> (306) 757-1747
+                    </a>
+                </div>
+            </div>
+            <div class="page-number">1 | Page</div>
+        </div>
         <!-- Light Background Logo -->
         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.1; z-index: 0;">
             <img src="<%= options.logoUrl || 'https://placeholder.com/300x100' %>" alt="Company Logo" style="width: 600px; height: auto;">
@@ -334,17 +443,33 @@
                 </div>
             </div>
 
-            <!-- Footer -->
-            <div class="footer">
-                <div class="page-number right">2 | Page</div>
-                <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
-                <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
-            </div>
         </div>
     </div>
 
     <!-- Transmittal Letter Page -->
-    <div class="page" style="padding: 25mm 20mm 20mm;" id="transmittal-letter">
+    <div class="page" style="padding: 25mm 20mm 70px; position: relative;" id="transmittal-letter">
+        <div class="footer">
+            <div class="footer-left">
+                <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-contact">
+                    <a href="mailto:remarketing@mcdauction.com">
+                        <span class="material-icons">email</span> remarketing@mcdauction.com
+                    </a>
+                </div>
+                <div class="footer-contact">
+                    <a href="https://www.mcdougallauction.com" target="_blank">
+                        <span class="material-icons">language</span> www.mcdougallauction.com
+                    </a>
+                    <span style="margin: 0 10px;">|</span>
+                    <a href="tel:3067571747">
+                        <span class="material-icons">phone</span> (306) 757-1747
+                    </a>
+                </div>
+            </div>
+            <div class="page-number">2 | Page</div>
+        </div>
         <!-- Removed duplicate header -->
 
         <!-- Letter Content -->
@@ -400,16 +525,33 @@
             </div>
         </div>
 
-        <!-- Footer -->
-        <div class="footer">
-            <div class="page-number right">3 | Page</div>
-            <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
-            <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
-        </div>
+        <!-- Page number will be updated by JavaScript -->
     </div>
 
     <!-- Table of Contents Page -->
-    <div class="page" id="table-of-contents">
+    <div class="page" id="table-of-contents" style="position: relative;">
+        <div class="footer">
+            <div class="footer-left">
+                <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-contact">
+                    <a href="mailto:remarketing@mcdauction.com">
+                        <span class="material-icons">email</span> remarketing@mcdauction.com
+                    </a>
+                </div>
+                <div class="footer-contact">
+                    <a href="https://www.mcdougallauction.com" target="_blank">
+                        <span class="material-icons">language</span> www.mcdougallauction.com
+                    </a>
+                    <span style="margin: 0 10px;">|</span>
+                    <a href="tel:3067571747">
+                        <span class="material-icons">phone</span> (306) 757-1747
+                    </a>
+                </div>
+            </div>
+            <div class="page-number">3 | Page</div>
+        </div>
 
         <h3 style="font-size: 16px;">TABLE OF CONTENTS</h3>
 
@@ -500,15 +642,33 @@
                 <span class="toc-page">10</span>
             </div>
         </div>
-        <div class="footer">
-            <div class="page-number right">3 | Page</div>
-            <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
-            <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
-        </div>
     </div>
 
     <!-- Certificate of Value Page -->
-    <div class="page" id="certificate-of-value">
+    <div class="page" id="certificate-of-value" style="position: relative;">
+        <div class="footer">
+            <div class="footer-left">
+                <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-contact">
+                    <a href="mailto:remarketing@mcdauction.com">
+                        <span class="material-icons">email</span> remarketing@mcdauction.com
+                    </a>
+                </div>
+                <div class="footer-contact">
+                    <a href="https://www.mcdougallauction.com" target="_blank">
+                        <span class="material-icons">language</span> www.mcdougallauction.com
+                    </a>
+                    <span style="margin: 0 10px;">|</span>
+                    <a href="tel:3067571747">
+                        <span class="material-icons">phone</span> (306) 757-1747
+                    </a>
+                </div>
+            </div>
+            <div class="page-number">4 | Page</div>
+        </div>
+        <!-- Page number will be updated by JavaScript -->
 
         <h2>CERTIFICATE OF VALUE</h2>
         <p>Proof of certification that on this given date,<br>the specified assets belonging to:</p>
@@ -534,15 +694,34 @@
             </div>
         </div>
 
-        <div class="footer">
-            <div class="page-number right">4 | Page</div>
-            <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
-            <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
-        </div>
+
     </div>
 
     <!-- Certification of Inspection Page -->
-    <div class="page" id="certification-of-inspection">
+    <div class="page" id="certification-of-inspection" style="position: relative;">
+        <div class="footer">
+            <div class="footer-left">
+                <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-contact">
+                    <a href="mailto:remarketing@mcdauction.com">
+                        <span class="material-icons">email</span> remarketing@mcdauction.com
+                    </a>
+                </div>
+                <div class="footer-contact">
+                    <a href="https://www.mcdougallauction.com" target="_blank">
+                        <span class="material-icons">language</span> www.mcdougallauction.com
+                    </a>
+                    <span style="margin: 0 10px;">|</span>
+                    <a href="tel:3067571747">
+                        <span class="material-icons">phone</span> (306) 757-1747
+                    </a>
+                </div>
+            </div>
+            <div class="page-number">5 | Page</div>
+        </div>
+        <!-- Page number will be updated by JavaScript -->
         <p style="font-style: italic; margin-bottom: 20px; text-align: center;">THIS PAGE IS NOT AN APPRAISAL REPORT. THE APPRAISAL REPORT MUST BE READ IN ITS ENTIRETY.</p>
 
         <h2 style="text-align: center; margin-bottom: 20px;">CERTIFICATION OF INSPECTION AND APPRAISAL</h2>
@@ -601,15 +780,34 @@
                     <%= options.appraiserName || 'Appraiser Name' %><br>Certified Personal Property Appraiser</p>
             </div>
         </div>
-        <div class="footer">
-            <div class="page-number right">5 | Page</div>
-            <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
-            <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
-        </div>
+
     </div>
 
     <!-- Company Overview Page -->
-    <div class="page" id="company-overview">
+    <div class="page" id="company-overview" style="position: relative;">
+        <div class="footer">
+            <div class="footer-left">
+                <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-contact">
+                    <a href="mailto:remarketing@mcdauction.com">
+                        <span class="material-icons">email</span> remarketing@mcdauction.com
+                    </a>
+                </div>
+                <div class="footer-contact">
+                    <a href="https://www.mcdougallauction.com" target="_blank">
+                        <span class="material-icons">language</span> www.mcdougallauction.com
+                    </a>
+                    <span style="margin: 0 10px;">|</span>
+                    <a href="tel:3067571747">
+                        <span class="material-icons">phone</span> (306) 757-1747
+                    </a>
+                </div>
+            </div>
+            <div class="page-number">6 | Page</div>
+        </div>
+        <!-- Page number will be updated by JavaScript -->
         <!-- Appraiser Info at top left -->
         <div style="position: absolute; top: 20mm; left: 20mm; font-size: 11px;">
             <div style="font-weight: bold;">
@@ -618,7 +816,7 @@
             <div style="font-weight: bold;">McDougall Auctioneers Ltd.</div>
         </div>
 
-        <h2 style="text-align: center; margin-top: 30px; margin-bottom: 20px;">COMPANY OVERVIEW AND CONTACT INFORMATION</h2>
+        <h2 style="text-align: center; margin-top: 45px; margin-bottom: 20px;">COMPANY OVERVIEW AND CONTACT INFORMATION</h2>
 
         <!-- Company Info Table -->
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px;">
@@ -705,15 +903,33 @@
                 </td>
             </tr>
         </table>
-        <div class="footer">
-            <div class="page-number right">6 | Page</div>
-            <div>McDougall Auctioneers Ltd. | 301-15 Great Plains Rd, Emerald Park, SK S4L 1C6</div>
-            <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
-        </div>
     </div>
 
     <!-- Conditions of Appraisal Page -->
-    <div class="page" id="conditions-of-appraisal">
+    <div class="page" id="conditions-of-appraisal" style="position: relative;">
+        <div class="footer">
+            <div class="footer-left">
+                <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-contact">
+                    <a href="mailto:remarketing@mcdauction.com">
+                        <span class="material-icons">email</span> remarketing@mcdauction.com
+                    </a>
+                </div>
+                <div class="footer-contact">
+                    <a href="https://www.mcdougallauction.com" target="_blank">
+                        <span class="material-icons">language</span> www.mcdougallauction.com
+                    </a>
+                    <span style="margin: 0 10px;">|</span>
+                    <a href="tel:3067571747">
+                        <span class="material-icons">phone</span> (306) 757-1747
+                    </a>
+                </div>
+            </div>
+            <div class="page-number">7 | Page</div>
+        </div>
+        <!-- Page number will be updated by JavaScript -->
         <h2 style="text-align: center; margin-bottom: 20px;">CONDITIONS OF APPRAISAL</h2>
 
         <div style="margin-bottom: 20px; font-size: 11px; line-height: 1.5;">
@@ -753,7 +969,30 @@
     </div>
 
     <!-- Factors Affecting Value Page -->
-    <div class="page" id="factors-affecting-value">
+    <div class="page" id="factors-affecting-value" style="position: relative;">
+        <div class="footer">
+            <div class="footer-left">
+                <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-contact">
+                    <a href="mailto:remarketing@mcdauction.com">
+                        <span class="material-icons">email</span> remarketing@mcdauction.com
+                    </a>
+                </div>
+                <div class="footer-contact">
+                    <a href="https://www.mcdougallauction.com" target="_blank">
+                        <span class="material-icons">language</span> www.mcdougallauction.com
+                    </a>
+                    <span style="margin: 0 10px;">|</span>
+                    <a href="tel:3067571747">
+                        <span class="material-icons">phone</span> (306) 757-1747
+                    </a>
+                </div>
+            </div>
+            <div class="page-number">8 | Page</div>
+        </div>
+        <!-- Page number will be updated by JavaScript -->
         <h2 style="text-align: center; margin-bottom: 20px;">FACTORS AFFECTING VALUE</h2>
 
         <div style="margin-bottom: 20px; font-size: 11px; line-height: 1.5;">
@@ -794,7 +1033,29 @@
     </div>
 
     <!-- Limiting Conditions Continued Page -->
-    <div class="page">
+    <div class="page" style="position: relative;">
+        <div class="footer">
+            <div class="footer-left">
+                <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-contact">
+                    <a href="mailto:remarketing@mcdauction.com">
+                        <span class="material-icons">email</span> remarketing@mcdauction.com
+                    </a>
+                </div>
+                <div class="footer-contact">
+                    <a href="https://www.mcdougallauction.com" target="_blank">
+                        <span class="material-icons">language</span> www.mcdougallauction.com
+                    </a>
+                    <span style="margin: 0 10px;">|</span>
+                    <a href="tel:3067571747">
+                        <span class="material-icons">phone</span> (306) 757-1747
+                    </a>
+                </div>
+            </div>
+            <div class="page-number">9 | Page</div>
+        </div>
         <div style="margin-bottom: 20px; font-size: 11px; line-height: 1.5;">
             <h3 style="font-size: 13px; margin: 15px 0 5px 0;">VALUATION DATE</h3>
             <p>The valuation date to which the conclusions and opinions expressed in this report apply is set forth in the transmittal letter and in the report. The dollar amount of any value reported is based on the purchasing power of the Canadian dollar
@@ -836,7 +1097,30 @@
     </div>
 
     <!-- Code of Ethics Page -->
-    <div class="page" id="code-of-ethics">
+    <div class="page" id="code-of-ethics" style="position: relative;">
+        <div class="footer">
+            <div class="footer-left">
+                <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-contact">
+                    <a href="mailto:remarketing@mcdauction.com">
+                        <span class="material-icons">email</span> remarketing@mcdauction.com
+                    </a>
+                </div>
+                <div class="footer-contact">
+                    <a href="https://www.mcdougallauction.com" target="_blank">
+                        <span class="material-icons">language</span> www.mcdougallauction.com
+                    </a>
+                    <span style="margin: 0 10px;">|</span>
+                    <a href="tel:3067571747">
+                        <span class="material-icons">phone</span> (306) 757-1747
+                    </a>
+                </div>
+            </div>
+            <div class="page-number">10 | Page</div>
+        </div>
+        <!-- Page number will be updated by JavaScript -->
         <h2 style="text-align: center; margin-bottom: 20px;">CODE OF ETHICS</h2>
 
         <div style="margin-bottom: 20px; font-size: 11px; line-height: 1.5;">
@@ -873,7 +1157,30 @@
     </div>
 
     <!-- Schedule A Page -->
-    <div class="page" id="schedule-a">
+    <div class="page" id="schedule-a" style="position: relative;">
+        <div class="footer">
+            <div class="footer-left">
+                <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
+            </div>
+            <div class="footer-right">
+                <div class="footer-contact">
+                    <a href="mailto:remarketing@mcdauction.com">
+                        <span class="material-icons">email</span> remarketing@mcdauction.com
+                    </a>
+                </div>
+                <div class="footer-contact">
+                    <a href="https://www.mcdougallauction.com" target="_blank">
+                        <span class="material-icons">language</span> www.mcdougallauction.com
+                    </a>
+                    <span style="margin: 0 10px;">|</span>
+                    <a href="tel:3067571747">
+                        <span class="material-icons">phone</span> (306) 757-1747
+                    </a>
+                </div>
+            </div>
+            <div class="page-number">11 | Page</div>
+        </div>
+        <!-- Page number will be updated by JavaScript -->
         <h2>Schedule "A"</h2>
         <table style="font-size: 10px;">
             <thead>
@@ -927,6 +1234,7 @@
             <div>www.mcdougallauction.com | (306) 757-1747 | remarketing@mcdauction.com</div>
         </div>
     </div>
+
 </body>
 
 </html>
