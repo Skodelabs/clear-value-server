@@ -1,8 +1,8 @@
 import ffmpeg from "fluent-ffmpeg";
 import path from "path";
 import fs from "fs";
-import sharp from "sharp";
-
+// Import Jimp properly to work with TypeScript
+const Jimp = require("jimp");
 const FRAMES_DIR = path.join(__dirname, "../../frames");
 const MAX_FRAMES = 10; // Maximum number of frames to extract
 const FRAME_INTERVAL = 3; // Extract frame every X seconds
@@ -63,11 +63,10 @@ export const extractFrames = async (
 };
 
 export const processImage = async (imagePath: string): Promise<Buffer> => {
-  return sharp(imagePath)
-    .resize(800, 600, {
-      fit: "inside",
-      withoutEnlargement: true,
+  return Jimp.read(imagePath)
+    .then((image: any) => {
+      image.resize(800, 600);
+      return image.quality(80);
     })
-    .jpeg({ quality: 80 })
-    .toBuffer();
+    .then((image: any) => image.getBufferAsync(Jimp.MIME_JPEG));
 };
