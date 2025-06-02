@@ -2,21 +2,38 @@ import { extractFrames } from "../utils/videoProcessor";
 import { analyzeProductFromImage } from "./productAnalysisService";
 import path from "path";
 import fs from "fs";
-import sharp from "sharp";
+// Import Jimp properly to work with TypeScript
+import { Jimp, intToRGBA } from "jimp";
 
 const calculateImageHash = async (imagePath: string): Promise<string> => {
-  const image = sharp(imagePath);
-  const { data } = await image
-    .resize(8, 8, { fit: "fill" })
-    .grayscale()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
+  // Read the image with Jimp
+  const image = await Jimp.read(imagePath);
 
-  const pixels = new Uint8Array(data);
+  // Resize to 8x8 for perceptual hash
+  image.resize({ w: 8, h: 8 });
+
+  // Convert to grayscale
+  image.greyscale();
+
+  // Extract pixel data
+  const width = image.bitmap.width;
+  const height = image.bitmap.height;
+  const pixels: number[] = [];
+
+  // Get grayscale values for each pixel
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const pixelColor = intToRGBA(image.getPixelColor(x, y));
+      // For grayscale, r, g, and b values are the same
+      pixels.push(pixelColor.r);
+    }
+  }
+
+  // Calculate average pixel value
   const avg = pixels.reduce((a, b) => a + b, 0) / pixels.length;
-  return Array.from(pixels)
-    .map((pixel) => (pixel > avg ? "1" : "0"))
-    .join("");
+
+  // Generate hash string (1 for pixels above average, 0 for below)
+  return pixels.map((pixel) => (pixel > avg ? "1" : "0")).join("");
 };
 
 // Import the options interface from productAnalysisService
@@ -27,7 +44,10 @@ export interface VideoProcessingOptions extends ProductAnalysisOptions {
   frameInterval?: number; // Optional frame interval in seconds
 }
 
-export const processVideo = async (filePath: string, options?: VideoProcessingOptions) => {
+export const processVideo = async (
+  filePath: string,
+  options?: VideoProcessingOptions
+) => {
   try {
     const frames = await extractFrames(filePath);
     const uniqueFrames = [];
@@ -57,7 +77,7 @@ export const processVideo = async (filePath: string, options?: VideoProcessingOp
             return {
               frame: path.basename(framePath),
               productAnalysis: result,
-              processedImagePath: result.processedImagePath || ''
+              processedImagePath: result.processedImagePath || "",
             };
           } catch (error) {
             console.error(`Error processing frame ${framePath}:`, error);
