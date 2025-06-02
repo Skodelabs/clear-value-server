@@ -1,7 +1,7 @@
 # Use Node.js 20 slim (LTS)
 FROM node:22-slim
 
-# Install system dependencies for Puppeteer and Sharp
+# Install system dependencies for Puppeteer only
 RUN apt-get update && apt-get install -y \
     ca-certificates \
     fonts-liberation \
@@ -22,12 +22,6 @@ RUN apt-get update && apt-get install -y \
     xdg-utils \
     wget \
     curl \
-    gnupg \
-    build-essential \
-    python3 \
-    make \
-    g++ \
-    libvips-dev \
     --no-install-recommends && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
