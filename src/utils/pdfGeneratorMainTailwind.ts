@@ -51,7 +51,6 @@ export const generateMainReportTailwind = async (
 
     // Generate PDF using Puppeteer
     const browser = await puppeteer.launch({
-      executablePath: "/usr/bin/chromium", // Alpine's Chromium path
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
       headless: true,
     });

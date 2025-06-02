@@ -25,10 +25,7 @@ export const generateAssetReport = async (
     // Generate PDF using Puppeteer
     const browser = await puppeteer
       .launch({
-        executablePath: "/usr/bin/chromium", // Alpine Chromium path
         headless: true,
-        pipe: true, // Use pipe instead of WebSocket for more stability
-        dumpio: true, // Log browser process to stdout/stderr for debugging
         args: [
           "--no-sandbox",
           "--disable-setuid-sandbox",
