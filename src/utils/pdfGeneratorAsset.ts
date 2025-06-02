@@ -12,6 +12,23 @@ export const generateAssetReport = async (
     // Generate HTML content
     const htmlContent = generateAssetReportHtml(data.items, data.options);
 
+    // Create a temporary HTML file
+    const tempDir = path.join(process.cwd(), "temp");
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+
+    const tempHtmlPath = path.join(tempDir, `asset-report-${uuidv4()}.html`);
+    fs.writeFileSync(tempHtmlPath, htmlContent);
+
+    // Generate PDF using Puppeteer
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      headless: true,
+    });
+    const page = await browser.newPage();
+    await page.goto(`file://${tempHtmlPath}`, { waitUntil: "networkidle0" });
+
     // Set up PDF output path using the same directory as defined in pdfGeneratorCommon
     if (!fs.existsSync(REPORTS_DIR)) {
       fs.mkdirSync(REPORTS_DIR, { recursive: true });
@@ -21,45 +38,6 @@ export const generateAssetReport = async (
     const filePath = path.join(REPORTS_DIR, fileName);
 
     console.log(`Saving asset report to: ${filePath}`);
-
-    // Generate PDF using Puppeteer
-    const browser = await puppeteer
-      .launch({
-        headless: true,
-        args: [
-          "--no-sandbox",
-          "--disable-setuid-sandbox",
-          "--disable-dev-shm-usage", // Overcome limited /dev/shm in Docker
-          "--disable-gpu",
-          "--no-zygote",
-          "--single-process", // More stable in Docker
-          "--disable-extensions",
-          "--disable-background-networking",
-          "--disable-background-timer-throttling",
-          "--disable-backgrounding-occluded-windows",
-          "--disable-breakpad",
-          "--disable-component-extensions-with-background-pages",
-          "--disable-features=TranslateUI,BlinkGenPropertyTrees",
-          "--disable-ipc-flooding-protection",
-          "--disable-renderer-backgrounding",
-          "--enable-features=NetworkService,NetworkServiceInProcess",
-          "--force-color-profile=srgb",
-          "--hide-scrollbars",
-          "--metrics-recording-only",
-          "--mute-audio",
-        ],
-      })
-      .catch((error) => {
-        console.error("Failed to launch browser:", error);
-        throw error;
-      });
-
-    const page = await browser.newPage();
-
-    // Set content directly instead of creating a temporary file
-    await page.setContent(htmlContent, {
-      waitUntil: "domcontentloaded", // Use domcontentloaded instead of networkidle0 to prevent timeouts
-    });
 
     // Generate PDF
     await page.pdf({
@@ -75,6 +53,9 @@ export const generateAssetReport = async (
     });
 
     await browser.close();
+
+    // Clean up temporary HTML file
+    fs.unlinkSync(tempHtmlPath);
 
     return { filePath, fileName };
   } catch (error) {

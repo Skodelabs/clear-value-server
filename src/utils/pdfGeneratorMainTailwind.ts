@@ -34,6 +34,25 @@ export const generateMainReportTailwind = async (
       data.options
     );
 
+    // Create a temporary directory if it doesn't exist
+    const tempDir = path.join(process.cwd(), "temp");
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+
+    // Create a temporary HTML file
+    const tempId = uuidv4();
+    const tempHtmlPath = path.join(tempDir, `main-report-${tempId}.html`);
+    fs.writeFileSync(tempHtmlPath, processedHtml);
+
+    // Generate PDF using Puppeteer
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      headless: true,
+    });
+    const page = await browser.newPage();
+    await page.goto(`file://${tempHtmlPath}`, { waitUntil: "networkidle0" });
+
     // Set up PDF output path
     if (!fs.existsSync(REPORTS_DIR)) {
       fs.mkdirSync(REPORTS_DIR, { recursive: true });
@@ -49,19 +68,6 @@ export const generateMainReportTailwind = async (
       `Generating main report PDF with Tailwind CSS at: ${outputPath}`
     );
 
-    // Generate PDF using Puppeteer
-    const browser = await puppeteer.launch({
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      headless: true,
-    });
-    
-    const page = await browser.newPage();
-    
-    // Set content directly instead of creating a temporary file
-    await page.setContent(processedHtml, { 
-      waitUntil: "domcontentloaded" // Use domcontentloaded instead of networkidle0 to prevent timeouts
-    });
-
     // Generate PDF with A4 size
     await page.pdf({
       path: outputPath,
@@ -76,6 +82,9 @@ export const generateMainReportTailwind = async (
     });
 
     await browser.close();
+
+    // Delete temporary HTML file
+    fs.unlinkSync(tempHtmlPath);
 
     console.log(
       `Main report PDF with Tailwind CSS generated successfully at: ${outputPath}`

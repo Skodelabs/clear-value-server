@@ -19,6 +19,23 @@ export const generateBasicReport = async (
       data.options
     );
 
+    // Create a temporary HTML file
+    const tempDir = path.join(process.cwd(), "temp");
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+
+    const tempHtmlPath = path.join(tempDir, `report-${uuidv4()}.html`);
+    fs.writeFileSync(tempHtmlPath, htmlContent);
+
+    // Generate PDF using Puppeteer
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      headless: true,
+    });
+    const page = await browser.newPage();
+    await page.goto(`file://${tempHtmlPath}`, { waitUntil: "networkidle0" });
+
     // Set up PDF output path using the same directory as defined in pdfGeneratorCommon
     if (!fs.existsSync(REPORTS_DIR)) {
       fs.mkdirSync(REPORTS_DIR, { recursive: true });
@@ -28,19 +45,6 @@ export const generateBasicReport = async (
     const filePath = path.join(REPORTS_DIR, fileName);
 
     console.log(`Saving basic report to: ${filePath}`);
-
-    // Generate PDF using Puppeteer
-    const browser = await puppeteer.launch({
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      headless: true,
-    });
-    
-    const page = await browser.newPage();
-    
-    // Set content directly instead of creating a temporary file
-    await page.setContent(htmlContent, { 
-      waitUntil: "domcontentloaded" // Use domcontentloaded instead of networkidle0 to prevent timeouts
-    });
 
     // Generate PDF
     await page.pdf({
@@ -56,6 +60,9 @@ export const generateBasicReport = async (
     });
 
     await browser.close();
+
+    // Clean up temporary HTML file
+    fs.unlinkSync(tempHtmlPath);
 
     return { filePath, fileName };
   } catch (error) {
