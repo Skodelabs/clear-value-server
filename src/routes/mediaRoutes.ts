@@ -6,4 +6,4 @@ const router = Router();
 
 router.post('/analyze', upload.any(), processMedia);
 
-export default router; 
+export default router;

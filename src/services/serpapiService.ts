@@ -9,7 +9,36 @@ interface MarketResearchResult {
   };
   marketTrend: string;
   sources: string[];
+  
 }
+
+/**
+ * Helper function to convert language code to country code for SerpAPI
+ * This helps in getting more relevant search results for the specific region/language
+ */
+const getCountryCodeFromLanguage = (language: string): string => {
+  const languageToCountry: Record<string, string> = {
+    'en': 'us',    // English -> United States
+    'fr': 'fr',    // French -> France
+    'es': 'es',    // Spanish -> Spain
+    'de': 'de',    // German -> Germany
+    'it': 'it',    // Italian -> Italy
+    'pt': 'pt',    // Portuguese -> Portugal
+    'nl': 'nl',    // Dutch -> Netherlands
+    'ru': 'ru',    // Russian -> Russia
+    'ja': 'jp',    // Japanese -> Japan
+    'zh': 'cn',    // Chinese -> China
+    'ar': 'ae',    // Arabic -> UAE
+    'hi': 'in',    // Hindi -> India
+    'ko': 'kr',    // Korean -> South Korea
+  };
+  
+  // Extract the base language code if it contains region (e.g., 'en-US' -> 'en')
+  const baseLanguage = language.split('-')[0].toLowerCase();
+  
+  // Return the country code or default to 'us' if not found
+  return languageToCountry[baseLanguage] || 'us';
+};
 
 const determineMarketTrend = (prices: number[]): string => {
   if (prices.length < 2) return "stable";
@@ -28,7 +57,8 @@ const determineMarketTrend = (prices: number[]): string => {
 };
 
 export const researchMarketValue = async (
-  itemDescription: string
+  itemDescription: string,
+  language: string = 'en'
 ): Promise<MarketResearchResult> => {
   try {
     const response = await axios.get("https://serpapi.com/search", {
@@ -37,6 +67,8 @@ export const researchMarketValue = async (
         engine: "google_shopping",
         q: `${itemDescription} price`,
         num: 10,
+        hl: language, // Language parameter for search results
+        gl: getCountryCodeFromLanguage(language), // Country code based on language
       },
     });
 

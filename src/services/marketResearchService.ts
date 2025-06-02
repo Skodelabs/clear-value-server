@@ -1,5 +1,3 @@
-import axios from "axios";
-import { AppError } from "../middleware/errorHandler";
 import { researchMarketValue } from "./serpapiService";
 
 export interface MarketResearchResult {
@@ -12,9 +10,9 @@ export interface MarketResearchResult {
   marketTrend: string;
 }
 
-export const getMarketResearch = async (description?: string) => {
+export const getMarketResearch = async (description?: string, language: string = 'en') => {
   try {
-    const marketResearch = await researchMarketValue(description || "");
+    const marketResearch = await researchMarketValue(description || "", language);
     return {
       averagePrice: marketResearch.averagePrice,
       priceRange: marketResearch.priceRange,
@@ -31,17 +29,4 @@ export const getMarketResearch = async (description?: string) => {
     };
   }
 };
-
-const determineMarketTrend = (prices: number[]): string => {
-  const sortedPrices = [...prices].sort((a, b) => a - b);
-  const median = sortedPrices[Math.floor(sortedPrices.length / 2)];
-  const average = prices.reduce((sum, price) => sum + price, 0) / prices.length;
-
-  if (median > average) {
-    return "upward";
-  } else if (median < average) {
-    return "downward";
-  } else {
-    return "stable";
-  }
-}; 
+ 

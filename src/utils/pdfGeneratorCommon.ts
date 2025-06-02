@@ -22,11 +22,14 @@ export interface ReportItem {
 }
 
 export interface ReportOptions {
-  reportType: 'main' | 'basic';
+  reportType: 'full' | 'basic';
   subType?: 'asset' | 'real-estate' | 'salvage' | 'appraisal';
   currency?: 'USD' | 'CAD';
   language?: string;
   wearTear?: boolean;
+  templateName?: string;
+  title?: string;
+  introText?: string;
   
   // Additional options for appraisal reports
   reportDate?: string;
@@ -54,6 +57,16 @@ export interface ReportOptions {
   appraisalPurpose?: string;
   marketAnalysis?: string;
   logoUrl?: string;
+  
+  // Additional fields for transmittal letter and certification
+  propertyImageUrl?: string;
+  transmittalLetterText?: string;
+  certificationText?: string;
+  certificationSignatureUrl?: string;
+  signatureImageUrl?: string;
+  legalDisclaimer?: string;
+  watermarkUrl?: string;
+  watermarkLogoUrl?: string;
 }
 
 export interface ReportData {
@@ -134,7 +147,7 @@ export const addCoverPage = (doc: PDFKit.PDFDocument, options: ReportOptions) =>
   let title = "Market Valuation Report";
   let subtitle = "";
   
-  if (options.reportType === 'main') {
+  if (options.reportType === 'full') {
     title = "Comprehensive Market Valuation";
     subtitle = "DETAILED ANALYSIS & MARKET RESEARCH";
   } else if (options.reportType === 'basic') {

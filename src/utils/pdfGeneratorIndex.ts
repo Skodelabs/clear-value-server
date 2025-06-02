@@ -1,9 +1,9 @@
-import { ReportData, ReportOptions } from "./pdfGeneratorCommon";
+import { ReportData, ReportOptions, ReportItem } from "./pdfGeneratorCommon";
 import { generateBasicReport } from "./pdfGeneratorBasic";
 import { generateAssetReport } from "./pdfGeneratorAsset";
 import { generateRealEstateReport } from "./pdfGeneratorRealEstate";
 import { generateSalvageReport } from "./pdfGeneratorSalvage";
-import { generateMainReport } from "./pdfGeneratorMain";
+import { generateMainReport } from "./pdfGeneratorMainTailwind";
 
 /**
  * Main function to generate PDF reports based on report type and subtype
@@ -22,7 +22,7 @@ export const generatePDFReport = async (data: ReportData): Promise<{ filePath: s
     }
     
     // Generate the appropriate report based on type and subtype
-    if (data.options.reportType === 'main') {
+    if (data.options.reportType === 'full') {
       return generateMainReport(data);
     } else if (data.options.reportType === 'basic') {
       // For basic reports, check the subtype

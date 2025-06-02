@@ -1,35 +1,21 @@
 import { Request, Response } from "express";
 import { processVideo } from "../services/videoService";
-import { analyzeProductFromImage, analyzeProductFromImageBatch, ProductItem } from "../services/productAnalysisService";
-
-// Use the ProductAnalysisResult type from the service
-import { ProductAnalysisResult } from "../services/productAnalysisService";
-
-// Define video result types
-type VideoFrameResult = {
-  productAnalysis: ProductAnalysisResult;
-  processedImagePath: string;
-  frame: string;
-};
-
-type ImageResult = {
-  type: 'image';
-  filename: string | any[];
-  productAnalysis: ProductAnalysisResult;
-  batchProcessed?: boolean;
-  imageCount?: number;
-};
-
-type VideoResult = {
-  type: 'video';
-  filename: string | any[];
-  totalFrames: number;
-  uniqueFrames: number;
-  processedFrames: number;
-  results: (VideoFrameResult | null)[];
-};
-
-type MediaResult = ImageResult | VideoResult;
+import {
+  analyzeProductFromImageBatch,
+  ProductItem,
+} from "../services/productAnalysisService";
+import {
+  convertToPublicImageUrl,
+  extractImageIndex,
+} from "../utils/imageUtils";
+import { MediaResult } from "../types/mediaTypes";
+import path from "path";
+import {
+  generateProductSummary,
+  consolidateToSingleItem,
+  groupSimilarItems,
+  formatSingleItemResults,
+} from "../services/mediaSummaryService";
 
 /**
  * Processes media files (images/videos) and returns AI analysis of products
@@ -40,251 +26,339 @@ export const processMedia = async (req: Request, res: Response) => {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: "No files uploaded" });
     }
-    
+
     console.log("Received files:", req.files);
 
     // Parse options from front-end with default values
     const options = {
-      singleItem: req.body.singleItem === 'true' || false,       // Single item mode vs. multiple items
-      includeTearWear: req.body.includeTearWear === 'true' || false  // Include tear/wear analysis
+      singleItem: req.body.singleItem === "true" || false, // Single item mode vs. multiple items
+      includeTearWear: req.body.includeTearWear === "true" || false, // Include tear/wear analysis
     };
 
     const files = Array.isArray(req.files) ? req.files : [req.files];
-    const imageFiles = files.filter((file: any) => file.mimetype && file.mimetype.startsWith('image/'));
-    const videoFiles = files.filter((file: any) => file.mimetype && file.mimetype.startsWith('video/'));
-    
+    const imageFiles = files.filter(
+      (file: any) => file.mimetype && file.mimetype.startsWith("image/")
+    );
+    const videoFiles = files.filter(
+      (file: any) => file.mimetype && file.mimetype.startsWith("video/")
+    );
+
     // Validate: only one video allowed
     if (videoFiles.length > 1) {
-      return res.status(400).json({ error: "Only one video can be uploaded per request" });
+      return res
+        .status(400)
+        .json({ error: "Only one video can be uploaded per request" });
     }
-    
+
     // Validate: maximum number of images (50)
     const MAX_IMAGES = 50;
     if (imageFiles.length > MAX_IMAGES) {
-      console.log(`User attempted to upload ${imageFiles.length} images, limiting to ${MAX_IMAGES}`);
+      console.log(
+        `User attempted to upload ${imageFiles.length} images, limiting to ${MAX_IMAGES}`
+      );
       // We'll just use the first MAX_IMAGES images rather than returning an error
       imageFiles.splice(MAX_IMAGES);
     }
-    
+
     const results: MediaResult[] = [];
 
     // Process videos (only one video supported per request)
-    let hasVideo = false;
     for (const file of videoFiles) {
-      hasVideo = true;
       // Only process if file.path is a string
-      if (typeof file.path === 'string') {
+      if (typeof file.path === "string") {
         // Pass options to processVideo
         const result = await processVideo(file.path, {
-          includeTearWear: options.includeTearWear
+          includeTearWear: options.includeTearWear,
         });
-        
+
         // The video service now returns results in the new format
-        // No conversion needed as analyzeProductFromImage is already used
-        const videoResults = result.results.map(frameResult => {
+        const videoResults = result.results.map((frameResult) => {
           if (frameResult) {
             return {
               productAnalysis: frameResult.productAnalysis || {
                 success: false,
                 items: [],
-                rawAiResponse: { items: [], description: '', estimatedValue: 0, confidence: 0, factors: [] }
+                rawAiResponse: null,
+                processedImagePath: "",
               },
-              processedImagePath: frameResult.processedImagePath || '',
-              frame: frameResult.frame
+              processedImagePath: frameResult.processedImagePath,
+              frame: frameResult.frame,
             };
           }
           return null;
         });
-        
+
         results.push({
-          type: 'video',
+          type: "video",
           filename: file.originalname,
           totalFrames: result.totalFrames,
           uniqueFrames: result.uniqueFrames,
           processedFrames: result.processedFrames,
-          results: videoResults
+          results: videoResults,
         });
       }
     }
 
-    // Process images (multiple allowed, up to 50)
-    // Use singleItem option or batch parameter to determine processing mode
-    const processBatchParam = req.query.batch === 'true' || options.singleItem;
-    
-    if (processBatchParam && imageFiles.length > 0) {
-      // Process all images as a batch (different angles of the same item or multiple items)
-      const imagePaths = imageFiles
-        .filter((file: any) => typeof file.path === 'string')
-        .map((file: any) => file.path as string);
-      
-      console.log(`Processing ${imagePaths.length} images in batch mode`);
-      
-      if (imagePaths.length > 0) {
-        // Pass options to analyzeProductFromImageBatch
-        const result = await analyzeProductFromImageBatch(imagePaths, {
-          includeTearWear: options.includeTearWear,
-          singleItem: true
-        });
-      
-        results.push({
-          type: 'image',
-          filename: imageFiles.map((file: any) => file.originalname),
-          productAnalysis: result,
-          batchProcessed: true,
-          imageCount: imagePaths.length
-        });
-      }
-    } else {
-      // Process each image individually
-      for (const file of imageFiles) {
-        if (typeof file.path === 'string') {
-          // Pass options to analyzeProductFromImage
-          const result = await analyzeProductFromImage(file.path, {
-            includeTearWear: options.includeTearWear
-          });
-        
-          results.push({
-            type: 'image',
-            filename: file.originalname,
-            productAnalysis: result
-          });
-        }
-      }
-    }
+    // Process all images
+    await processImages(imageFiles, options, results);
 
-    // Extract product names with confidence levels first
-    let productSummary = results.flatMap(result => {
-      // Handle image results
-      if (result.type === 'image' && result.productAnalysis.rawAiResponse && Array.isArray(result.productAnalysis.rawAiResponse.items)) {
-        const aiValuation = result.productAnalysis.rawAiResponse.items.map((item: { name: string; confidence: number; value: number; condition: string }) => ({
-          name: item.name,
-          confidence: item.confidence,
-          value: item.value,
-          condition: item.condition,
-          source: result.batchProcessed ? 'image-batch' : 'image',
-          filename: typeof result.filename === 'string' ? result.filename : 'multiple-files'
-        }));
-        return aiValuation;
-      }
-      // Handle video results which have nested structure
-      if (result.type === 'video' && (result as VideoResult).results && Array.isArray((result as VideoResult).results)) {
-        return (result as VideoResult).results.flatMap(frameResult => {
-          if (frameResult && frameResult.productAnalysis && frameResult.productAnalysis.rawAiResponse && Array.isArray(frameResult.productAnalysis.rawAiResponse.items)) {
-            const aiValuation = frameResult.productAnalysis.rawAiResponse.items.map((item: { name: string; confidence: number; value: number; condition: string }) => ({
-              name: item.name,
-              confidence: item.confidence,
-              value: item.value,
-              condition: item.condition,
-              source: 'video-frame',
-              filename: `${typeof result.filename === 'string' ? result.filename : 'video'}-frame-${frameResult.frame}`
-            }));
-            return aiValuation;
-          }
-          return [];
-        });
-      }
-      return [];
-    });
-    
+    // Generate product summary from results
+    let productSummary = generateProductSummary(results);
+
     // If single item mode is enabled, consolidate all items into a single item
-    if (options.singleItem && productSummary.length > 0) {
-      // Find the most confident item to use as the main item
-      productSummary.sort((a, b) => b.confidence - a.confidence);
-      const mainItem = productSummary[0];
-      
-      // Calculate total value from all items
-      const totalValue = productSummary.reduce((sum, item) => sum + (item.value || 0), 0);
-      
-      // Combine conditions from all items
-      const allConditions = new Set(productSummary.map(item => item.condition).filter(Boolean));
-      const combinedCondition = Array.from(allConditions).join('; ');
-      
-      // Create a single consolidated item
-      productSummary = [{
-        name: mainItem.name,
-        confidence: mainItem.confidence,
-        value: totalValue,
-        condition: combinedCondition || mainItem.condition,
-        source: 'consolidated',
-        filename: 'multiple-files',
-        // Add these as custom properties with type assertion
-        ...({
-          originalItems: productSummary.length,
-          itemDetails: productSummary
-        } as any)
-      }];
+    if (options.singleItem && productSummary.length > 1) {
+      productSummary = consolidateToSingleItem(productSummary);
     }
-    
+
     // Sort by confidence level (highest first)
     productSummary.sort((a, b) => b.confidence - a.confidence);
-    console.log("Product summary:", productSummary);
     
-    // If we're not in single item mode, group similar items
-    // Otherwise, we've already consolidated everything into a single item
-    let consolidatedProducts;
-    
-    if (!options.singleItem) {
-      // Group similar items (same name with different confidence levels)
-      const groupedProducts = productSummary.reduce((groups: any, item) => {
-        // Normalize the name for grouping
-        const normalizedName = item.name.toLowerCase().trim();
-        if (!groups[normalizedName]) {
-          groups[normalizedName] = {
-            name: item.name,
-            instances: [],
-            highestConfidence: item.confidence,
-            totalValue: 0
-          };
-        }
-        groups[normalizedName].instances.push(item);
-        groups[normalizedName].totalValue += item.value;
-        if (item.confidence > groups[normalizedName].highestConfidence) {
-          groups[normalizedName].highestConfidence = item.confidence;
-        }
-        return groups;
-      }, {});
+    // Clean up the product summary for logging
+    const cleanSummary = productSummary.map(item => {
+      // Make sure details is populated
+      const details = item.details || `${item.name} in ${item.condition.toLowerCase()} condition.`;
       
-      // Convert back to array and sort by highest confidence
-      consolidatedProducts = Object.values(groupedProducts).sort((a: any, b: any) => 
-        b.highestConfidence - a.highestConfidence
-      );
-    } else {
-      // In single item mode, we've already consolidated everything
-      // Just format it to match the expected structure
-      consolidatedProducts = productSummary.map(item => ({
+      return {
         name: item.name,
-        instances: [item],
-        highestConfidence: item.confidence,
-        totalValue: item.value,
-        isSingleItem: true,
-        // Add these as custom properties with type assertion
-        ...({
-          originalItems: (item as any).originalItems || 1,
-          itemDetails: (item as any).itemDetails || [item]
-        } as any)
-      }));
-    }
-    
-    // Return product analysis results in the new format
-    // Collect all items from all processed results
-    const allItems = results.flatMap(result => {
-      if (result.type === 'image' && result.productAnalysis && result.productAnalysis.items) {
-        return result.productAnalysis.items;
-      } else if (result.type === 'video' && result.results) {
-        // Collect items from video frames
-        return result.results
-          .filter(frameResult => frameResult && frameResult.productAnalysis && frameResult.productAnalysis.items)
-          .flatMap(frameResult => frameResult!.productAnalysis.items);
-      }
-      return [];
+        condition: item.condition,
+        details: details,
+        imageUrl: item.imageUrl
+      };
     });
+    console.log("Product summary:", cleanSummary);
+
+    // Group similar items or format single item results
+    const consolidatedProducts = !options.singleItem
+      ? groupSimilarItems(productSummary)
+      : formatSingleItemResults(productSummary);
+
+    // Collect all items from all processed results
+    const allItems = collectAllItems(results);
+
+    // Make sure all items have public URLs
+    const itemsWithPublicUrls = ensurePublicUrls(allItems);
+    
+    // Normalize and standardize product items for consistent response format
+    const normalizedItems = normalizeProductItems(itemsWithPublicUrls);
     
     return res.json({
       success: true,
-      items: allItems,
+      items: normalizedItems,
     });
   } catch (error) {
     console.error("Error processing media:", error);
     return res.status(500).json({ error: "Failed to process media" });
   }
 };
+
+/**
+ * Processes image files and adds results to the results array
+ * @param imageFiles Array of image files
+ * @param options Processing options
+ * @param results Results array to append to
+ */
+async function processImages(
+  imageFiles: any[],
+  options: { includeTearWear: boolean; singleItem: boolean },
+  results: MediaResult[]
+) {
+  // Collect all valid image paths and their original filenames
+  const imageFiles2 = imageFiles.filter(
+    (file: any) => typeof file.path === "string"
+  );
+  const imagePaths = imageFiles2.map((file: any) => file.path as string);
+  const originalFilenames = imageFiles2.map(
+    (file: any) => file.originalname as string
+  );
+
+  // Create a mapping of image paths to original filenames
+  const imagePathToFilename: Record<string, string> = {};
+  imagePaths.forEach((path, index) => {
+    imagePathToFilename[path] = originalFilenames[index];
+  });
+
+  if (imagePaths.length > 0) {
+    // Always use the batch processing function to send all images in one API call
+    const result = await analyzeProductFromImageBatch(imagePaths, {
+      includeTearWear: options.includeTearWear,
+      // Force singleItem to false to ensure we get all items from all images
+      singleItem: false,
+      // Pass the original filenames mapping
+      originalFilenames: imagePathToFilename,
+    });
+
+    // Ensure each item is associated with the correct image based on imageIndex
+    if (result.items && result.items.length > 0) {
+      result.items = result.items.map((item) => {
+        // Use the imageIndex property directly if available, otherwise extract from imageId
+        const imageIndex = typeof item.imageIndex === 'number' ? 
+          item.imageIndex : 
+          extractImageIndex(item.imageId);
+
+        // Get the correct image path using the image index
+        const imagePath =
+          imagePaths[Math.min(imageIndex, imagePaths.length - 1)];
+
+        // Get the original filename for this image path
+        const originalFilename = imagePathToFilename[imagePath];
+        
+        // Use the actual uploaded filename for the URL, not the original filename
+        const uploadedFilename = path.basename(imagePath);
+        
+        // Create a clean item with only the required fields
+        return {
+          id: item.id, // Keep the id field as it's required by the ProductItem interface
+          name: item.name,
+          condition: item.condition,
+          details: item.details || `${item.name} in ${item.condition.toLowerCase()} condition.`,
+          imageUrl: convertToPublicImageUrl(imagePath, uploadedFilename)
+        };
+      });
+    }
+
+    results.push({
+      type: "image",
+      filename: imageFiles.map((file: any) => file.originalname),
+      productAnalysis: result,
+      imageCount: imagePaths.length,
+    });
+  }
+}
+
+/**
+ * Collects all items from all processed results
+ * @param results Array of media results
+ * @returns Array of all product items
+ */
+function collectAllItems(results: MediaResult[]): ProductItem[] {
+  return results.flatMap((result) => {
+    if (
+      result.type === "image" &&
+      result.productAnalysis &&
+      result.productAnalysis.items
+    ) {
+      return result.productAnalysis.items;
+    } else if (result.type === "video" && result.results) {
+      // Collect items from video frames
+      return result.results
+        .filter(
+          (frameResult) =>
+            frameResult &&
+            frameResult.productAnalysis &&
+            frameResult.productAnalysis.items
+        )
+        .flatMap((frameResult) => frameResult!.productAnalysis.items);
+    }
+    return [];
+  });
+}
+
+/**
+ * Ensures all items have public URLs and only include essential fields
+ * @param items Array of product items
+ * @returns Array of items with public URLs and only essential fields
+ */
+function ensurePublicUrls(items: ProductItem[]): ProductItem[] {
+  return items.map((item) => {
+    // Only convert if the URL doesn't already start with http:// or https://
+    const publicImageUrl = item.imageUrl && 
+      !item.imageUrl.startsWith("http://") && 
+      !item.imageUrl.startsWith("https://") ?
+      convertToPublicImageUrl(item.imageUrl, item.originalFilename) :
+      item.imageUrl;
+    
+    // Return ONLY the essential fields (name, condition, details, imageUrl)
+    // We need to keep the id for internal tracking
+    return {
+      id: item.id,
+      name: item.name,
+      condition: item.condition,
+      details: item.details,
+      imageUrl: publicImageUrl
+    };
+  });
+}
+
+/**
+ * Normalizes product items to ensure consistent response format
+ * @param items Array of product items to normalize
+ * @returns Array of normalized product items
+ */
+function normalizeProductItems(items: ProductItem[]): ProductItem[] {
+  if (!items || items.length === 0) return [];
+
+  // First, clean up each item individually
+  const cleanedItems = items.map((item) => {
+    // Clean up item name - remove unnecessary prefixes, suffixes, and standardize format
+    let name = item.name || "";
+    name = name
+      .trim()
+      .replace(/^(a|an|the)\s+/i, "") // Remove articles from beginning
+      .replace(/\s{2,}/g, " ") // Replace multiple spaces with single space
+      .replace(/^\d+\.\s*/, "") // Remove numbering (e.g., "1. Item" -> "Item")
+      .replace(/\([^)]*\)/g, "") // Remove parenthetical descriptions
+      .trim();
+
+    // Capitalize first letter of name
+    name = name.charAt(0).toUpperCase() + name.slice(1);
+
+    // Ensure condition is standardized
+    let condition = (item.condition || "").toLowerCase().trim();
+    if (!condition) condition = "good"; // Default condition
+
+    // Standardize condition values
+    if (
+      condition.includes("excellent") ||
+      condition.includes("perfect") ||
+      condition.includes("mint")
+    ) {
+      condition = "excellent";
+    } else if (condition.includes("good") || condition.includes("fine")) {
+      condition = "good";
+    } else if (condition.includes("fair") || condition.includes("average")) {
+      condition = "fair";
+    } else if (
+      condition.includes("poor") ||
+      condition.includes("bad") ||
+      condition.includes("worn")
+    ) {
+      condition = "poor";
+    } else {
+      condition = "good"; // Default to good if unrecognized
+    }
+
+    // Ensure details are present and formatted
+    let details = item.details || "";
+    if (!details) {
+      details = `${name} in ${condition} condition.`;
+    }
+
+    // Return ONLY the essential fields (name, condition, details, imageUrl)
+    // We need to keep the id for internal tracking
+    return {
+      id: item.id,
+      name,
+      condition,
+      details,
+      imageUrl: item.imageUrl
+    };
+  });
+
+  // Second, perform additional deduplication to ensure no duplicate items
+  const uniqueItems: ProductItem[] = [];
+  const seenNames = new Set<string>();
+
+  for (const item of cleanedItems) {
+    // Create a normalized name for comparison
+    const normalizedName = item.name.toLowerCase().trim();
+
+    // Skip if we've already seen this item
+    if (seenNames.has(normalizedName)) continue;
+
+    // Add to our unique items and mark as seen
+    uniqueItems.push(item);
+    seenNames.add(normalizedName);
+  }
+
+  return uniqueItems;
+}

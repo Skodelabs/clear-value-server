@@ -1,38 +1,64 @@
-import PDFDocument from "pdfkit";
-import { 
-  ReportData, 
-  ReportOptions, 
-  addHeader, 
-  addFooter, 
-  addSectionDivider, 
-  addCoverPage,
-  createPdfDocument,
-  savePdf
-} from "./pdfGeneratorCommon";
+import puppeteer from "puppeteer";
+import fs from "fs";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
+import { ReportData, ReportOptions, REPORTS_DIR } from "./pdfGeneratorCommon";
 
-// Generate a basic report with a simple table of items
-export const generateBasicReport = async (data: ReportData): Promise<{ filePath: string, fileName: string }> => {
+// Generate a basic report with a simple table of items using Puppeteer and HTML
+export const generateBasicReport = async (
+  data: ReportData
+): Promise<{ filePath: string; fileName: string }> => {
   try {
-    const doc = createPdfDocument();
-    
-    // Add cover page
-    addCoverPage(doc, data.options);
-    
-    // Add header to first content page only
+    // Generate HTML content
     const title = getReportTitle(data.options);
-    addHeader(doc, title);
+    const introText = getIntroductionText(data.options);
+    const htmlContent = generateReportHtml(
+      title,
+      introText,
+      data.items,
+      data.options
+    );
+
+    // Set up PDF output path using the same directory as defined in pdfGeneratorCommon
+    if (!fs.existsSync(REPORTS_DIR)) {
+      fs.mkdirSync(REPORTS_DIR, { recursive: true });
+    }
+
+    const fileName = `basic-report-${Date.now()}.pdf`;
+    const filePath = path.join(REPORTS_DIR, fileName);
+
+    console.log(`Saving basic report to: ${filePath}`);
+
+    // Generate PDF using Puppeteer
+    const browser = await puppeteer.launch({
+      executablePath: "/usr/bin/chromium", // Alpine's Chromium path
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      headless: true,
+    });
     
-    // Add introduction
-    addIntroduction(doc, data.options);
+    const page = await browser.newPage();
     
-    // Add items table - pass isFirstPage=true to indicate this is the first content page
-    addItemsTable(doc, data.items, data.options, true);
-    
-    // Add footer to all pages
-    addFooter(doc);
-    
-    // Save and return file info
-    return savePdf(doc);
+    // Set content directly instead of creating a temporary file
+    await page.setContent(htmlContent, { 
+      waitUntil: "domcontentloaded" // Use domcontentloaded instead of networkidle0 to prevent timeouts
+    });
+
+    // Generate PDF
+    await page.pdf({
+      path: filePath,
+      format: "A4",
+      printBackground: true,
+      margin: {
+        top: "20mm",
+        right: "20mm",
+        bottom: "20mm",
+        left: "20mm",
+      },
+    });
+
+    await browser.close();
+
+    return { filePath, fileName };
   } catch (error) {
     console.error("Error in basic PDF generation:", error);
     throw error;
@@ -42,169 +68,290 @@ export const generateBasicReport = async (data: ReportData): Promise<{ filePath:
 // Helper function to get report title based on subtype
 const getReportTitle = (options: ReportOptions): string => {
   if (!options.subType) return "Basic Valuation Report";
-  
+
   switch (options.subType) {
-    case 'asset':
+    case "asset":
       return "Asset Inventory Report";
-    case 'real-estate':
+    case "real-estate":
       return "Real Estate Valuation Report";
-    case 'salvage':
+    case "salvage":
       return "Salvage Assessment Report";
     default:
       return "Basic Valuation Report";
   }
 };
 
-// Add a brief introduction based on report subtype
-const addIntroduction = (doc: PDFKit.PDFDocument, options: ReportOptions) => {
-  let introText = "This report provides a basic valuation of the items listed below.";
-  
+// Get introduction text based on report subtype
+const getIntroductionText = (options: ReportOptions): string => {
+  let introText =
+    "This report provides a basic valuation of the items listed below.";
+
   if (options.subType) {
     switch (options.subType) {
-      case 'asset':
-        introText = "This report provides an inventory and valuation of the assets listed below.";
+      case "asset":
+        introText =
+          "This report provides an inventory and valuation of the assets listed below.";
         break;
-      case 'real-estate':
-        introText = "This report provides a valuation of the real estate properties listed below.";
+      case "real-estate":
+        introText =
+          "This report provides a valuation of the real estate properties listed below.";
         break;
-      case 'salvage':
-        introText = "This report provides an assessment of the salvage value for the items listed below.";
+      case "salvage":
+        introText =
+          "This report provides an assessment of the salvage value for the items listed below.";
         break;
     }
   }
-  
-  doc.fontSize(12)
-     .fillColor("#374151")
-     .text(introText, { align: "left" });
-  
-  doc.moveDown(1);
+
+  return introText;
 };
 
-// Add the items table with ID, description, condition, and price
-const addItemsTable = (doc: PDFKit.PDFDocument, items: any[], options: ReportOptions, isFirstPage: boolean = false) => {
+// Generate HTML for the report
+const generateReportHtml = (
+  title: string,
+  introText: string,
+  items: any[],
+  options: ReportOptions
+): string => {
   // Set default currency symbol
-  const currencySymbol = options.currency === 'CAD' ? 'CA$' : '$';
-  
-  // Add section divider
-  addSectionDivider(doc, "Item Inventory");
-  
-  // Table layout
-  const margin = 40;
-  const pageWidth = doc.page.width;
-  const tableWidth = pageWidth - margin * 2;
-  
-  // Column widths (proportions of table width)
-  const colWidths = [0.1, 0.4, 0.3, 0.2];
-  
-  // Calculate column positions
-  const colPositions = [
-    margin,
-    margin + tableWidth * colWidths[0],
-    margin + tableWidth * (colWidths[0] + colWidths[1]),
-    margin + tableWidth * (colWidths[0] + colWidths[1] + colWidths[2]),
-  ];
-  
-  const rowHeight = 30;
-  let y = doc.y;
-  
-  // Function to draw table header
-  const drawTableHeader = () => {
-    doc.save();
-    doc.rect(margin, y, tableWidth, rowHeight).fill("#374151");
-    doc.fillColor("#ffffff").font("Helvetica-Bold").fontSize(12);
-    doc.text("ID", colPositions[0] + 5, y + 10, { width: tableWidth * colWidths[0] - 10 });
-    doc.text("Description", colPositions[1] + 5, y + 10, { width: tableWidth * colWidths[1] - 10 });
-    doc.text("Condition", colPositions[2] + 5, y + 10, { width: tableWidth * colWidths[2] - 10 });
-    doc.text("Price", colPositions[3] + 5, y + 10, { width: tableWidth * colWidths[3] - 10, align: "right" });
-    doc.restore();
-    y += rowHeight;
-  };
-  
-  // Draw initial table header
-  drawTableHeader();
-  
-  // Table rows
-  let total = 0;
-  let currentPage = doc.bufferedPageRange().count;
-  
-  items.forEach((item, index) => {
-    // Check if we need a new page
-    if (y + rowHeight > doc.page.height - 100) {
-      // End current page properly
-      doc.addPage();
+  const currencySymbol = options.currency === "CAD" ? "CA$" : "$";
+
+  // Calculate total value
+  const total = items.reduce((sum, item) => {
+    const price = typeof item.price === "number" ? item.price : 0;
+    return sum + price;
+  }, 0);
+
+  // Get company logo URL - use the logo from public directory
+  const logoUrl = `${
+    process.env.BASE_URL || "http://localhost:5000"
+  }/public/companylogo.jpg`;
+
+  // Format date
+  const reportDate =
+    options.reportDate ||
+    new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+  // Generate HTML with red theme and faded background logo.
+  return `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <title>${title}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+        position: relative;
+        background-color: #fff;
+      }
       
-      // Reset Y position for the new page
-      y = 100; // Start below the header
+      .background-logo {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0.35;
+        width: 80%;
+        z-index: -1;
+      }
       
-      // Only add page number and minimal header on subsequent pages
-      // We don't want to repeat the main heading
-      doc.font('Helvetica')
-         .fontSize(10)
-         .text(`Page ${doc.bufferedPageRange().count}`, doc.page.width / 2, 40, { align: 'center' });
+      .watermark {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-30deg);
+        opacity: 0.18;
+        font-size: 200px;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+        z-index: -1;
+        white-space: nowrap;
+      }
       
-      // Redraw table header on the new page
-      drawTableHeader();
+      .watermark .black {
+        color: #000;
+      }
       
-      // Add footer to the new page
-      addFooter(doc);
+      .watermark .red {
+        color: #c41e3a;
+      }
       
-      // Track that we're on a new page
-      currentPage = doc.bufferedPageRange().count;
-    }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      
+      .logo {
+        max-width: 200px;
+        margin-bottom: 10px;
+      }
+      
+      h1 {
+        color: #c41e3a; /* Red theme color */
+        font-size: 24px;
+        margin: 10px 0;
+      }
+      
+      .report-info {
+        margin-bottom: 20px;
+        color: #666;
+      }
+      
+      .introduction {
+        margin-bottom: 30px;
+        line-height: 1.5;
+      }
+      
+      .section-title {
+        color: #c41e3a; /* Red theme color */
+        font-size: 18px;
+        margin: 20px 0 10px 0;
+        padding-bottom: 5px;
+        border-bottom: 2px solid #c41e3a;
+      }
+      
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+        table-layout: fixed;
+      }
+      
+      th {
+        background-color: #c41e3a; /* Red theme color */
+        color: white;
+        padding: 10px;
+        text-align: left;
+      }
+      
+      td {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+      }
+      
+      tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+      
+      .total-row {
+        background-color: #c41e3a; /* Red theme color */
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
+        border-top: 3px solid #000;
+      }
+      
+      .total-row td {
+        border-bottom: none;
+      }
+      
+      .text-right {
+        text-align: right;
+      }
+      
+      .footer {
+        margin-top: 50px;
+        text-align: center;
+        font-size: 12px;
+        color: #666;
+      }
+      
+      @media print {
+        body {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Background Logo (Faded) -->
+    <img src="${logoUrl}" class="background-logo" alt="Background Logo">
     
-    // Row background (alternating colors)
-    const isEven = index % 2 === 0;
-    doc.save();
-    doc.rect(margin, y, tableWidth, rowHeight).fill(isEven ? "#f3f4f6" : "#e5e7eb");
-    doc.restore();
+    <!-- McD Watermark -->
+    <div class="watermark">
+      <span class="black">M</span><span class="red">c</span><span class="black">D</span>
+    </div>
     
-    // Row content
-    doc.fillColor("#111827").font("Helvetica").fontSize(11);
+    <!-- Header -->
+    <div class="header">
+      <img src="${logoUrl}" class="logo" alt="Company Logo">
+      <h1>${title}</h1>
+      <div class="report-info">
+        Report Date: ${reportDate}<br>
+        ${
+          options.clientName ||
+          options.appraiserCompany ||
+          "Clear Value Appraisals"
+        }
+      </div>
+    </div>
     
-    // ID column
-    doc.text(String(item.id || index + 1), colPositions[0] + 5, y + 10, 
-             { width: tableWidth * colWidths[0] - 10 });
+    <!-- Introduction -->
+    <div class="introduction">
+      ${introText}
+    </div>
     
-    // Description column - truncate if too long
-    const description = item.description || item.name || "";
-    doc.text(description, colPositions[1] + 5, y + 10, 
-             { width: tableWidth * colWidths[1] - 10, ellipsis: true });
+    <!-- Items Table -->
+    <div class="section-title">Item Inventory</div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 5%">ID</th>
+          <th style="width: 40%">Description</th>
+          <th style="width: 20%">Condition</th>
+          <th style="width: 15%" class="text-right">Price</th>
+          <th style="width: 20%">Image</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${items
+          .map((item, index) => {
+            const price = typeof item.price === "number" ? item.price : 0;
+            return `
+          <tr>
+            <td>${item.id || index + 1}</td>
+            <td>${item.description || item.name || ""}</td>
+            <td>${item.condition || ""}</td>
+            <td class="text-right">${currencySymbol}${price.toLocaleString()}</td>
+            <td>${
+              item.imageUrl
+                ? `<img src="${item.imageUrl}" alt="${item.name}" style="max-width: 100%; max-height: 80px;">`
+                : "No image"
+            }</td>
+          </tr>
+          `;
+          })
+          .join("")}
+        <!-- Total Value Row -->
+        <tr class="total-row" style="background-color: #c41e3a;">
+          <td colspan="3" class="text-right"><strong>TOTAL VALUE</strong></td>
+          <td class="text-right"><strong>${currencySymbol}${total.toLocaleString()}</strong></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
     
-    // Condition column
-    doc.text(item.condition || "", colPositions[2] + 5, y + 10, 
-             { width: tableWidth * colWidths[2] - 10 });
-    
-    // Price column
-    const price = typeof item.price === 'number' ? item.price : 0;
-    doc.text(`${currencySymbol}${price.toLocaleString()}`, colPositions[3] + 5, y + 10, 
-             { width: tableWidth * colWidths[3] - 10, align: "right" });
-    
-    total += price;
-    y += rowHeight;
-  });
-  
-  // Check if total row needs a new page
-  if (y + rowHeight > doc.page.height - 100) {
-    doc.addPage();
-    y = 100; // Start below the header
-    
-    // Only add page number on subsequent pages, not the main heading
-    doc.font('Helvetica')
-       .fontSize(10)
-       .text(`Page ${doc.bufferedPageRange().count}`, doc.page.width / 2, 40, { align: 'center' });
-       
-    addFooter(doc);
-  }
-  
-  // Total row
-  doc.save();
-  doc.rect(margin, y, tableWidth, rowHeight).fill("#1e40af");
-  doc.fillColor("#ffffff").font("Helvetica-Bold").fontSize(12);
-  doc.text("Total", colPositions[0] + 5, y + 10, 
-           { width: tableWidth * (colWidths[0] + colWidths[1] + colWidths[2]) - 10, align: "right" });
-  doc.text(`${currencySymbol}${total.toLocaleString()}`, colPositions[3] + 5, y + 10, 
-           { width: tableWidth * colWidths[3] - 10, align: "right" });
-  doc.restore();
-  
-  doc.moveDown(2);
+    <!-- Footer -->
+    <div class="footer">
+      <p>This report was generated by ${
+        options.clientName ||
+        options.appraiserCompany ||
+        "Clear Value Appraisals"
+      } on ${reportDate}</p>
+      <p>© ${new Date().getFullYear()} ${
+    options.clientName || options.appraiserCompany || "Clear Value Appraisals"
+  }. All rights reserved.</p>
+    </div>
+  </body>
+  </html>
+  `;
 };

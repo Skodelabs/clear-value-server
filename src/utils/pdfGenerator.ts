@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
 import path from "path";
 import fs from "fs";
+import puppeteer from "puppeteer";
 import { addFooter } from "./enhancedPdfGenerator";
 
 const REPORTS_DIR = path.join(process.cwd(), "uploads", "reports");
