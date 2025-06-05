@@ -113,12 +113,18 @@ const generateAssetReportHtml = (
   <html>
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${
       isFrench
         ? "Rapport d'Inventaire et d'Évaluation des Actifs"
         : "Asset Inventory & Valuation Report"
     }</title>
     <style>
+      @page {
+        size: A4;
+        margin: 0;
+      }
+      
       body {
         font-family: Arial, sans-serif;
         margin: 0;
@@ -126,6 +132,9 @@ const generateAssetReportHtml = (
         color: #333;
         position: relative;
         background-color: #fff;
+        width: 210mm;
+        min-height: 297mm;
+        box-sizing: border-box;
       }
       
       .background-logo {
@@ -133,8 +142,8 @@ const generateAssetReportHtml = (
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        opacity: 0.35;
-        width: 80%;
+        opacity: 0.25;
+        width: 70%;
         z-index: -1;
       }
       
@@ -143,8 +152,8 @@ const generateAssetReportHtml = (
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%) rotate(-30deg);
-        opacity: 0.18;
-        font-size: 200px;
+        opacity: 0.15;
+        font-size: 180px;
         font-weight: bold;
         font-family: Arial, sans-serif;
         z-index: -1;
@@ -159,32 +168,55 @@ const generateAssetReportHtml = (
         color: #c41e3a;
       }
       
+      .company-logo-container {
+        text-align: center;
+        margin-bottom: 15px;
+      }
+      
+      .company-logo {
+        max-width: 250px;
+        max-height: 100px;
+        margin: 0 auto;
+        display: block;
+      }
+      
       .header {
         text-align: center;
         margin-bottom: 30px;
+        border-bottom: 2px solid #c41e3a;
+        padding-bottom: 15px;
       }
       
-      .logo {
-        max-width: 200px;
+      .report-title {
+        color: #c41e3a;
+        font-size: 26px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      
+      .report-subtitle {
+        font-size: 18px;
+        color: #555;
         margin-bottom: 10px;
       }
       
-      h1 {
-        color: #c41e3a; /* Red theme color */
-        font-size: 24px;
-        margin: 10px 0;
-      }
-      
-      .report-info {
-        margin-bottom: 20px;
+      .report-date {
+        font-size: 14px;
         color: #666;
       }
       
+      .report-info {
+        margin-bottom: 25px;
+        color: #555;
+        border-left: 3px solid #c41e3a;
+        padding-left: 15px;
+      }
+      
       .section-title {
-        color: #c41e3a; /* Red theme color */
-        font-size: 18px;
-        margin: 20px 0 10px 0;
-        padding-bottom: 5px;
+        color: #c41e3a;
+        font-size: 20px;
+        margin: 25px 0 15px 0;
+        padding-bottom: 8px;
         border-bottom: 2px solid #c41e3a;
       }
       
@@ -193,34 +225,40 @@ const generateAssetReportHtml = (
         border-collapse: collapse;
         margin-bottom: 30px;
         table-layout: fixed;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       }
       
       th {
-        background-color: #c41e3a; /* Red theme color */
+        background-color: #c41e3a;
         color: white;
-        padding: 10px;
+        padding: 12px 10px;
         text-align: left;
+        font-weight: bold;
       }
       
       td {
-        padding: 10px;
+        padding: 12px 10px;
         border-bottom: 1px solid #ddd;
+        vertical-align: middle;
       }
       
       tr:nth-child(even) {
         background-color: #f9f9f9;
       }
       
+      tr:hover {
+        background-color: #f1f1f1;
+      }
+      
       .total-row {
-        background-color: #c41e3a; /* Red theme color */
-        color: white;
         font-weight: bold;
-        font-size: 16px;
-        border-top: 3px solid #000;
+        background-color: #f0f0f0;
       }
       
       .total-row td {
+        border-top: 2px solid #c41e3a;
         border-bottom: none;
+        padding: 15px 10px;
       }
       
       .text-right {
@@ -231,31 +269,47 @@ const generateAssetReportHtml = (
         background-color: #f8f8f8;
         padding: 15px;
         border-radius: 5px;
-        margin-top: 20px;
-        font-size: 12px;
-        color: #666;
+        margin-top: 25px;
+        font-size: 13px;
+        color: #555;
+        border-left: 4px solid #c41e3a;
       }
       
       .note-title {
         font-weight: bold;
         margin-right: 5px;
+        color: #c41e3a;
       }
       
       .repair-cost {
-        color: #c41e3a; /* Red for repair costs */
+        color: #c41e3a;
       }
       
       .footer {
-        margin-top: 50px;
+        margin-top: 60px;
         text-align: center;
         font-size: 12px;
         color: #666;
+        border-top: 1px solid #ddd;
+        padding-top: 15px;
+      }
+      
+      img.item-image {
+        max-width: 100%;
+        max-height: 80px;
+        display: block;
+        margin: 0 auto;
+        border-radius: 4px;
       }
       
       @media print {
         body {
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
+        }
+        
+        .page-break {
+          page-break-after: always;
         }
       }
     </style>
@@ -269,6 +323,11 @@ const generateAssetReportHtml = (
       <span class="black">${
         isFrench ? "ACTIFS" : "ASSET"
       }</span> <span class="red">${isFrench ? "RAPPORT" : "REPORT"}</span>
+    </div>
+    
+    <!-- Company Logo -->
+    <div class="company-logo-container">
+      <img src="${logoUrl}" class="company-logo" alt="${options.clientName || options.appraiserCompany || "Clear Value Appraisals"}" onerror="this.style.display='none'">
     </div>
     
     <!-- Header -->

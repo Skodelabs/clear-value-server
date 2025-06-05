@@ -22,7 +22,7 @@ const generateSalvageReportHtml = (
   }, 0);
 
   // Get company logo URL
-  const logoUrl = `${process.env.BASE_URL || "http://localhost:5000"}/public/companylogo.jpg`;
+  const logoUrl = `${process.env.BASE_URL || "http://localhost:3000"}/public/companylogo.jpg`;
 
   // Format date based on language
   const reportDate =
@@ -39,8 +39,14 @@ const generateSalvageReportHtml = (
   <html>
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${isFrench ? 'Rapport d\'Évaluation de Récupération' : 'Salvage Assessment Report'}</title>
     <style>
+      @page {
+        size: A4;
+        margin: 0;
+      }
+      
       body {
         font-family: Arial, sans-serif;
         margin: 0;
@@ -48,6 +54,9 @@ const generateSalvageReportHtml = (
         color: #333;
         position: relative;
         background-color: #fff;
+        width: 210mm;
+        min-height: 297mm;
+        box-sizing: border-box;
       }
       
       .background-logo {
@@ -55,8 +64,8 @@ const generateSalvageReportHtml = (
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        opacity: 0.35;
-        width: 80%;
+        opacity: 0.25;
+        width: 70%;
         z-index: -1;
       }
       
@@ -65,8 +74,8 @@ const generateSalvageReportHtml = (
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%) rotate(-30deg);
-        opacity: 0.18;
-        font-size: 200px;
+        opacity: 0.15;
+        font-size: 180px;
         font-weight: bold;
         font-family: Arial, sans-serif;
         z-index: -1;
@@ -81,23 +90,37 @@ const generateSalvageReportHtml = (
         color: #1e40af;
       }
       
+      .company-logo-container {
+        text-align: center;
+        margin-bottom: 15px;
+      }
+      
+      .company-logo {
+        max-width: 250px;
+        max-height: 100px;
+        margin: 0 auto;
+        display: block;
+      }
+      
       .header {
         text-align: center;
         margin-bottom: 30px;
+        border-bottom: 2px solid #1e40af;
+        padding-bottom: 15px;
       }
       
       .report-title {
-        font-size: 24px;
+        font-size: 26px;
         font-weight: bold;
         color: #1e40af;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
         text-transform: uppercase;
       }
       
       .report-subtitle {
-        font-size: 16px;
-        color: #666;
-        margin-bottom: 5px;
+        font-size: 18px;
+        color: #555;
+        margin-bottom: 10px;
       }
       
       .report-date {
@@ -188,21 +211,28 @@ const generateSalvageReportHtml = (
     </style>
   </head>
   <body>
+    <!-- Background Logo (Faded) -->
+    <img src="${logoUrl}" class="background-logo" alt="Background Logo">
+    
     <!-- Watermark -->
     <div class="watermark">
       <span class="black">${isFrench ? 'RÉCUPÉRATION' : 'SALVAGE'}</span> <span class="blue">${isFrench ? 'RAPPORT' : 'REPORT'}</span>
     </div>
     
+    <!-- Company Logo -->
+    <div class="company-logo-container">
+      <img src="${logoUrl}" class="company-logo" alt="${options.clientName || options.appraiserCompany || "Clear Value Appraisals"}" onerror="this.style.display='none'">
+    </div>
+    
     <!-- Header -->
     <div class="header">
       <div class="report-title">${isFrench ? 'Rapport d\'Évaluation de Récupération' : 'Salvage Assessment Report'}</div>
-      <div class="report-subtitle">${isFrench ? 'Analyse de Récupération de Matériaux et Valeur de Récupération' : 'Material Recovery & Salvage Value Analysis'}</div>
+      <div class="report-subtitle">${isFrench ? 'Évaluation des Valeurs de Récupération' : 'Salvage Value Assessment'}</div>
       <div class="report-date">${isFrench ? 'Date du Rapport: ' : 'Report Date: '}${reportDate}</div>
     </div>
     
     <!-- Company Info -->
     <div class="company-info">
-      <img src="${logoUrl}" alt="Company Logo" class="company-logo" onerror="this.style.display='none'">
       <div class="company-name">
         ${options.clientName || options.appraiserCompany || "Clear Value Appraisals"}
       </div>
@@ -241,7 +271,7 @@ const generateSalvageReportHtml = (
         }).join("")}
         
         <!-- Total Value Row -->
-        <tr class="total-row" style="background-color: #1e40af;">
+        <tr class="total-row">
           <td colspan="4" class="text-right"><strong>${isFrench ? 'VALEUR TOTALE DE RÉCUPÉRATION' : 'TOTAL SALVAGE VALUE'}</strong></td>
           <td class="text-right"><strong>${currencySymbol}${totalMarketValue.toLocaleString()}</strong></td>
           <td></td>

@@ -82,7 +82,7 @@ const generateRealEstateReportHtml = (
   }, 0);
 
   // Get company logo URL
-  const logoUrl = `${process.env.BASE_URL || "http://localhost:5000"}/public/companylogo.jpg`;
+  const logoUrl = `${process.env.BASE_URL || "http://localhost:3000"}/public/companylogo.jpg`;
 
   // Format date based on language
   const reportDate =
@@ -99,8 +99,13 @@ const generateRealEstateReportHtml = (
   <html>
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${isFrench ? 'Rapport d\'Évaluation Immobilière' : 'Real Estate Valuation Report'}</title>
     <style>
+      @page {
+        size: A4;
+        margin: 0;
+      }
       body {
         font-family: Arial, sans-serif;
         margin: 0;
@@ -108,6 +113,9 @@ const generateRealEstateReportHtml = (
         color: #333;
         position: relative;
         background-color: #fff;
+        width: 210mm;
+        min-height: 297mm;
+        box-sizing: border-box;
       }
       
       .background-logo {
@@ -115,8 +123,8 @@ const generateRealEstateReportHtml = (
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        opacity: 0.35;
-        width: 80%;
+        opacity: 0.25;
+        width: 70%;
         z-index: -1;
       }
       
@@ -125,8 +133,8 @@ const generateRealEstateReportHtml = (
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%) rotate(-30deg);
-        opacity: 0.18;
-        font-size: 200px;
+        opacity: 0.15;
+        font-size: 180px;
         font-weight: bold;
         font-family: Arial, sans-serif;
         z-index: -1;
@@ -141,71 +149,98 @@ const generateRealEstateReportHtml = (
         color: #166534;
       }
       
+      .company-logo-container {
+        text-align: center;
+        margin-bottom: 15px;
+      }
+      
+      .company-logo {
+        max-width: 250px;
+        max-height: 100px;
+        margin: 0 auto;
+        display: block;
+      }
+      
       .header {
         text-align: center;
         margin-bottom: 30px;
+        border-bottom: 2px solid #166534;
+        padding-bottom: 15px;
       }
       
       .report-title {
-        font-size: 24px;
+        font-size: 26px;
         font-weight: bold;
         color: #166534;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
         text-transform: uppercase;
       }
       
       .report-subtitle {
-        font-size: 16px;
-        color: #666;
-        margin-bottom: 5px;
+        font-size: 18px;
+        color: #555;
+        margin-bottom: 10px;
       }
       
       .report-date {
         font-size: 14px;
         color: #666;
-        margin-bottom: 20px;
       }
       
-      .company-info {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 30px;
-      }
-      
-      .company-logo {
-        max-width: 200px;
-        max-height: 80px;
+      .report-info {
+        margin-bottom: 25px;
+        color: #555;
+        border-left: 3px solid #166534;
+        padding-left: 15px;
       }
       
       .company-name {
         font-size: 18px;
         font-weight: bold;
         color: #166534;
+        margin-bottom: 20px;
+        text-align: center;
       }
       
       table {
         width: 100%;
         border-collapse: collapse;
         margin-bottom: 30px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      
-      th, td {
-        padding: 12px 15px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
+        table-layout: fixed;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       }
       
       th {
         background-color: #166534;
         color: white;
+        padding: 12px 10px;
+        text-align: left;
         font-weight: bold;
-        text-transform: uppercase;
-        font-size: 12px;
+      }
+      
+      td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #ddd;
+        vertical-align: middle;
       }
       
       tr:nth-child(even) {
-        background-color: #f8f9fa;
+        background-color: #f9f9f9;
+      }
+      
+      tr:hover {
+        background-color: #f1f1f1;
+      }
+      
+      .total-row {
+        font-weight: bold;
+        background-color: #f0f0f0;
+      }
+      
+      .total-row td {
+        border-top: 2px solid #166534;
+        border-bottom: none;
+        padding: 15px 10px;
       }
       
       tr:hover {
@@ -221,10 +256,13 @@ const generateRealEstateReportHtml = (
       }
       
       .note-box {
-        background-color: #f8f9fa;
-        border-left: 4px solid #166534;
+        background-color: #f8f8f8;
         padding: 15px;
-        margin-bottom: 30px;
+        border-radius: 5px;
+        margin-top: 25px;
+        font-size: 13px;
+        color: #555;
+        border-left: 4px solid #166534;
       }
       
       .note-title {
@@ -234,12 +272,31 @@ const generateRealEstateReportHtml = (
       }
       
       .footer {
-        margin-top: 50px;
+        margin-top: 60px;
+        text-align: center;
         font-size: 12px;
         color: #666;
-        text-align: center;
         border-top: 1px solid #ddd;
-        padding-top: 20px;
+        padding-top: 15px;
+      }
+      
+      img.item-image {
+        max-width: 100%;
+        max-height: 80px;
+        display: block;
+        margin: 0 auto;
+        border-radius: 4px;
+      }
+      
+      @media print {
+        body {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        
+        .page-break {
+          page-break-after: always;
+        }
       }
     </style>
   </head>
@@ -249,6 +306,11 @@ const generateRealEstateReportHtml = (
       <span class="black">${isFrench ? 'IMMOBILIER' : 'REAL'}</span> <span class="green">${isFrench ? 'ÉVALUATION' : 'ESTATE'}</span>
     </div>
     
+    <!-- Company Logo -->
+    <div class="company-logo-container">
+      <img src="${logoUrl}" class="company-logo" alt="${options.clientName || options.appraiserCompany || "Clear Value Appraisals"}" onerror="this.style.display='none'">
+    </div>
+    
     <!-- Header -->
     <div class="header">
       <div class="report-title">${isFrench ? 'Rapport d\'Évaluation Immobilière' : 'Real Estate Valuation Report'}</div>
@@ -256,12 +318,9 @@ const generateRealEstateReportHtml = (
       <div class="report-date">${isFrench ? 'Date du Rapport: ' : 'Report Date: '}${reportDate}</div>
     </div>
     
-    <!-- Company Info -->
-    <div class="company-info">
-      <img src="${logoUrl}" alt="Company Logo" class="company-logo" onerror="this.style.display='none'">
-      <div class="company-name">
-        ${options.clientName || options.appraiserCompany || "Clear Value Appraisals"}
-      </div>
+    <!-- Company Name -->
+    <div class="company-name">
+      ${options.clientName || options.appraiserCompany || "Clear Value Appraisals"}
     </div>
     
     <!-- Items Table -->

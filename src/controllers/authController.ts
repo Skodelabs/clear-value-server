@@ -8,7 +8,7 @@ export class AuthController {
   async resetPassword(req: AuthRequest, res: Response) {
     try {
       const { oldPassword, newPassword } = req.body;
-
+      console.log(oldPassword, newPassword);
       // Validate new password length
       if (!newPassword || newPassword.length < 6) {
         return res.status(400).json({
@@ -58,7 +58,7 @@ export class AuthController {
   async updateUsername(req: AuthRequest, res: Response) {
     try {
       const { fullName } = req.body;
-
+      console.log(fullName);
       // Validate full name
       if (!fullName?.trim() || fullName.trim().length < 3) {
         return res.status(400).json({

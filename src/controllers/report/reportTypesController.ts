@@ -289,9 +289,14 @@ export const generateTypedReport = async (req: AuthRequest, res: Response) => {
       userId: req.userId, // Associate report with authenticated user
 
       // Report metadata
-      reportName:
-        reportRequest.reportName ||
-        `Asset Valuation - ${new Date().toLocaleDateString()}`,
+      reportName: reportRequest.reportName || (() => {
+        const now = new Date();
+        const date = now.toISOString().split('T')[0]; // YYYY-MM-DD
+        const time = now.toTimeString().split(' ')[0].replace(/:/g, '-'); // HH-MM-SS
+        const type = options.reportType.charAt(0).toUpperCase() + options.reportType.slice(1);
+        const subtype = options.subType ? `-${options.subType.charAt(0).toUpperCase() + options.subType.slice(1)}` : '';
+        return `${type}${subtype}-${date}-${time}`;
+      })(),
       reportType: options.reportType,
       subType: options.subType,
       type: options.reportType, // For backward compatibility
