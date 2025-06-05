@@ -36,7 +36,6 @@ export const generateAssetReport = async (
 
     const fileName = `asset-report-${Date.now()}.pdf`;
     const filePath = path.join(REPORTS_DIR, fileName);
-
     console.log(`Saving asset report to: ${filePath}`);
 
     // Generate PDF
@@ -75,6 +74,9 @@ const generateAssetReportHtml = (
   // Determine if we should include repair costs
   const includeRepairCosts = options.wearTear === true;
 
+  // Check if language is French
+  const isFrench = options.language === "fr";
+
   // Calculate totals
   const totalMarketValue = items.reduce((sum, item) => {
     const price = typeof item.price === "number" ? item.price : 0;
@@ -93,13 +95,13 @@ const generateAssetReportHtml = (
 
   // Get company logo URL
   const logoUrl = `${
-    process.env.BASE_URL || "http://localhost:5000"
+    process.env.BASE_URL || "http://localhost:3000"
   }/public/companylogo.jpg`;
 
-  // Format date
+  // Format date based on language
   const reportDate =
     options.reportDate ||
-    new Date().toLocaleDateString("en-US", {
+    new Date().toLocaleDateString(isFrench ? "fr-CA" : "en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -111,7 +113,11 @@ const generateAssetReportHtml = (
   <html>
   <head>
     <meta charset="utf-8">
-    <title>Asset Inventory & Valuation Report</title>
+    <title>${
+      isFrench
+        ? "Rapport d'Inventaire et d'Évaluation des Actifs"
+        : "Asset Inventory & Valuation Report"
+    }</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -258,23 +264,28 @@ const generateAssetReportHtml = (
     <!-- Background Logo (Faded) -->
     <img src="${logoUrl}" class="background-logo" alt="Background Logo">
     
-    <!-- McD Watermark -->
+    <!-- Watermark -->
     <div class="watermark">
-      <span class="black">M</span><span class="red">c</span><span class="black">D</span>
+      <span class="black">${
+        isFrench ? "ACTIFS" : "ASSET"
+      }</span> <span class="red">${isFrench ? "RAPPORT" : "REPORT"}</span>
     </div>
     
     <!-- Header -->
     <div class="header">
-      <img src="${logoUrl}" class="logo" alt="Company Logo">
-      <h1>Asset Inventory & Valuation Report</h1>
-      <div class="report-info">
-        Report Date: ${reportDate}<br>
-        ${
-          options.clientName ||
-          options.appraiserCompany ||
-          "Clear Value Appraisals"
-        }
-      </div>
+      <div class="report-title">${
+        isFrench
+          ? "Rapport d'Inventaire et d'Évaluation des Actifs"
+          : "Asset Inventory & Valuation Report"
+      }</div>
+      <div class="report-subtitle">${
+        isFrench
+          ? "Évaluation Complète des Actifs"
+          : "Comprehensive Asset Assessment"
+      }</div>
+      <div class="report-date">${
+        isFrench ? "Date du Rapport: " : "Report Date: "
+      }${reportDate}</div>
     </div>
     
     <!-- Items Table -->
@@ -282,16 +293,24 @@ const generateAssetReportHtml = (
       <thead>
         <tr>
           <th style="width: 5%">ID</th>
-          <th style="width: 20%">Item Name</th>
-          <th style="width: 25%">Description</th>
-          <th style="width: 10%">Condition</th>
-          <th style="width: 15%" class="text-right">Market Value</th>
+          <th style="width: 20%">${
+            isFrench ? "Nom de l'Article" : "Item Name"
+          }</th>
+          <th style="width: 25%">${
+            isFrench ? "Description" : "Description"
+          }</th>
+          <th style="width: 10%">${isFrench ? "État" : "Condition"}</th>
+          <th style="width: 15%" class="text-right">${
+            isFrench ? "Valeur Marchande" : "Market Value"
+          }</th>
           ${
             includeRepairCosts
-              ? '<th style="width: 10%" class="text-right">Repair Cost</th>'
+              ? `<th style="width: 10%" class="text-right">${
+                  isFrench ? "Coût de Réparation" : "Repair Cost"
+                }</th>`
               : ""
           }
-          <th style="width: 15%">Image</th>
+          <th style="width: 15%">${isFrench ? "Image" : "Image"}</th>
         </tr>
       </thead>
       <tbody>
@@ -334,13 +353,19 @@ const generateAssetReportHtml = (
           includeRepairCosts
             ? `
         <tr class="total-row" style="background-color: #e57373;">
-          <td colspan="4" class="text-right">Total Repair Cost</td>
+          <td colspan="4" class="text-right">${
+            isFrench ? "Coût Total des Réparations" : "Total Repair Cost"
+          }</td>
           <td></td>
           <td class="text-right">${currencySymbol}${totalRepairCost.toLocaleString()}</td>
           <td></td>
         </tr>
         <tr class="total-row" style="background-color: #81c784;">
-          <td colspan="4" class="text-right">Net Value After Repairs</td>
+          <td colspan="4" class="text-right">${
+            isFrench
+              ? "Valeur Nette Après Réparations"
+              : "Net Value After Repairs"
+          }</td>
           <td class="text-right">${currencySymbol}${(
                 totalMarketValue - totalRepairCost
               ).toLocaleString()}</td>
@@ -352,7 +377,9 @@ const generateAssetReportHtml = (
         }
         <!-- Total Value Row -->
         <tr class="total-row" style="background-color: #c41e3a;">
-          <td colspan="4" class="text-right"><strong>TOTAL VALUE</strong></td>
+          <td colspan="4" class="text-right"><strong>${
+            isFrench ? "VALEUR TOTALE" : "TOTAL VALUE"
+          }</strong></td>
           <td class="text-right"><strong>${currencySymbol}${totalMarketValue.toLocaleString()}</strong></td>
           ${includeRepairCosts ? `<td></td>` : ""}
           <td></td>
@@ -362,27 +389,36 @@ const generateAssetReportHtml = (
     
     <!-- Note Box -->
     <div class="note-box">
-      <span class="note-title">Note:</span>
+      <span class="note-title">${isFrench ? "Note:" : "Note:"}</span>
       ${
         includeRepairCosts
-          ? `Market valuations are based on current market conditions and the physical condition of each item. 
-         Repair costs represent estimated expenses to address wear and tear issues. 
-         Values may vary based on market fluctuations, buyer interest, and local repair rates.`
+          ? isFrench
+            ? `Les évaluations marchandes sont basées sur les conditions actuelles du marché et l'état physique de chaque article. 
+               Les coûts de réparation représentent les dépenses estimées pour résoudre les problèmes d'usure. 
+               Les valeurs peuvent varier en fonction des fluctuations du marché, de l'intérêt des acheteurs et des tarifs locaux de réparation.`
+            : `Market valuations are based on current market conditions and the physical condition of each item. 
+               Repair costs represent estimated expenses to address wear and tear issues. 
+               Values may vary based on market fluctuations, buyer interest, and local repair rates.`
+          : isFrench
+          ? `Les évaluations marchandes sont basées sur les conditions actuelles du marché et l'état physique de chaque article. 
+               Les valeurs peuvent varier en fonction des fluctuations du marché et de l'intérêt des acheteurs.`
           : `Market valuations are based on current market conditions and the physical condition of each item. 
-         Values may vary based on market fluctuations and buyer interest.`
+               Values may vary based on market fluctuations and buyer interest.`
       }
     </div>
     
     <!-- Footer -->
     <div class="footer">
-      <p>This report was generated by ${
-        options.clientName ||
-        options.appraiserCompany ||
-        "Clear Value Appraisals"
-      } on ${reportDate}</p>
+      <p>${
+        isFrench
+          ? "Ce rapport a été généré par"
+          : "This report was generated by"
+      } ${
+    options.clientName || options.appraiserCompany || "Clear Value Appraisals"
+  } ${isFrench ? "le" : "on"} ${reportDate}</p>
       <p> ${new Date().getFullYear()} ${
     options.clientName || options.appraiserCompany || "Clear Value Appraisals"
-  }. All rights reserved.</p>
+  }. ${isFrench ? "Tous droits réservés." : "All rights reserved."}</p>
     </div>
   </body>
   </html>

@@ -14,10 +14,12 @@ const openai = new OpenAI({
 /**
  * Analyze a single image using OpenAI Vision API
  * @param imageBuffer - Buffer containing the image data
+ * @param language - Language code (e.g., 'en', 'fr') for the response
  * @returns Market valuation data including identified items
  */
 export async function analyzeImage(
-  imageBuffer: Buffer
+  imageBuffer: Buffer,
+  language: string = 'en'
 ): Promise<any>{
   let retries = 0;
 
@@ -42,7 +44,7 @@ export async function analyzeImage(
             content: [
               {
                 type: "text",
-                text: "Analyze this image and identify all items visible(dont miss any items, label if visible in image).",
+                text: `Analyze this image and identify all items visible. Skip items that are cut off at image borders (less than 50% visible). ${language !== 'en' ? `Respond in ${language} language.` : ''} For vehicles or equipment, include all visible details, specifications,mileage and condition information.`,
               },
               {
                 type: "image_url",
@@ -141,10 +143,12 @@ export async function analyzeImage(
 /**
  * Process images individually to maintain correct image URLs and add metadata
  * @param imageBuffers - Array of image buffers to analyze
+ * @param language - Language code (e.g., 'en', 'fr') for the response
  * @returns Market valuation data including identified items from all images
  */
 export async function analyzeImagesBatch(
-  imageBuffers: Buffer[]
+  imageBuffers: Buffer[],
+  language: string = 'en'
 ): Promise<any> {
   if (!imageBuffers || imageBuffers.length === 0) {
     return {
@@ -169,7 +173,8 @@ export async function analyzeImagesBatch(
       const imageItems = await processIndividualImage(
         imageBuffers[i],
         i, // Image index for tracking
-        previousItemsContext
+        previousItemsContext,
+        language // Pass language parameter
       );
 
       // Add new items to the overall list
@@ -237,7 +242,8 @@ export async function analyzeImagesBatch(
 async function processIndividualImage(
   imageBuffer: Buffer,
   imageIndex: number,
-  previousItemsContext: string[] = []
+  previousItemsContext: string[] = [],
+  language: string = 'en'
 ): Promise<any[]> {
   let retries = 0;
 
@@ -273,8 +279,8 @@ async function processIndividualImage(
           content: [
             {
               type: "text",
-              text: `Analyze this image and identify all items visible. For each item, include its position in the image (top-left, center, bottom-right, etc.), nearby items, background description, and dominant color. These details will help prevent duplicate items across multiple images.${contextText}.
-              some time there are but similar items from different images can be come so dont remove them by analyze position, background, and color`,
+              text: `Analyze this image and identify all items visible. Skip items that are cut off at image borders (less than 50% visible). For each item, include its position in the image (top-left, center, bottom-right, etc.), nearby items, background description, and dominant color. For vehicles or equipment, include all visible details, specifications, and condition information. ${language !== 'en' ? `Respond in ${language} language.` : ''} ${contextText}.
+              Do not remove similar items from different images - analyze position, background, and color to distinguish them.`,
             },
             {
               type: "image_url",

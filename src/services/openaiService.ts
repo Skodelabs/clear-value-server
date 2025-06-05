@@ -35,14 +35,16 @@ export interface MarketValuation {
 /**
  * Analyze a single image using OpenAI Vision API
  * @param imageBuffer - Buffer containing the image data
+ * @param language - Language code (e.g., 'en', 'fr') for the response
  * @returns Market valuation data including identified items
  */
 export async function analyzeImage(
-  imageBuffer: Buffer
+  imageBuffer: Buffer,
+  language: string = 'en'
 ): Promise<MarketValuation> {
   try {
     // Use the enhanced version from the openai directory
-    return await analyzeImageEnhanced(imageBuffer);
+    return await analyzeImageEnhanced(imageBuffer, language);
   } catch (error) {
     console.error("Error in analyzeImage:", error);
     throw error;
@@ -52,14 +54,16 @@ export async function analyzeImage(
 /**
  * Process multiple images to identify items
  * @param imageBuffers - Array of image buffers to analyze
+ * @param language - Language code (e.g., 'en', 'fr') for the response
  * @returns Market valuation data including identified items from all images
  */
 export async function analyzeImagesBatch(
-  imageBuffers: Buffer[]
+  imageBuffers: Buffer[],
+  language: string = 'en'
 ): Promise<MarketValuation> {
   try {
     // Use the enhanced version from the openai directory
-    return await analyzeImagesBatchEnhanced(imageBuffers);
+    return await analyzeImagesBatchEnhanced(imageBuffers, language);
   } catch (error) {
     console.error("Error in analyzeImagesBatch:", error);
     throw error;

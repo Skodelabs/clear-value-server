@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            background-color: white;
+        }
+
+        .page {
+            position: relative;
+            page-break-after: always;
+            page-break-inside: avoid;
+            background-color: white;
+            display: block;
+        }
+
+        @media print {
+            html, body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .page {
+                margin: 0;
+                border: initial;
+                border-radius: initial;
+                width: initial;
+                min-height: initial;
+                box-shadow: initial;
+                background: initial;
+                page-break-after: always;
+                page-break-inside: avoid;
+            }
+            .page:last-child {
+                page-break-after: auto;
+            }
+        }
+        /* Page numbering */
+        
+        .page-number::after {
+            content: counter(page);
+        }
+        /* Table styling */
+        
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+            page-break-inside: auto;
+        }
+        
+        .report-table th,
+        .report-table td {
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            vertical-align: middle;
+            word-wrap: break-word;
+            page-break-inside: avoid;
+        }
+        
+        .report-table th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            text-align: left;
+            border-bottom: 2px solid #c41e3a;
+            color: #334155;
+        }
+        
+        .report-table tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+        
+        .report-table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        
+        .report-table tr:hover {
+            background-color: #f1f5f9;
+        }
+        
+        .report-table img {
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            max-width: 120px;
+            max-height: 90px;
+            object-fit: cover;
+        }
+        
+        /* Section break handling */
+        .section {
+            page-break-inside: avoid;
+        }
+        
+        /* Appendix sections */
+        #appendix-photos, #appendix-documents {
+            page-break-before: always;
+        }
+        
+        /* Total row styling */
+        
+        .total-row {
+            background-color: #c41e3a !important;
+            color: white;
+            font-weight: bold;
+            border-top: 2px solid #000;
+        }
+        
+        .total-row td {
+            border-color: #a51a30;
+        }
+        
+        /* Enhanced header and footer styling */
+        .header {
+            border-bottom: 2px solid #334155;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 0.75rem;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+        
+        .page-number {
+            font-weight: 600;
+            color: #475569;
+        }
+        
+        /* Enhanced typography */
+        h1, h2, h3, h4 {
+            color: #1e293b;
+            line-height: 1.3;
+        }
+        
+        /* Watermark styling */
+        .watermark {
+            position: fixed;
+            bottom: 5%;
+            right: 5%;
+            transform: rotate(-45deg);
+            opacity: 0.08;
+            font-size: 200px;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            z-index: -1;
+            white-space: nowrap;
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body class="bg-white">
+    <!-- Background Logo (Faded) -->
+    <img src="{{watermarkLogoUrl}}" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-10 max-w-[80%] max-h-[80%] z-[-2]" alt="Logo d'arrière-plan">
+
+    <!-- Watermark -->
+    <div class="watermark">
+        <span class="text-gray-700">Clear</span><span class="text-red-600">Value</span>
+    </div>
+
+    <!-- Cover Page -->
+    <div class="page relative overflow-hidden min-h-screen p-0">
+        <!-- Enhanced Footer with better spacing and styling -->
+        <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300 bg-gray-50">
+            <div class="flex justify-between items-center max-w-6xl mx-auto">
+                <div class="text-gray-700">
+                    <div>{{companyAddress}}</div>
+                </div>
+                <div class="footer-right flex items-center">
+                    <div class="flex space-x-6">
+                        <a href="mailto:{{companyEmail}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-gray-500">courriel</span> {{companyEmail}}
+                        </a>
+                        <a href="tel:{{companyPhone}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <span class="text-gray-500">tél</span> {{companyPhone}}
+                        </a>
+                        <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                            </svg>
+                            <span class="text-gray-500">web</span> {{companyWebsite}}
+                        </a>
+                    </div>
+                </div>
+                <div class="page-number font-medium text-gray-700">1 | Page</div>
+            </div>
+        </div>
+
+        <!-- Enhanced Watermark Logo -->
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-8 z-0">
+            <img src="{{watermarkLogoUrl}}" alt="Logo de l'entreprise" class="w-full max-w-[600px] h-auto">
+        </div>
+
+        <!-- Enhanced Header with better styling -->
+        <div class="header relative p-8 border-b-2 border-gray-800 z-10 bg-white bg-opacity-95 shadow-md">
+            <div class="flex justify-between items-center px-5 w-full max-w-6xl mx-auto">
+                <div class="flex items-center space-x-4">
+                    <img src="{{companyLogoUrl}}" alt="Logo de l'entreprise" class="h-24 object-contain">
+                </div>
+            </div>
+
+            <!-- Enhanced Content Section -->
+            <div class="text-center px-5 pt-12 h-[calc(100%-160px)] flex flex-col justify-center items-center relative z-10">
+                <div class="mb-16 w-full max-w-5xl">
+                    <!-- Enhanced Title -->
+                    <h1 class="text-3xl mb-6 text-gray-800 tracking-wide font-bold">{{title}}</h1>
+                    <div class="h-1 w-32 mx-auto bg-gradient-to-r from-red-500 to-red-700 rounded-full mb-8"></div>
+
+                    <!-- Enhanced Report Date Box -->
+                    <div class="flex justify-center mb-12">
+                        <div class="bg-white border-2 border-gray-200 rounded-lg px-8 py-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+                            <div class="text-center">
+                                <div class="text-sm uppercase tracking-wide text-gray-500 mb-1">Date du rapport</div>
+                                <div class="text-xl font-bold text-gray-800">{{reportDate}}</div>
+                                <div class="text-sm text-gray-500 mt-2">Date d'effet: {{effectiveDate}}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Property Image with better styling -->
+                    <div class="mx-auto my-10 w-[90%] max-w-[700px] aspect-video border border-gray-200 overflow-hidden shadow-xl rounded-lg transition-transform hover:scale-[1.01]">
+                        <img src="{{propertyImageUrl}}" alt="Image de la propriété" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/800x450?text=Aucune+image+disponible'; this.onerror=null;">
+                    </div>
+
+                    <!-- Enhanced Prepared For Box -->
+                    <div class="bg-gradient-to-r from-gray-50 to-gray-100 p-6 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-300 max-w-md mx-auto">
+                        <div class="text-center">
+                            <div class="text-sm uppercase tracking-wide text-gray-500 mb-3">Préparé pour</div>
+                            <div class="text-2xl font-bold mt-2 mb-1 text-gray-800">{{clientName}}</div>
+                            <div class="text-gray-600 font-medium">{{ownerName}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transmittal Letter Page -->
+    <div class="page relative min-h-screen p-0">
+        <!-- Footer -->
+        <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300 bg-gray-50">
+            <div class="flex justify-between items-center max-w-6xl mx-auto">
+                <div class="text-gray-700">
+                    <div>{{companyAddress}}</div>
+                </div>
+                <div class="footer-right flex items-center">
+                    <div class="flex space-x-6">
+                        <a href="mailto:{{companyEmail}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-gray-500">courriel</span> {{companyEmail}}
+                        </a>
+                        <a href="tel:{{companyPhone}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <span class="text-gray-500">tél</span> {{companyPhone}}
+                        </a>
+                        <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                            </svg>
+                            <span class="text-gray-500">web</span> {{companyWebsite}}
+                        </a>
+                    </div>
+                </div>
+                <div class="page-number font-medium text-gray-700">2 | Page</div>
+            </div>
+        </div>
+
+        <div class="header relative p-6 border-b-2 border-gray-800 z-10 bg-white bg-opacity-95 shadow-sm">
+            <div class="flex justify-between items-center">
+                <img src="{{companyLogoUrl}}" alt="Logo de l'entreprise" class="h-16 object-contain">
+                <h2 class="text-xl font-bold text-gray-700">Rapport d'Évaluation Complet</h2>
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-8 py-10">
+            <div class="mb-8">
+                <p class="text-right text-gray-600">{{reportDate}}</p>
+            </div>
+
+            <div class="mb-8">
+                <p class="font-medium text-gray-800">{{recipientName}}</p>
+                <p class="text-gray-600">{{clientName}}</p>
+            </div>
+
+            <div class="mb-8">
+                <p class="mb-4">Cher/Chère {{recipientName}},</p>
+                <p class="mb-4 text-justify">Conformément à votre demande, nous avons effectué une évaluation complète des articles énumérés dans ce rapport. Cette évaluation a été réalisée dans le but de déterminer la {{premise}} des articles à la date d'effet indiquée.</p>
+                <p class="mb-4 text-justify">Notre évaluation est basée sur une inspection physique des articles, une analyse du marché actuel, et notre expertise professionnelle dans le domaine. Tous les articles ont été évalués individuellement en tenant compte de leur état, de leur âge, et des conditions du marché.</p>
+                <p class="mb-4 text-justify">Ce rapport comprend une liste détaillée de tous les articles évalués, avec des descriptions, des photos, et des valeurs estimées. Nous avons également inclus une analyse du marché et des informations sur la méthodologie d'évaluation utilisée.</p>
+                <p class="mb-4 text-justify">Si vous avez des questions concernant ce rapport ou si vous avez besoin d'informations supplémentaires, n'hésitez pas à nous contacter.</p>
+            </div>
+
+            <div class="mb-8">
+                <p class="mb-1">Cordialement,</p>
+                <p class="font-medium">{{appraiserName}}</p>
+                <p>{{appraiserCompany}}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Introduction Page -->
+    <div class="page relative min-h-screen p-0">
+        <!-- Footer -->
+        <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300 bg-gray-50">
+            <div class="flex justify-between items-center max-w-6xl mx-auto">
+                <div class="text-gray-700">
+                    <div>{{companyAddress}}</div>
+                </div>
+                <div class="footer-right flex items-center">
+                    <div class="flex space-x-6">
+                        <a href="mailto:{{companyEmail}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-gray-500">courriel</span> {{companyEmail}}
+                        </a>
+                        <a href="tel:{{companyPhone}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <span class="text-gray-500">tél</span> {{companyPhone}}
+                        </a>
+                        <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                            </svg>
+                            <span class="text-gray-500">web</span> {{companyWebsite}}
+                        </a>
+                    </div>
+                </div>
+                <div class="page-number font-medium text-gray-700">3 | Page</div>
+            </div>
+        </div>
+
+        <div class="header relative p-6 border-b-2 border-gray-800 z-10 bg-white bg-opacity-95 shadow-sm">
+            <div class="flex justify-between items-center">
+                <img src="{{companyLogoUrl}}" alt="Logo de l'entreprise" class="h-16 object-contain">
+                <h2 class="text-xl font-bold text-gray-700">Rapport d'Évaluation Complet</h2>
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-8 py-10">
+            <div class="mb-8 border-b-2 border-gray-200 pb-4">
+                <h2 class="text-2xl font-bold mb-2 text-gray-800">1. INTRODUCTION</h2>
+            </div>
+
+            <div class="space-y-6 text-justify">
+                {{introText}}
+
+                <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 my-8">
+                    <h3 class="text-lg font-medium text-gray-800 mb-4">Informations sur le rapport</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Client</p>
+                            <p class="font-medium text-gray-800">{{clientName}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Date du rapport</p>
+                            <p class="font-medium text-gray-800">{{reportDate}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Date d'effet</p>
+                            <p class="font-medium text-gray-800">{{effectiveDate}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">But de l'évaluation</p>
+                            <p class="font-medium text-gray-800">{{appraisalPurpose}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Méthode d'évaluation</p>
+                            <p class="font-medium text-gray-800">{{valuationMethod}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Industrie</p>
+                            <p class="font-medium text-gray-800">{{industry}}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p>Ce rapport a été préparé conformément aux normes professionnelles d'évaluation et représente notre opinion impartiale sur la valeur des articles énumérés. L'évaluation est basée sur notre inspection des articles, notre recherche de marché, et notre expertise professionnelle.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Details Page -->
+    <div class="page relative min-h-screen p-0">
+        <!-- Footer -->
+        <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300 bg-gray-50">
+            <div class="flex justify-between items-center max-w-6xl mx-auto">
+                <div class="text-gray-700">
+                    <div>{{companyAddress}}</div>
+                </div>
+                <div class="footer-right flex items-center">
+                    <div class="flex space-x-6">
+                        <a href="mailto:{{companyEmail}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-gray-500">courriel</span> {{companyEmail}}
+                        </a>
+                        <a href="tel:{{companyPhone}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <span class="text-gray-500">tél</span> {{companyPhone}}
+                        </a>
+                        <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                            </svg>
+                            <span class="text-gray-500">web</span> {{companyWebsite}}
+                        </a>
+                    </div>
+                </div>
+                <div class="page-number font-medium text-gray-700">4 | Page</div>
+            </div>
+        </div>
+
+        <div class="header relative p-6 border-b-2 border-gray-800 z-10 bg-white bg-opacity-95 shadow-sm">
+            <div class="flex justify-between items-center">
+                <img src="{{companyLogoUrl}}" alt="Logo de l'entreprise" class="h-16 object-contain">
+                <h2 class="text-xl font-bold text-gray-700">Rapport d'Évaluation Complet</h2>
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-8 py-10">
+            <div class="mb-8 border-b-2 border-gray-200 pb-4">
+                <h2 class="text-2xl font-bold mb-2 text-gray-800">2. DÉTAILS DES ARTICLES</h2>
+            </div>
+
+            <div class="space-y-6">
+                <p class="text-justify">Cette section présente une liste détaillée de tous les articles évalués, avec leurs descriptions, états, et valeurs estimées. Chaque article a été évalué individuellement en tenant compte de son état, de son âge, et des conditions actuelles du marché.</p>
+
+                <div class="overflow-x-auto">
+                    {{itemRows}}
+                </div>
+
+                <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 mt-8">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-medium text-gray-800">Valeur totale</h3>
+                        <p class="text-2xl font-bold text-gray-800">{{currencySymbol}}{{totalValue}}</p>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <p class="text-sm text-gray-500 italic">* Les valeurs sont exprimées en {{currency === 'CAD' ? 'dollars canadiens' : 'dollars américains'}} et sont valables à la date d'effet indiquée.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Page -->
+    <div class="page relative min-h-screen p-0">
+        <!-- Footer -->
+        <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300 bg-gray-50">
+            <div class="flex justify-between items-center max-w-6xl mx-auto">
+                <div class="text-gray-700">
+                    <div>{{companyAddress}}</div>
+                </div>
+                <div class="footer-right flex items-center">
+                    <div class="flex space-x-6">
+                        <a href="mailto:{{companyEmail}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-gray-500">courriel</span> {{companyEmail}}
+                        </a>
+                        <a href="tel:{{companyPhone}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <span class="text-gray-500">tél</span> {{companyPhone}}
+                        </a>
+                        <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                            </svg>
+                            <span class="text-gray-500">web</span> {{companyWebsite}}
+                        </a>
+                    </div>
+                </div>
+                <div class="page-number font-medium text-gray-700">5 | Page</div>
+            </div>
+        </div>
+
+        <div class="header relative p-6 border-b-2 border-gray-800 z-10 bg-white bg-opacity-95 shadow-sm">
+            <div class="flex justify-between items-center">
+                <img src="{{companyLogoUrl}}" alt="Logo de l'entreprise" class="h-16 object-contain">
+                <h2 class="text-xl font-bold text-gray-700">Rapport d'Évaluation Complet</h2>
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-8 py-10">
+            <div class="mb-8 border-b-2 border-gray-200 pb-4">
+                <h2 class="text-2xl font-bold mb-2 text-gray-800">3. RÉSUMÉ ET CONCLUSION</h2>
+            </div>
+
+            <div class="space-y-6 text-justify">
+                <p>Basé sur notre évaluation détaillée, nous avons déterminé que la valeur totale des articles énumérés dans ce rapport est de <span class="font-bold">{{currencySymbol}}{{totalValue}}</span>.</p>
+
+                <p>Cette évaluation a été réalisée conformément aux normes professionnelles d'évaluation et représente notre opinion impartiale sur la {{premise}} des articles à la date d'effet indiquée.</p>
+
+                <p>Les valeurs indiquées dans ce rapport sont valables à la date d'effet spécifiée et peuvent être sujettes à des changements en fonction des conditions du marché, de l'état des articles, et d'autres facteurs pertinents.</p>
+
+                <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 my-8">
+                    <h3 class="text-lg font-medium text-gray-800 mb-4">Résumé des valeurs</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Nombre total d'articles</p>
+                            <p class="font-medium text-gray-800">{{totalItems}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Valeur totale</p>
+                            <p class="font-medium text-gray-800">{{currencySymbol}}{{totalValue}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Valeur moyenne par article</p>
+                            <p class="font-medium text-gray-800">{{currencySymbol}}{{averageValue}}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Date d'effet</p>
+                            <p class="font-medium text-gray-800">{{effectiveDate}}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <p>Nous certifions que les opinions exprimées dans ce rapport sont le résultat d'une recherche et d'une analyse approfondies, et qu'elles représentent notre jugement professionnel impartial.</p>
+
+                <div class="mt-12">
+                    <p class="font-medium">{{appraiserName}}</p>
+                    <p>{{appraiserTitle}}</p>
+                    <p>{{appraiserCompany}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appendix Page -->
+    <div class="page relative min-h-screen p-0">
+        <!-- Footer -->
+        <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300 bg-gray-50">
+            <div class="flex justify-between items-center max-w-6xl mx-auto">
+                <div class="text-gray-700">
+                    <div>{{companyAddress}}</div>
+                </div>
+                <div class="footer-right flex items-center">
+                    <div class="flex space-x-6">
+                        <a href="mailto:{{companyEmail}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-gray-500">courriel</span> {{companyEmail}}
+                        </a>
+                        <a href="tel:{{companyPhone}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <span class="text-gray-500">tél</span> {{companyPhone}}
+                        </a>
+                        <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                            </svg>
+                            <span class="text-gray-500">web</span> {{companyWebsite}}
+                        </a>
+                    </div>
+                </div>
+                <div class="page-number font-medium text-gray-700">6 | Page</div>
+            </div>
+        </div>
+
+        <div class="header relative p-6 border-b-2 border-gray-800 z-10 bg-white bg-opacity-95 shadow-sm">
+            <div class="flex justify-between items-center">
+                <img src="{{companyLogoUrl}}" alt="Logo de l'entreprise" class="h-16 object-contain">
+                <h2 class="text-xl font-bold text-gray-700">Rapport d'Évaluation Complet</h2>
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-8 py-10">
+            <div class="mb-8 border-b-2 border-gray-200 pb-4">
+                <h2 class="text-2xl font-bold mb-2 text-gray-800">4. ANNEXES</h2>
+            </div>
+
+            <div class="space-y-8">
+                <!-- Additional Photos Section -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">4.1 Photos supplémentaires</h3>
+                    <p class="mb-6">Cette section contient des photos supplémentaires des articles évalués pour fournir une documentation visuelle complète.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {{additionalPhotos}}
+                    </div>
+                </div>
+
+                <!-- Supporting Documents Section -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">4.2 Documents justificatifs</h3>
+                    <p class="mb-6">Cette section contient des documents justificatifs pertinents pour l'évaluation, tels que des reçus, des certificats d'authenticité, des garanties, etc.</p>
+                    
+                    <div class="space-y-4">
+                        {{supportingDocuments}}
+                    </div>
+                </div>
+
+                <!-- Methodology Section -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">4.3 Méthodologie d'évaluation</h3>
+                    <p class="mb-4 text-justify">Pour cette évaluation, nous avons utilisé une combinaison de méthodes d'évaluation standard pour déterminer la valeur des articles. Notre approche comprend :</p>
+                    
+                    <ul class="list-disc pl-6 space-y-2 mb-6">
+                        <li>Analyse comparative du marché pour des articles similaires</li>
+                        <li>Évaluation de l'état physique et fonctionnel de chaque article</li>
+                        <li>Considération de la rareté, de l'âge, et de la provenance</li>
+                        <li>Consultation de bases de données de ventes et d'experts du domaine</li>
+                        <li>Application de facteurs d'ajustement appropriés pour tenir compte des conditions spécifiques</li>
+                    </ul>
+                    
+                    <p class="text-justify">Toutes les valeurs sont exprimées en {{currency === 'CAD' ? 'dollars canadiens' : 'dollars américains'}} et sont valables à la date d'effet indiquée dans ce rapport.</p>
+                </div>
+
+                <!-- Qualifications Section -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">4.4 Qualifications de l'évaluateur</h3>
+                    <p class="mb-4 text-justify">{{appraiserName}} est un évaluateur professionnel avec une vaste expérience dans l'évaluation de {{industry}}. Ses qualifications comprennent :</p>
+                    
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li>{{appraiserQualifications}}</li>
+                    </ul>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">4.5 Conditions générales</h3>
+                    <p class="mb-4 text-justify">Ce rapport d'évaluation est soumis aux conditions générales suivantes :</p>
+                    
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li>Ce rapport est confidentiel et destiné uniquement à l'usage du client mentionné.</li>
+                        <li>Les valeurs indiquées sont valables uniquement à la date d'effet spécifiée.</li>
+                        <li>L'évaluateur n'assume aucune responsabilité pour les questions juridiques qui pourraient affecter les articles évalués.</li>
+                        <li>Toute reproduction ou utilisation de ce rapport à d'autres fins que celles prévues nécessite l'autorisation écrite de l'évaluateur.</li>
+                        <li>L'évaluateur certifie n'avoir aucun intérêt actuel ou futur dans les articles évalués ou les parties concernées.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Market Analysis Page -->
+    <div class="page relative min-h-screen p-0">
+        <!-- Footer -->
+        <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300 bg-gray-50">
+            <div class="flex justify-between items-center max-w-6xl mx-auto">
+                <div class="text-gray-700">
+                    <div>{{companyAddress}}</div>
+                </div>
+                <div class="footer-right flex items-center">
+                    <div class="flex space-x-6">
+                        <a href="mailto:{{companyEmail}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-gray-500">courriel</span> {{companyEmail}}
+                        </a>
+                        <a href="tel:{{companyPhone}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <span class="text-gray-500">tél</span> {{companyPhone}}
+                        </a>
+                        <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                            </svg>
+                            <span class="text-gray-500">web</span> {{companyWebsite}}
+                        </a>
+                    </div>
+                </div>
+                <div class="page-number font-medium text-gray-700">6 | Page</div>
+            </div>
+        </div>
+
+        <div class="header relative p-6 border-b-2 border-gray-800 z-10 bg-white bg-opacity-95 shadow-sm">
+            <div class="flex justify-between items-center">
+                <img src="{{companyLogoUrl}}" alt="Logo de l'entreprise" class="h-16 object-contain">
+                <h2 class="text-xl font-bold text-gray-700">Rapport d'Évaluation Complet</h2>
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto mt-10">
+            <div class="mb-8 border-b-2 border-gray-200 pb-4">
+                <h2 class="text-2xl font-bold mb-2 text-gray-800">4. ANALYSE DE MARCHÉ</h2>
+            </div>
+
+            <div class="text-justify space-y-5 bg-white p-8 rounded-lg shadow-md border border-gray-200">
+                <h3 class="text-xl font-medium text-gray-700 mb-4">Conditions du marché</h3>
+                <p class="leading-relaxed text-gray-700">{{marketAnalysis}}</p>
+                
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <h3 class="text-xl font-medium text-gray-700 mb-4">Tendances du marché</h3>
+                    <div class="flex flex-col md:flex-row gap-6">
+                        <div class="flex-1">
+                            <p class="leading-relaxed text-gray-700">Le marché pour ce type d'articles a montré une <span class="font-medium">{{marketTrend}}</span> au cours des <span class="font-medium">{{marketPeriod}}</span>. Les facteurs influençant l'évaluation comprennent l'état, la provenance, la rareté et la demande actuelle du marché.</p>
+                        </div>
+                        <div class="flex-1">
+                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                <h4 class="font-medium mb-2 text-gray-700">Facteurs clés d'évaluation</h4>
+                                <ul class="list-disc pl-5 space-y-1 text-gray-600">
+                                    <li>État et âge de l'article</li>
+                                    <li>Provenance et authenticité</li>
+                                    <li>Demande du marché et rareté</li>
+                                    <li>Ventes comparables récentes</li>
+                                    <li>Indicateurs économiques</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 pt-6 border-t border-gray-200">
+                    <h3 class="text-xl font-medium text-gray-700 mb-4">Facteurs de marché considérés</h3>
+                    <p class="leading-relaxed text-gray-700">Notre évaluation prend en compte plusieurs facteurs de marché importants, notamment les ventes récentes d'articles comparables, les tendances actuelles du marché, et les conditions économiques générales qui pourraient affecter la valeur des articles évalués.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Information Page -->
+    <div class="page relative min-h-screen p-0">
+        <!-- Footer -->
+        <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300 bg-gray-50">
+            <div class="flex justify-between items-center max-w-6xl mx-auto">
+                <div class="text-gray-700">
+                    <div>{{companyAddress}}</div>
+                </div>
+                <div class="footer-right flex items-center">
+                    <div class="flex space-x-6">
+                        <a href="mailto:{{companyEmail}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-gray-500">courriel</span> {{companyEmail}}
+                        </a>
+                        <a href="tel:{{companyPhone}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <span class="text-gray-500">tél</span> {{companyPhone}}
+                        </a>
+                        <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                            </svg>
+                            <span class="text-gray-500">web</span> {{companyWebsite}}
+                        </a>
+                    </div>
+                </div>
+                <div class="page-number font-medium text-gray-700">7 | Page</div>
+            </div>
+        </div>
+
+        <div class="header relative p-6 border-b-2 border-gray-800 z-10 bg-white bg-opacity-95 shadow-sm">
+            <div class="flex justify-between items-center">
+                <img src="{{companyLogoUrl}}" alt="Logo de l'entreprise" class="h-16 object-contain">
+                <h2 class="text-xl font-bold text-gray-700">Rapport d'Évaluation Complet</h2>
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-8 py-10">
+            <div class="mb-8 border-b-2 border-gray-200 pb-4">
+                <h2 class="text-2xl font-bold mb-2 text-gray-800">5. INFORMATIONS DÉTAILLÉES</h2>
+            </div>
+
+            <div class="space-y-6">
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4">Informations sur l'évaluation</h3>
+                    <table class="w-full border-collapse border border-gray-300">
+                        <tr>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Client:</td>
+                            <td class="border border-gray-300 p-4">{{clientName}}</td>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Évaluateur:</td>
+                            <td class="border border-gray-300 p-4">{{appraiserName}}</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Date du rapport:</td>
+                            <td class="border border-gray-300 p-4">{{reportDate}}</td>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Date d'effet:</td>
+                            <td class="border border-gray-300 p-4">{{effectiveDate}}</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Société d'évaluation:</td>
+                            <td class="border border-gray-300 p-4">{{appraiserCompany}}</td>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">But de l'évaluation:</td>
+                            <td class="border border-gray-300 p-4">{{appraisalPurpose}}</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Méthode d'évaluation:</td>
+                            <td class="border border-gray-300 p-4">{{valuationMethod}}</td>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Nom du propriétaire:</td>
+                            <td class="border border-gray-300 p-4">{{ownerName}}</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Industrie:</td>
+                            <td class="border border-gray-300 p-4">{{industry}}</td>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Lieux inspectés:</td>
+                            <td class="border border-gray-300 p-4">{{locationsInspected}}</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Date d'inspection:</td>
+                            <td class="border border-gray-300 p-4">{{inspectionDate}}</td>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Devise:</td>
+                            <td class="border border-gray-300 p-4">{{currency === 'CAD' ? 'Dollar canadien' : 'Dollar américain'}}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold mb-4">Méthodologie d'évaluation</h3>
+                    <p class="text-justify">La méthodologie d'évaluation utilisée pour cette évaluation est {{valuationMethod}}. Cette approche a été sélectionnée comme la méthode la plus appropriée pour déterminer la juste valeur marchande des articles inclus dans ce rapport.</p>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-xl font-semibold mb-4">Analyse du marché</h3>
+                    <p class="text-justify">{{marketAnalysis}}</p>
+                    
+                    <div class="mt-6 bg-gray-50 p-6 rounded-lg border border-gray-200">
+                        <h4 class="font-medium text-gray-800 mb-3">Tendances du marché</h4>
+                        <p>Les tendances actuelles du marché pour ce type d'articles montrent une {{marketTrend}} générale des prix au cours de la dernière {{marketPeriod}}. Cette tendance a été prise en compte dans notre évaluation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms and Conditions Page -->
+    <div class="page relative min-h-screen p-0">
+        <!-- Footer -->
+        <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300 bg-gray-50">
+            <div class="flex justify-between items-center max-w-6xl mx-auto">
+                <div class="text-gray-700">
+                    <div>{{companyAddress}}</div>
+                </div>
+                <div class="footer-right flex items-center">
+                    <div class="flex space-x-6">
+                        <a href="mailto:{{companyEmail}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-gray-500">courriel</span> {{companyEmail}}
+                        </a>
+                        <a href="tel:{{companyPhone}}" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <span class="text-gray-500">tél</span> {{companyPhone}}
+                        </a>
+                        <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600 hover:text-red-600 transition-colors duration-200 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                            </svg>
+                            <span class="text-gray-500">web</span> {{companyWebsite}}
+                        </a>
+                    </div>
+                </div>
+                <div class="page-number font-medium text-gray-700">8 | Page</div>
+            </div>
+        </div>
+
+        <div class="header relative p-6 border-b-2 border-gray-800 z-10 bg-white bg-opacity-95 shadow-sm">
+            <div class="flex justify-between items-center">
+                <img src="{{companyLogoUrl}}" alt="Logo de l'entreprise" class="h-16 object-contain">
+                <h2 class="text-xl font-bold text-gray-700">Rapport d'Évaluation Complet</h2>
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-8 py-10">
+            <div class="mb-8 border-b-2 border-gray-200 pb-4">
+                <h2 class="text-2xl font-bold mb-2 text-gray-800">6. TERMES ET CONDITIONS</h2>
+            </div>
+
+            <div class="space-y-6 bg-white p-8 rounded-lg shadow-md border border-gray-200">
+                <h3 class="text-xl font-semibold mb-4">Conditions d'utilisation du rapport</h3>
+                
+                <p class="leading-relaxed text-gray-700">Ce rapport d'évaluation est préparé pour l'usage exclusif du client identifié dans ce rapport. Aucun tiers n'est autorisé à se fier à ce rapport sans le consentement écrit exprès du client et de l'évaluateur.</p>
+
+                <p class="leading-relaxed text-gray-700">L'évaluateur a fait tous les efforts pour assurer l'exactitude des informations contenues dans ce rapport. Cependant, l'évaluateur n'assume aucune responsabilité pour les questions juridiques, et ne donne aucune opinion quant au titre de propriété des biens évalués.</p>
+
+                <p class="leading-relaxed text-gray-700">Les valeurs indiquées dans ce rapport sont basées sur l'analyse et le jugement de l'évaluateur à la date d'effet de l'évaluation. Les valeurs peuvent changer au fil du temps en raison de divers facteurs, notamment les conditions économiques, les tendances du marché et les changements dans l'état des articles.</p>
+
+                <p class="leading-relaxed text-gray-700">L'évaluateur n'est pas responsable de toute utilisation non autorisée de ce rapport.</p>
+                
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                    <p class="text-sm text-gray-500">En acceptant ce rapport, le client reconnaît et accepte les termes et conditions énoncés dans les présentes.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

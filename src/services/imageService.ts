@@ -7,13 +7,14 @@ export interface ImageProcessingOptions {
   includeTearWear?: boolean;
   currency?: string;
   singleItem?: boolean;
+  language?: string; // Language code (e.g., 'en', 'fr') for the response
 }
 
 export const processImage = async (filePath: string, options?: ImageProcessingOptions) => {
   try {
     const processedImage = await processImageFile(filePath);
     const imageBuffer = fs.readFileSync(processedImage);
-    const aiValuation = await analyzeImage(imageBuffer);
+    const aiValuation = await analyzeImage(imageBuffer, options?.language || 'en');
     
     return {
       aiValuation,
@@ -32,7 +33,7 @@ export const processImageBatch = async (filePaths: string[], options?: ImageProc
     // Preprocess and buffer all images
     const processedImages = await Promise.all(filePaths.map(processImageFile));
     const imageBuffers = processedImages.map((imgPath) => fs.readFileSync(imgPath));
-    const aiValuation = await analyzeImagesBatch(imageBuffers);
+    const aiValuation = await analyzeImagesBatch(imageBuffers, options?.language || 'en');
     return {
       aiValuation,
       processedImagePaths: processedImages,

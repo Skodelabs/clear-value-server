@@ -33,6 +33,7 @@ export const processMedia = async (req: Request, res: Response) => {
     const options = {
       singleItem: req.body.singleItem === "true" || false, // Single item mode vs. multiple items
       includeTearWear: req.body.includeTearWear === "true" || false, // Include tear/wear analysis
+      language: req.body.language || 'en', // Language for AI responses (default: English)
     };
 
     const files = Array.isArray(req.files) ? req.files : [req.files];
@@ -159,7 +160,7 @@ export const processMedia = async (req: Request, res: Response) => {
  */
 async function processImages(
   imageFiles: any[],
-  options: { includeTearWear: boolean; singleItem: boolean },
+  options: { includeTearWear: boolean; singleItem: boolean; language?: string },
   results: MediaResult[]
 ) {
   // Collect all valid image paths and their original filenames
@@ -185,6 +186,8 @@ async function processImages(
       singleItem: false,
       // Pass the original filenames mapping
       originalFilenames: imagePathToFilename,
+      // Pass language parameter for localized AI responses
+      language: options.language || 'en',
     });
 
     // Ensure each item is associated with the correct image based on imageIndex

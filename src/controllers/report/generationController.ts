@@ -1,4 +1,5 @@
-import { Request, Response } from "express";
+import { Response } from "express";
+import { AuthRequest } from "../../types/AuthRequest";
 import { getMarketResearch } from "../../services/marketResearchService";
 import { generatePDFReport } from "../../utils/enhancedPdfGenerator";
 import Report from "../../models/Report";
@@ -40,7 +41,7 @@ export interface ReportRequest {
 /**
  * Generates a market report based on product details and saves it to the database
  */
-export const generateMarketReport = async (req: Request, res: Response) => {
+export const generateMarketReport = async (req: AuthRequest, res: Response) => {
   try {
     const reportRequest: ReportRequest = req.body;
     console.log('Report request received:', JSON.stringify(reportRequest, null, 2));
@@ -74,15 +75,27 @@ export const generateMarketReport = async (req: Request, res: Response) => {
     
     // Process each item to get market research
     const processedItems = await Promise.all(reportRequest.items.map(async (item) => {
-      // Get market research for each item
-      const marketResearch = await getMarketResearch(item.name);
+      // Get market research for each item with language and currency support
+      const marketResearch = await getMarketResearch(
+        item.name,
+        options.language || 'en',
+        options.currency || 'USD'
+      );
       
       // If market research doesn't provide a value, use OpenAI as fallback
       let marketValue = marketResearch.averagePrice;
       let confidence = 0.8; // Default confidence
       
       if (!marketValue || marketValue <= 0) {
-        const aiEstimate = await getMarketValueWithCondition(item.name, item.condition);
+        const aiEstimate = await getMarketValueWithCondition(
+          item.name,
+          item.condition,
+          true, // considerCondition
+          options.currency || 'USD',
+          options.language || 'en',
+          options.includeTearWear || false,
+          item.details // details for wear and tear assessment
+        );
         marketValue = aiEstimate.value;
         confidence = aiEstimate.confidence;
       }
@@ -116,10 +129,19 @@ export const generateMarketReport = async (req: Request, res: Response) => {
     const reportPath = pdfResult.filePath;
     const reportName = pdfResult.fileName;
     
-    // Save report to database
+    // Check if user is authenticated
+    if (!req.userId) {
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication required to generate reports'
+      });
+    }
+    
+    // Save report to database with userId
     const report = new Report({
       name: reportName,
       path: reportPath,
+      userId: req.userId, // Associate report with authenticated user
       type: options.reportType,
       language: options.language,
       mainProduct: {

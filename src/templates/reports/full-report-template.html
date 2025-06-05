@@ -6,49 +6,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{title}}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'brand-red': '#c41e3a',
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
         body {
-            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            background-color: white;
+        }
+
+        .page {
+            /* width: 210mm;
+            min-height: 297mm; */
             position: relative;
+            page-break-after: always;
+            page-break-inside: avoid;
+            background-color: white;
+            display: block;
         }
-        /* Watermark styling */
-        
-        .watermark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-30deg);
-            opacity: 0.35;
-            font-size: 200px;
-            font-weight: bold;
-            font-family: Arial, sans-serif;
-            z-index: -1;
-            white-space: nowrap;
-        }
-        /* Print-specific styles */
-        
+
         @media print {
-            body {
+            html, body {
+                /* width: 210mm;
+                height: 297mm; */
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
             .page {
+                margin: 0;
+                border: initial;
+                border-radius: initial;
+                width: initial;
+                min-height: initial;
+                box-shadow: initial;
+                background: initial;
                 page-break-after: always;
+                page-break-inside: avoid;
             }
             .page:last-child {
-                page-break-after: avoid;
+                page-break-after: auto;
             }
         }
         /* Page numbering */
@@ -62,24 +64,59 @@
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+            page-break-inside: auto;
         }
         
         .report-table th,
         .report-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
             vertical-align: middle;
             word-wrap: break-word;
+            page-break-inside: avoid;
         }
         
         .report-table th {
-            background-color: #f2f2f2;
-            font-weight: bold;
+            background-color: #f8fafc;
+            font-weight: 600;
+            text-align: left;
+            border-bottom: 2px solid #c41e3a;
+            color: #334155;
+        }
+        
+        .report-table tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
         }
         
         .report-table tr:nth-child(even) {
-            background-color: #f9f9f9;
+            background-color: #f9fafb;
         }
+        
+        .report-table tr:hover {
+            background-color: #f1f5f9;
+        }
+        
+        .report-table img {
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            max-width: 120px;
+            max-height: 90px;
+            object-fit: cover;
+        }
+        
+        /* Section break handling */
+        .section {
+            page-break-inside: avoid;
+        }
+        
+        /* Appendix sections */
+        #appendix-photos, #appendix-documents {
+            page-break-before: always;
+        }
+        
         /* Total row styling */
         
         .total-row {
@@ -92,6 +129,46 @@
         .total-row td {
             border-color: #a51a30;
         }
+        
+        /* Enhanced header and footer styling */
+        .header {
+            border-bottom: 2px solid #334155;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer {
+            border-top: 1px solid #e2e8f0;
+            padding-top: 0.75rem;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+        
+        .page-number {
+            font-weight: 600;
+            color: #475569;
+        }
+        
+        /* Enhanced typography */
+        h1, h2, h3, h4 {
+            color: #1e293b;
+            line-height: 1.3;
+        }
+        
+        /* Watermark styling */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            opacity: 0.08;
+            font-size: 200px;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            z-index: -1;
+            white-space: nowrap;
+            color: #64748b;
+        }
     </style>
 </head>
 
@@ -99,74 +176,80 @@
     <!-- Background Logo (Faded) -->
     <img src="{{watermarkLogoUrl}}" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-10 max-w-[80%] max-h-[80%] z-[-2]" alt="Background Logo">
 
-    <!-- McD Watermark -->
+    <!-- Watermark -->
     <div class="watermark">
-        <span class="text-black">M</span><span class="text-brand-red">c</span><span class="text-black">D</span>
+        <span class="text-gray-700">Clear</span><span class="text-red-600">Value</span>
     </div>
 
     <!-- Cover Page -->
     <div class="page relative overflow-hidden min-h-screen p-0">
-        <div class="footer absolute bottom-0 left-0 right-0 p-4 text-sm text-gray-600 border-t border-gray-300">
-            <div class="flex justify-between">
-                <div>
-                    <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
+        <!-- Enhanced Footer with better spacing and styling -->
+        <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300 bg-gray-50">
+            <div class="flex justify-between items-center max-w-6xl mx-auto">
+                <div class="text-gray-700">
+                    <div>{{companyAddress}}</div>
                 </div>
-                <div class="footer-right">
-                    <div class="footer-contact">
-                        <a href="mailto:remarketing@mcdauction.com" class="text-gray-600">
-                            <span>email</span> remarketing@mcdauction.com
+                <div class="footer-right flex items-center">
+                    <div class="footer-contact flex items-center space-x-4">
+                        <a href="mailto:{{companyEmail}}" class="text-gray-600 hover:text-gray-800 transition-colors">
+                            <span class="text-gray-500 font-medium">email</span> {{companyEmail}}
+                        </a>
+                        <span class="text-gray-300">|</span>
+                        <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600 hover:text-gray-800 transition-colors">
+                            <span class="text-gray-500 font-medium">web</span> {{companyWebsite}}
+                        </a>
+                        <span class="text-gray-300">|</span>
+                        <a href="tel:{{companyPhone}}" class="text-gray-600 hover:text-gray-800 transition-colors">
+                            <span class="text-gray-500 font-medium">phone</span> {{companyPhone}}
                         </a>
                     </div>
-                    <div class="footer-contact">
-                        <a href="https://www.mcdougallauction.com" target="_blank" class="text-gray-600">
-                            <span>language</span> www.mcdougallauction.com
-                        </a>
-                        <span class="mx-2">|</span>
-                        <a href="tel:3067571747" class="text-gray-600">
-                            <span>phone</span> (306) 757-1747
-                        </a>
-                    </div>
                 </div>
-                <div class="page-number">1 | Page</div>
+                <div class="page-number font-medium text-gray-700">1 | Page</div>
             </div>
         </div>
 
-        <!-- Light Background Logo -->
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-10 z-0">
-            <img src="/public/companylogo.jpg" alt="Company Logo" class="w-[600px] h-auto">
+        <!-- Enhanced Watermark Logo -->
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-8 z-0">
+            <img src="{{watermarkLogoUrl}}" alt="Company Logo" class="w-full max-w-[600px] h-auto">
         </div>
 
-        <div class="header relative p-5 border-b border-black z-10 bg-white bg-opacity-90">
-            <div class="flex justify-between items-center px-5 w-full">
+        <!-- Enhanced Header with better styling -->
+        <div class="header relative p-8 border-b-2 border-gray-800 z-10 bg-white bg-opacity-95 shadow-md">
+            <div class="flex justify-between items-center px-5 w-full max-w-6xl mx-auto">
                 <div class="flex items-center space-x-4">
-                    <img src="/public/companylogo.jpg" alt="Company Logo" class="h-12">
+                    <img src="{{companyLogoUrl}}" alt="Company Logo" class="h-24 object-contain">
                 </div>
             </div>
 
-            <!-- Report Date and Effective Date -->
-            <div class="absolute top-24 right-10 text-right z-10 bg-white p-5 border border-gray-300 rounded">
-                <div class="mb-2">
-                    <div class="font-bold mb-1">Report Date:</div>
-                    <div class="border-b border-black min-w-[150px] py-1">{{reportDate}}</div>
-                </div>
-                <div>
-                    <div class="font-bold mb-1">Effective Date:</div>
-                    <div class="border-b border-black min-w-[150px] py-1">{{effectiveDate}}</div>
-                </div>
-            </div>
-
-            <div class="text-center px-5 pt-10 h-[calc(100%-120px)] flex flex-col justify-center relative z-10">
-                <div class="mb-20">
-                    <h1 class="text-4xl mb-5 text-[#1a5276] uppercase tracking-wider font-bold">{{title}}</h1>
-                    <div class="h-1 w-20 bg-[#1a5276] mx-auto mb-8"></div>
-
-                    <!-- Property Image -->
-                    <div class="mx-auto my-10 w-[90%] max-w-[500px] h-[300px] border border-gray-300 overflow-hidden">
-                        <img src="/public/property-image.png" alt="Property Image" class="w-full h-full object-cover" onerror="this.onerror=null; this.src=''; this.alt='No property image available'; this.parentElement.classList.add('flex', 'items-center', 'justify-center', 'bg-gray-100'); this.parentElement.innerHTML = '<div class=\'text-center text-gray-600\'><div class=\'text-base mb-2\'>PROPERTY IMAGE</div><div class=\'text-sm\'>(Not Available)</div></div>';">
+            <!-- Enhanced Content Section -->
+            <div class="text-center px-5 pt-12 h-[calc(100%-160px)] flex flex-col justify-center items-center relative z-10">
+                <div class="mb-16 w-full max-w-5xl">
+                    <!-- Enhanced Title -->
+                    <h1 class="text-3xl mb-6 text-gray-800 tracking-wide font-bold">{{title}}</h1>
+                    <div class="h-1 w-40 bg-gradient-to-r from-red-500 to-red-700 mx-auto mb-10"></div>
+                    
+                    <!-- Enhanced Report Date and Effective Date Box -->
+                    <div class="mx-auto mb-10 bg-white p-6 border border-gray-200 rounded-lg shadow-lg w-[350px] transition-shadow hover:shadow-xl">
+                        <div class="mb-5">
+                            <div class="font-bold mb-1 text-gray-700">Report Date:</div>
+                            <div class="border-b-2 border-gray-300 min-w-[200px] py-1 text-lg font-medium">{{reportDate}}</div>
+                        </div>
+                        <div>
+                            <div class="font-bold mb-1 text-gray-700">Effective Date:</div>
+                            <div class="border-b-2 border-gray-300 min-w-[200px] py-1 text-lg font-medium">{{effectiveDate}}</div>
+                        </div>
                     </div>
 
-                    <div class="mb-5">
-                        <div class="text-lg mb-4">TRANSMITTAL LETTER:</div>
+                    <!-- Enhanced Property Image with better styling -->
+                    <div class="mx-auto my-10 w-[90%] max-w-[700px] aspect-video border border-gray-200 overflow-hidden shadow-xl rounded-lg transition-transform hover:scale-[1.01]">
+                        <img src="{{propertyImageUrl}}" alt="Property Image" class="w-full h-full object-cover" onerror="this.onerror=null; this.src=''; this.alt='No property image available'; this.parentElement.classList.add('flex', 'items-center', 'justify-center', 'bg-gray-100'); this.parentElement.innerHTML = '<div class=\'text-center text-gray-600\'><div class=\'text-xl mb-2\'>PROPERTY IMAGE</div><div class=\'text-sm\'>(Not Available)</div></div>';">
+                    </div>
+
+                    <!-- Enhanced Client Info Box -->
+                    <div class="mt-4 mb-10 bg-gradient-to-br from-gray-50 to-white p-7 rounded-lg shadow-md border border-gray-200 inline-block mx-auto transition-shadow hover:shadow-lg">
+                        <div class="text-xl font-medium text-gray-700 mb-2">Prepared For:</div>
+                        <div class="text-2xl font-bold mt-2 mb-1 text-gray-800">{{clientName}}</div>
+                        <div class="text-gray-600 font-medium">{{ownerName}}</div>
                     </div>
                 </div>
             </div>
@@ -174,24 +257,24 @@
 
         <!-- Transmittal Letter Page -->
         <div class="page min-h-screen p-10 relative" id="transmittal-letter">
-            <div class="footer absolute bottom-0 left-0 right-0 p-4 text-sm text-gray-600 border-t border-gray-300">
-                <div class="flex justify-between">
+            <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300">
+                <div class="flex justify-between items-center">
                     <div>
-                        <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
+                        <div>{{companyAddress}}</div>
                     </div>
                     <div class="footer-right">
                         <div class="footer-contact">
-                            <a href="mailto:remarketing@mcdauction.com" class="text-gray-600">
-                                <span>email</span> remarketing@mcdauction.com
+                            <a href="mailto:{{companyEmail}}" class="text-gray-600">
+                                <span class="text-gray-500">email</span> {{companyEmail}}
                             </a>
                         </div>
                         <div class="footer-contact">
-                            <a href="https://www.mcdougallauction.com" target="_blank" class="text-gray-600">
-                                <span>language</span> www.mcdougallauction.com
+                            <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600">
+                                <span class="text-gray-500">web</span> {{companyWebsite}}
                             </a>
                             <span class="mx-2">|</span>
-                            <a href="tel:3067571747" class="text-gray-600">
-                                <span>phone</span> (306) 757-1747
+                            <a href="tel:{{companyPhone}}" class="text-gray-600">
+                                <span class="text-gray-500">phone</span> {{companyPhone}}
                             </a>
                         </div>
                     </div>
@@ -200,49 +283,56 @@
             </div>
 
             <!-- Letter Content -->
-            <div class="leading-relaxed mt-2 mb-4 text-lg">
-                <p>Dear {{recipientName}},</p>
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-8 border-b-2 border-gray-200 pb-4">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">TRANSMITTAL LETTER</h2>
+                    <p class="text-gray-500">Reference: {{reportReference}}</p>
+                </div>
+                
+                <div class="leading-relaxed mb-8 text-lg text-gray-700">
+                    <p class="mb-4 font-medium">Dear {{recipientName}},</p>
 
-                <p class="mb-2 text-justify">
-                    At the request of {{clientName}}, we have prepared an appraisal of certain assets owned by {{ownerName}}, a copy of which is enclosed. This appraisal report is intended for exclusive use by {{clientName}} and is intended only for establishing values of
-                    the listed assets.
-                </p>
+                    <p class="mb-4 text-justify">
+                        At the request of <span class="font-medium">{{clientName}}</span>, we have prepared an appraisal of certain assets owned by <span class="font-medium">{{ownerName}}</span>, a copy of which is enclosed. This appraisal report is intended for exclusive use by {{clientName}} and is intended only for establishing values of
+                        the listed assets.
+                    </p>
 
-                <p class="mb-2 text-justify">
-                    The subject assets were appraised under the premise of {{premise}}, for internal consideration.
-                </p>
+                    <p class="mb-4 text-justify">
+                        The subject assets were appraised under the premise of <span class="font-medium">{{premise}}</span>, for internal consideration.
+                    </p>
 
-                <p class="mb-2 text-justify">
-                    The cost and market approaches to value have been considered for this appraisal and have either been utilized where necessary or deemed inappropriate for the value conclusions found therein.
-                </p>
+                    <p class="mb-4 text-justify">
+                        The cost and market approaches to value have been considered for this appraisal and have either been utilized where necessary or deemed inappropriate for the value conclusions found therein.
+                    </p>
 
-                <p class="mb-2 text-justify">
-                    After a thorough analysis of the assets and information made available to us, it is our opinion that as of the Effective Date, these assets have a {{valueEstimate}} in {{currency === 'CAD' ? 'Canadian' : 'US'}} Funds as shown on the certificate that we
-                    have prepared.
-                </p>
+                    <p class="mb-4 text-justify">
+                        After a thorough analysis of the assets and information made available to us, it is our opinion that as of the Effective Date, these assets have a <span class="font-medium">{{valueEstimate}}</span> in <span class="font-medium">{{currency === 'CAD' ? 'Canadian' : 'US'}} Funds</span> as shown on the certificate that we
+                        have prepared.
+                    </p>
 
-                <p class="mb-2 text-justify">
-                    We certify that neither we nor any of our employees have any present or future interest in the appraised property. The fee charged for this appraisal was not contingent on the values reported. As such, the results stated in this letter of transmittal
-                    cannot be fully understood without the accompanying report and this letter should not be separated from the report.
-                </p>
+                    <p class="mb-4 text-justify">
+                        We certify that neither we nor any of our employees have any present or future interest in the appraised property. The fee charged for this appraisal was not contingent on the values reported. As such, the results stated in this letter of transmittal
+                        cannot be fully understood without the accompanying report and this letter should not be separated from the report.
+                    </p>
 
-                <p class="mb-2 text-justify">
-                    If you require any additional information, please feel free to contact me at your convenience.
-                </p>
-            </div>
+                    <p class="mb-4 text-justify">
+                        If you require any additional information, please feel free to contact me at your convenience.
+                    </p>
+                </div>
 
-            <div class="mt-6">
-                <p class="mb-4 text-base">Sincerely,</p>
-                <div class="mb-1">
-                    <div class="w-[230px]">
-                        <div class="mb-0.5 text-base">
-                            <strong>{{appraiserName}}</strong>, CPPA
-                        </div>
-                        <div class="mb-0.5 text-base">
-                            Certified Appraiser
-                        </div>
-                        <div class="border-b border-black pb-0.5 text-base">
-                            <strong>{{appraiserCompany}}</strong>, Ltd.
+                <div class="mt-10">
+                    <p class="mb-4 text-lg">Sincerely,</p>
+                    <div class="mb-6">
+                        <div class="w-[280px]">
+                            <div class="mb-1 text-lg font-bold text-gray-800">
+                                {{appraiserName}}, CPPA
+                            </div>
+                            <div class="mb-1 text-base text-gray-600">
+                                Certified Appraiser
+                            </div>
+                            <div class="border-b border-gray-400 pb-1 text-base font-medium">
+                                {{appraiserCompany}}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -251,24 +341,24 @@
 
         <!-- Certification Page -->
         <div class="page min-h-screen p-10 relative" id="certification-page">
-            <div class="footer absolute bottom-0 left-0 right-0 p-4 text-sm text-gray-600 border-t border-gray-300">
-                <div class="flex justify-between">
+            <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300">
+                <div class="flex justify-between items-center">
                     <div>
-                        <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
+                        <div>{{companyAddress}}</div>
                     </div>
                     <div class="footer-right">
                         <div class="footer-contact">
-                            <a href="mailto:remarketing@mcdauction.com" class="text-gray-600">
-                                <span>email</span> remarketing@mcdauction.com
+                            <a href="mailto:{{companyEmail}}" class="text-gray-600">
+                                <span class="text-gray-500">email</span> {{companyEmail}}
                             </a>
                         </div>
                         <div class="footer-contact">
-                            <a href="https://www.mcdougallauction.com" target="_blank" class="text-gray-600">
-                                <span>language</span> www.mcdougallauction.com
+                            <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600">
+                                <span class="text-gray-500">web</span> {{companyWebsite}}
                             </a>
                             <span class="mx-2">|</span>
-                            <a href="tel:3067571747" class="text-gray-600">
-                                <span>phone</span> (306) 757-1747
+                            <a href="tel:{{companyPhone}}" class="text-gray-600">
+                                <span class="text-gray-500">phone</span> {{companyPhone}}
                             </a>
                         </div>
                     </div>
@@ -277,53 +367,57 @@
             </div>
 
             <!-- Certification Content -->
-            <div class="mt-8 mb-6">
-                <h2 class="text-2xl font-bold text-center mb-6">CERTIFICATE OF APPRAISAL</h2>
-
-                <div class="leading-relaxed text-justify">
-                    <p class="mb-4">
-                        I hereby certify that I have personally inspected the assets described herein, and have made a thorough analysis of all factors pertinent to their value, in accordance with the requirements of the Uniform Standards of Professional Appraisal Practice.
-                    </p>
-
-                    <p class="mb-4">
-                        I further certify that I have no interest, present or contemplated, in the property appraised, and that neither the employment to make this appraisal nor the compensation is contingent upon the value reported. The appraisal was made and the appraisal
-                        report prepared in conformity with the Uniform Standards of Professional Appraisal Practice.
-                    </p>
-
-                    <p class="mb-4">
-                        The statements of fact contained in this report are true and correct. The reported analyses, opinions, and conclusions are limited only by the reported assumptions and limiting conditions and are my personal, impartial, and unbiased professional analyses,
-                        opinions, and conclusions.
-                    </p>
-
-                    <p class="mb-4">
-                        No one provided significant professional assistance to the person signing this certification. I have complied with the requirements of the Code of Professional Ethics and the Uniform Standards of Professional Appraisal Practice.
-                    </p>
-
-                    <p class="mb-4">
-                        After a thorough analysis of the assets and information made available to us, it is our opinion that as of the Effective Date, these assets have a {{valueEstimate}} in {{currency === 'CAD' ? 'Canadian' : 'US'}} Funds as shown below.
-                    </p>
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-8 border-b-2 border-gray-200 pb-4">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">CERTIFICATE OF APPRAISAL</h2>
                 </div>
 
-                <div class="mt-8 mb-8">
-                    <div class="border border-gray-300 p-4 rounded-md">
-                        <div class="text-center text-xl font-bold mb-2">TOTAL APPRAISED VALUE</div>
-                        <div class="text-center text-2xl font-bold">{{currency}} ${{totalValue}}</div>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-8 shadow-sm mb-8">
+                    <div class="leading-relaxed text-lg text-gray-700">
+                        <p class="mb-5">
+                            I hereby certify that I have personally inspected the assets described herein, and have made a thorough analysis of all factors pertinent to their value, in accordance with the requirements of the Uniform Standards of Professional Appraisal Practice.
+                        </p>
+
+                        <p class="mb-5">
+                            I further certify that I have no interest, present or contemplated, in the property appraised, and that neither the employment to make this appraisal nor the compensation is contingent upon the value reported. The appraisal was made and the appraisal
+                            report prepared in conformity with the Uniform Standards of Professional Appraisal Practice.
+                        </p>
+
+                        <p class="mb-5">
+                            The statements of fact contained in this report are true and correct. The reported analyses, opinions, and conclusions are limited only by the reported assumptions and limiting conditions and are my personal, impartial, and unbiased professional analyses,
+                            opinions, and conclusions.
+                        </p>
+
+                        <p class="mb-5">
+                            No one provided significant professional assistance to the person signing this certification. I have complied with the requirements of the Code of Professional Ethics and the Uniform Standards of Professional Appraisal Practice.
+                        </p>
+
+                        <p class="mb-5">
+                            After a thorough analysis of the assets and information made available to us, it is our opinion that as of the Effective Date, these assets have a <span class="font-medium">{{valueEstimate}}</span> in <span class="font-medium">{{currency === 'CAD' ? 'Canadian' : 'US'}} Funds</span> as shown below.
+                        </p>
                     </div>
                 </div>
 
-                <div class="mt-10">
+                <div class="mt-10 mb-10">
+                    <div class="border border-gray-200 p-6 rounded-lg shadow-md bg-white">
+                        <div class="text-center text-xl font-bold mb-3 text-gray-700">TOTAL APPRAISED VALUE</div>
+                        <div class="text-center text-3xl font-bold text-gray-800">{{currency}} ${{totalValue}}</div>
+                    </div>
+                </div>
+
+                <div class="mt-12">
                     <div class="flex">
                         <div class="w-1/2">
-                            <p class="text-base">Certified by:</p>
-                            <div class="mt-6 border-b border-black w-48 relative">
-                                <img src="{{signatureImageUrl}}" alt="Signature" class="absolute bottom-0 left-0 h-14 max-w-[200px] object-contain" onerror="this.style.display='none';">
+                            <p class="text-lg mb-2">Certified by:</p>
+                            <div class="mt-6 border-b border-gray-400 w-56 relative">
+                                <img src="{{signatureImageUrl}}" alt="Signature" class="absolute bottom-0 left-0 h-16 max-w-[220px] object-contain" onerror="this.style.display='none';">
                             </div>
-                            <p class="mt-1 text-base">{{appraiserName}}, CPPA</p>
-                            <p class="text-base">Certified Personal Property Appraiser</p>
-                            <p class="text-base">{{appraiserCompany}}</p>
+                            <p class="mt-2 text-lg font-medium">{{appraiserName}}, CPPA</p>
+                            <p class="text-base text-gray-600">Certified Personal Property Appraiser</p>
+                            <p class="text-base text-gray-700">{{appraiserCompany}}</p>
                         </div>
-                        <div class="w-1/2">
-                            <p class="text-base">Date: {{reportDate}}</p>
+                        <div class="w-1/2 text-right">
+                            <p class="text-lg">Date: <span class="font-medium">{{reportDate}}</span></p>
                         </div>
                     </div>
                 </div>
@@ -331,68 +425,113 @@
         </div>
 
         <!-- Table of Contents Page -->
-        <div class="page min-h-screen p-10">
-            <div class="footer absolute bottom-0 left-0 right-0 p-4 text-sm text-gray-600 border-t border-gray-300">
-                <div class="flex justify-between">
+        <div class="page min-h-screen p-10 relative">
+            <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300">
+                <div class="flex justify-between items-center">
                     <div>
-                        <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
-                        <div>{{companyWebsite}}</div>
+                        <div>{{companyAddress}}</div>
+                    </div>
+                    <div class="footer-right">
+                        <div class="footer-contact">
+                            <a href="mailto:{{companyEmail}}" class="text-gray-600">
+                                <span class="text-gray-500">email</span> {{companyEmail}}
+                            </a>
+                        </div>
+                        <div class="footer-contact">
+                            <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600">
+                                <span class="text-gray-500">web</span> {{companyWebsite}}
+                            </a>
+                        </div>
                     </div>
                     <div class="page-number">4 | Page</div>
                 </div>
             </div>
 
-            <div class="header relative p-5 border-b border-black z-10 bg-white bg-opacity-90">
+            <div class="header relative p-6 border-b-2 border-gray-800 z-10 bg-white bg-opacity-95 shadow-sm">
                 <div class="flex justify-between items-center">
-                    <img src="/public/companylogo.jpg" alt="Company Logo" class="h-12">
-                    <h2 class="text-xl font-bold">Table of Contents</h2>
+                    <img src="{{companyLogoUrl}}" alt="Company Logo" class="h-16 object-contain">
+                    <h2 class="text-xl font-bold text-gray-700">Full Appraisal Report</h2>
                 </div>
             </div>
 
-            <div class="mt-10">
-                <h1 class="text-3xl font-bold mb-8 text-center">Table of Contents</h1>
+            <div class="max-w-4xl mx-auto mt-10">
+                <div class="mb-8 border-b-2 border-gray-200 pb-4">
+                    <h1 class="text-3xl font-bold mb-2 text-gray-800">TABLE OF CONTENTS</h1>
+                </div>
 
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-semibold">Cover Page</span>
-                        <span class="text-lg">1</span>
+                <div class="space-y-5 mt-8">
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                        <span class="text-lg font-medium">Cover Page</span>
+                        <div class="flex items-center">
+                            <span class="text-lg mr-2">1</span>
+                            <div class="w-6 h-0.5 bg-gray-300"></div>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-semibold">Transmittal Letter</span>
-                        <span class="text-lg">2</span>
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                        <span class="text-lg font-medium">Transmittal Letter</span>
+                        <div class="flex items-center">
+                            <span class="text-lg mr-2">2</span>
+                            <div class="w-6 h-0.5 bg-gray-300"></div>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-semibold">Certificate of Appraisal</span>
-                        <span class="text-lg">3</span>
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                        <span class="text-lg font-medium">Certificate of Appraisal</span>
+                        <div class="flex items-center">
+                            <span class="text-lg mr-2">3</span>
+                            <div class="w-6 h-0.5 bg-gray-300"></div>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-semibold">Table of Contents</span>
-                        <span class="text-lg">4</span>
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-2 bg-gray-50 p-2 rounded">
+                        <span class="text-lg font-medium">Table of Contents</span>
+                        <div class="flex items-center">
+                            <span class="text-lg mr-2 font-medium">4</span>
+                            <div class="w-6 h-0.5 bg-gray-400"></div>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-semibold">1. Introduction</span>
-                        <span class="text-lg">5</span>
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                        <span class="text-lg font-medium">1. Introduction</span>
+                        <div class="flex items-center">
+                            <span class="text-lg mr-2">5</span>
+                            <div class="w-6 h-0.5 bg-gray-300"></div>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-semibold">2. Report Information</span>
-                        <span class="text-lg">5</span>
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                        <span class="text-lg font-medium">2. Report Information</span>
+                        <div class="flex items-center">
+                            <span class="text-lg mr-2">5</span>
+                            <div class="w-6 h-0.5 bg-gray-300"></div>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-semibold">3. Item Inventory</span>
-                        <span class="text-lg">6</span>
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                        <span class="text-lg font-medium">3. Item Inventory</span>
+                        <div class="flex items-center">
+                            <span class="text-lg mr-2">6</span>
+                            <div class="w-6 h-0.5 bg-gray-300"></div>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-semibold">4. Market Analysis</span>
-                        <span class="text-lg">7</span>
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                        <span class="text-lg font-medium">4. Market Analysis</span>
+                        <div class="flex items-center">
+                            <span class="text-lg mr-2">7</span>
+                            <div class="w-6 h-0.5 bg-gray-300"></div>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-semibold">5. Legal Disclaimer and Limiting Conditions</span>
-                        <span class="text-lg">8</span>
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                        <span class="text-lg font-medium">5. Legal Disclaimer and Limiting Conditions</span>
+                        <div class="flex items-center">
+                            <span class="text-lg mr-2">8</span>
+                            <div class="w-6 h-0.5 bg-gray-300"></div>
+                        </div>
                     </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-lg font-semibold">6. Summary and Conclusion</span>
-                        <span class="text-lg">9</span>
+                    <div class="flex justify-between items-center border-b border-gray-100 pb-2">
+                        <span class="text-lg font-medium">6. Summary and Conclusion</span>
+                        <div class="flex items-center">
+                            <span class="text-lg mr-2">9</span>
+                            <div class="w-6 h-0.5 bg-gray-300"></div>
+                        </div>
                     </div>
+                    
+                    <!-- No appendices section -->
                 </div>
             </div>
         </div>
@@ -411,7 +550,7 @@
 
             <div class="header relative p-5 border-b border-black z-10 bg-white bg-opacity-90">
                 <div class="flex justify-between items-center">
-                    <img src="/public/companylogo.jpg" alt="Company Logo" class="h-12">
+                    <img src="{{companyLogoUrl}}" alt="Company Logo" class="h-16 object-contain">
                     <h2 class="text-xl font-bold">Introduction</h2>
                 </div>
             </div>
@@ -424,26 +563,25 @@
 
                 <div class="mt-8">
                     <h3 class="text-xl font-bold mb-4">Purpose of Appraisal</h3>
-                    <p>{{appraisalPurpose}}</p>
+                    <p class="text-justify">{{appraisalPurpose || "This appraisal has been prepared to establish the fair market value of the items listed in this report for insurance purposes. The valuation represents our professional assessment of the items' worth based on current market conditions, comparable sales data, and industry expertise."}}</p>
                 </div>
             </div>
         </div>
 
         <!-- Report Information Page -->
         <div class="page min-h-screen p-10">
-            <div class="footer absolute bottom-0 left-0 right-0 p-4 text-sm text-gray-600 border-t border-gray-300">
-                <div class="flex justify-between">
-                    <div>
-                        <div>{{appraiserCompany}}</div>
-                        <div>{{companyWebsite}}</div>
+            <div class="footer absolute bottom-0 left-0 right-0 p-5 border-t border-black z-10 bg-white bg-opacity-90">
+                <div class="flex justify-between items-center">
+                    <div class="text-sm text-gray-700">
+                        <span class="font-medium">{{companyName}}</span> | {{companyAddress}} | {{companyPhone}}
                     </div>
-                    <div class="page-number">4 | Page</div>
+                    <div class="page-number font-medium">5 | Page</div>
                 </div>
             </div>
 
             <div class="header relative p-5 border-b border-black z-10 bg-white bg-opacity-90">
                 <div class="flex justify-between items-center">
-                    <img src="/public/companylogo.jpg" alt="Company Logo" class="h-12">
+                    <img src="{{companyLogoUrl}}" alt="Company Logo" class="h-16 object-contain">
                     <h2 class="text-xl font-bold">Report Information</h2>
                 </div>
             </div>
@@ -451,38 +589,40 @@
             <div class="mt-10">
                 <h2 class="text-2xl font-bold mb-6">2. Report Information</h2>
 
-                <table class="w-full border-collapse mb-8">
-                    <tr>
-                        <td class="border border-gray-300 p-3 font-bold">Client Name:</td>
-                        <td class="border border-gray-300 p-3">{{clientName}}</td>
-                        <td class="border border-gray-300 p-3 font-bold">Appraiser:</td>
-                        <td class="border border-gray-300 p-3">{{appraiserName}}</td>
-                    </tr>
-                    <tr>
-                        <td class="border border-gray-300 p-3 font-bold">Effective Date:</td>
-                        <td class="border border-gray-300 p-3">{{effectiveDate}}</td>
-                        <td class="border border-gray-300 p-3 font-bold">Appraisal Company:</td>
-                        <td class="border border-gray-300 p-3">{{appraiserCompany}}</td>
-                    </tr>
-                    <tr>
-                        <td class="border border-gray-300 p-3 font-bold">Appraisal Purpose:</td>
-                        <td class="border border-gray-300 p-3">{{appraisalPurpose}}</td>
-                        <td class="border border-gray-300 p-3 font-bold">Valuation Method:</td>
-                        <td class="border border-gray-300 p-3">{{valuationMethod}}</td>
-                    </tr>
-                    <tr>
-                        <td class="border border-gray-300 p-3 font-bold">Owner Name:</td>
-                        <td class="border border-gray-300 p-3">{{ownerName}}</td>
-                        <td class="border border-gray-300 p-3 font-bold">Industry:</td>
-                        <td class="border border-gray-300 p-3">{{industry}}</td>
-                    </tr>
-                    <tr>
-                        <td class="border border-gray-300 p-3 font-bold">Locations Inspected:</td>
-                        <td class="border border-gray-300 p-3">{{locationsInspected}}</td>
-                        <td class="border border-gray-300 p-3 font-bold">Inspection Date:</td>
-                        <td class="border border-gray-300 p-3">{{inspectionDate}}</td>
-                    </tr>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse mb-8 shadow-md">
+                        <tr>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Client Name:</td>
+                            <td class="border border-gray-300 p-4">{{clientName}}</td>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Appraiser:</td>
+                            <td class="border border-gray-300 p-4">{{appraiserName}}</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Effective Date:</td>
+                            <td class="border border-gray-300 p-4">{{effectiveDate}}</td>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Appraisal Company:</td>
+                            <td class="border border-gray-300 p-4">{{appraiserCompany}}</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Appraisal Purpose:</td>
+                            <td class="border border-gray-300 p-4">{{appraisalPurpose}}</td>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Valuation Method:</td>
+                            <td class="border border-gray-300 p-4">{{valuationMethod}}</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Owner Name:</td>
+                            <td class="border border-gray-300 p-4">{{ownerName}}</td>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Industry:</td>
+                            <td class="border border-gray-300 p-4">{{industry}}</td>
+                        </tr>
+                        <tr>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Locations Inspected:</td>
+                            <td class="border border-gray-300 p-4">{{locationsInspected}}</td>
+                            <td class="border border-gray-300 p-4 font-bold bg-gray-50 text-gray-700">Inspection Date:</td>
+                            <td class="border border-gray-300 p-4">{{inspectionDate}}</td>
+                        </tr>
+                    </table>
+                </div>
 
                 <div class="mt-8">
                     <h3 class="text-xl font-bold mb-4">Valuation Methodology</h3>
@@ -492,191 +632,267 @@
         </div>
 
         <!-- Item Inventory Page -->
-        <div class="page min-h-screen p-10">
-            <div class="footer absolute bottom-0 left-0 right-0 p-4 text-sm text-gray-600 border-t border-gray-300">
-                <div class="flex justify-between">
+        <div class="page min-h-screen p-10 relative">
+            <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300">
+                <div class="flex justify-between items-center">
                     <div>
-                        <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
-                        <div>{{companyWebsite}}</div>
+                        <div>{{companyAddress}}</div>
+                    </div>
+                    <div class="footer-right">
+                        <div class="footer-contact">
+                            <a href="mailto:{{companyEmail}}" class="text-gray-600">
+                                <span class="text-gray-500">email</span> {{companyEmail}}
+                            </a>
+                        </div>
+                        <div class="footer-contact">
+                            <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600">
+                                <span class="text-gray-500">web</span> {{companyWebsite}}
+                            </a>
+                        </div>
                     </div>
                     <div class="page-number">6 | Page</div>
                 </div>
             </div>
 
-            <div class="header relative p-5 border-b border-black z-10 bg-white bg-opacity-90">
+            <div class="header relative p-6 border-b-2 border-gray-800 z-10 bg-white bg-opacity-95 shadow-sm">
                 <div class="flex justify-between items-center">
-                    <img src="/public/companylogo.jpg" alt="Company Logo" class="h-12">
-                    <h2 class="text-xl font-bold">Item Inventory</h2>
+                    <img src="{{companyLogoUrl}}" alt="Company Logo" class="h-16 object-contain">
+                    <h2 class="text-xl font-bold text-gray-700">Full Appraisal Report</h2>
                 </div>
             </div>
 
-            <div class="mt-10">
-                <h2 class="text-2xl font-bold mb-6">3. Item Inventory</h2>
+            <div class="max-w-5xl mx-auto mt-10">
+                <div class="mb-8 pb-4">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-red-600 to-red-700 flex items-center justify-center text-white font-bold mr-3 shadow-md">3</div>
+                        <h2 class="text-2xl font-bold text-gray-800 border-b-2 border-red-600 pb-2 flex-grow">ITEM INVENTORY</h2>
+                    </div>
+                </div>
 
-                <table class="report-table mb-8">
-                    <thead>
-                        <tr>
-                            <th style="width: 5%">ID</th>
-                            <th style="width: 35%">Description</th>
-                            <th style="width: 20%">Condition</th>
-                            <th style="width: 15%" class="text-right">Price</th>
-                            <th style="width: 25%">Image</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{itemRows}}
-                        <!-- Total Value Row -->
-                        <tr class="total-row">
-                            <td colspan="3" class="text-right"><strong>TOTAL VALUE</strong></td>
-                            <td class="text-right"><strong>{{currencySymbol}}{{totalValue}}</strong></td>
-                            <td></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="report-table mb-8 w-full border-collapse border border-gray-200 shadow-sm rounded-lg overflow-hidden">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-800">
+                                <th style="width: 5%" class="py-3 px-4 border-b-2 border-red-600 font-semibold text-center">ID</th>
+                                <th style="width: 15%" class="py-3 px-4 border-b-2 border-red-600 font-semibold text-center">Name</th>
+                                <th style="width: 25%" class="py-3 px-4 border-b-2 border-red-600 font-semibold text-left">Description</th>
+                                <th style="width: 15%" class="py-3 px-4 border-b-2 border-red-600 font-semibold text-left">Condition</th>
+                                <th style="width: 15%" class="py-3 px-4 border-b-2 border-red-600 font-semibold text-right">Price</th>
+                                <th style="width: 25%" class="py-3 px-4 border-b-2 border-red-600 font-semibold text-center">Image</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white">
+                            {{itemRows}}
+                            <!-- Total Value Row -->
+                            <tr class="total-row bg-gradient-to-r from-red-600 to-red-700 font-bold">
+                                <td colspan="4" class="text-right py-4 px-4 border-t-2 border-gray-800 text-white">TOTAL VALUE</td>
+                                <td class="text-right py-4 px-4 border-t-2 border-gray-800 text-white text-lg">{{currencySymbol}}{{totalValue}}</td>
+                                <td class="border-t-2 border-gray-800"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <!-- Market Analysis Page -->
-        <div class="page min-h-screen p-10">
-            <div class="footer absolute bottom-0 left-0 right-0 p-4 text-sm text-gray-600 border-t border-gray-300">
-                <div class="flex justify-between">
+        <div class="page min-h-screen p-10 relative">
+            <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300">
+                <div class="flex justify-between items-center">
                     <div>
-                        <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
-                        <div>{{companyWebsite}}</div>
+                        <div>{{companyAddress}}</div>
+                    </div>
+                    <div class="footer-right">
+                        <div class="footer-contact">
+                            <a href="mailto:{{companyEmail}}" class="text-gray-600">
+                                <span class="text-gray-500">email</span> {{companyEmail}}
+                            </a>
+                        </div>
+                        <div class="footer-contact">
+                            <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600">
+                                <span class="text-gray-500">web</span> {{companyWebsite}}
+                            </a>
+                        </div>
                     </div>
                     <div class="page-number">7 | Page</div>
                 </div>
             </div>
 
-            <div class="header relative p-5 border-b border-black z-10 bg-white bg-opacity-90">
+            <div class="header relative p-6 border-b-2 border-gray-800 z-10 bg-white bg-opacity-95 shadow-sm">
                 <div class="flex justify-between items-center">
-                    <img src="/public/companylogo.jpg" alt="Company Logo" class="h-12">
-                    <h2 class="text-xl font-bold">Market Analysis</h2>
+                    <img src="{{companyLogoUrl}}" alt="Company Logo" class="h-16 object-contain">
+                    <h2 class="text-xl font-bold text-gray-700">Full Appraisal Report</h2>
                 </div>
             </div>
 
-            <div class="mt-8 text-justify">
-                <p class="mb-4">{{marketAnalysis}}</p>
+            <div class="max-w-4xl mx-auto mt-10">
+                <div class="mb-8 border-b-2 border-gray-200 pb-4">
+                    <h2 class="text-2xl font-bold mb-2 text-gray-800">4. MARKET ANALYSIS</h2>
+                </div>
+
+                <div class="text-justify space-y-5 bg-white p-8 rounded-lg shadow-md border border-gray-200">
+                    <h3 class="text-xl font-medium text-gray-700 mb-4">Market Conditions</h3>
+                    <p class="leading-relaxed text-gray-700">{{marketAnalysis}}</p>
+                    
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <h3 class="text-xl font-medium text-gray-700 mb-4">Market Trends</h3>
+                        <div class="flex flex-col md:flex-row gap-6">
+                            <div class="flex-1">
+                                <p class="leading-relaxed text-gray-700">The market for these types of items has shown <span class="font-medium">{{marketTrend}}</span> over the past <span class="font-medium">{{marketPeriod}}</span>. Factors influencing valuation include condition, provenance, rarity, and current market demand.</p>
+                            </div>
+                            <div class="flex-1">
+                                <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                    <h4 class="font-medium mb-2 text-gray-700">Key Valuation Factors</h4>
+                                    <ul class="list-disc pl-5 space-y-1 text-gray-600">
+                                        <li>Item condition and age</li>
+                                        <li>Provenance and authenticity</li>
+                                        <li>Market demand and scarcity</li>
+                                        <li>Comparable recent sales</li>
+                                        <li>Economic indicators</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Legal Disclaimer Page -->
         <div class="page min-h-screen p-10 relative" id="legal-disclaimer">
-            <div class="footer absolute bottom-0 left-0 right-0 p-4 text-sm text-gray-600 border-t border-gray-300">
-                <div class="flex justify-between">
+            <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300">
+                <div class="flex justify-between items-center">
                     <div>
-                        <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
-                        <div>{{companyWebsite}}</div>
+                        <div>{{companyAddress}}</div>
+                    </div>
+                    <div class="footer-right">
+                        <div class="footer-contact">
+                            <a href="mailto:{{companyEmail}}" class="text-gray-600">
+                                <span class="text-gray-500">email</span> {{companyEmail}}
+                            </a>
+                        </div>
+                        <div class="footer-contact">
+                            <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600">
+                                <span class="text-gray-500">web</span> {{companyWebsite}}
+                            </a>
+                        </div>
                     </div>
                     <div class="page-number">8 | Page</div>
                 </div>
             </div>
 
-            <div class="header relative p-5 border-b border-black z-10 bg-white bg-opacity-90">
+            <div class="header relative p-6 border-b-2 border-gray-800 z-10 bg-white bg-opacity-95 shadow-sm">
                 <div class="flex justify-between items-center">
-                    <img src="/public/companylogo.jpg" alt="Company Logo" class="h-12">
-                    <h2 class="text-xl font-bold">Legal Disclaimer</h2>
+                    <img src="{{companyLogoUrl}}" alt="Company Logo" class="h-16 object-contain">
+                    <h2 class="text-xl font-bold text-gray-700">Full Appraisal Report</h2>
                 </div>
             </div>
 
-            <div class="mt-8 mb-6">
-                <h2 class="text-2xl font-bold mb-6">5. Legal Disclaimer and Limiting Conditions</h2>
+            <div class="max-w-4xl mx-auto mt-10">
+                <div class="mb-8 border-b-2 border-gray-200 pb-4">
+                    <h2 class="text-2xl font-bold mb-2 text-gray-800">5. LEGAL DISCLAIMER AND LIMITING CONDITIONS</h2>
+                </div>
 
-                <div class="leading-relaxed text-justify">
-                    <p class="mb-4">
-                        This appraisal report is subject to the following limiting conditions:
-                    </p>
+                <div class="text-justify space-y-6 bg-white p-8 rounded-lg shadow-md border border-gray-200">
+                    <div class="bg-gray-50 p-4 rounded border-l-4 border-gray-400">
+                        <p class="italic text-gray-600 text-sm">This document contains important legal information regarding the appraisal. Please read carefully.</p>
+                    </div>
+                    
+                    <p class="leading-relaxed text-gray-700">This appraisal report is prepared for the sole and exclusive use of the client identified in this report. No third parties are authorized to rely upon this report without the express written consent of both the client and the appraiser.</p>
 
-                    <ol class="list-decimal pl-6 space-y-4">
-                        <li>
-                            The appraiser assumes no responsibility for matters of a legal nature affecting the property appraised or the title thereto, nor does the appraiser render any opinion as to the title, which is assumed to be good and marketable.
-                        </li>
+                    <p class="leading-relaxed text-gray-700">The appraiser has made every effort to ensure the accuracy of the information contained in this report. However, the appraiser assumes no responsibility for legal matters, nor does the appraiser render any opinion as to the title of the subject property.</p>
 
-                        <li>
-                            The property is appraised free and clear of any or all liens or encumbrances unless otherwise stated.
-                        </li>
+                    <p class="leading-relaxed text-gray-700">The values stated in this report are based on the appraiser's analysis and judgment as of the effective date of the appraisal. The values may change over time due to various factors including economic conditions, market trends, and changes in the condition of the items.</p>
 
-                        <li>
-                            The information contained in this report is specific to the needs of the client and for the intended use stated in this report. The appraiser is not responsible for unauthorized use of this report.
-                        </li>
-
-                        <li>
-                            Any sketch in the report may show approximate dimensions and is included to assist the reader in visualizing the property. The appraiser has made no survey of the property.
-                        </li>
-
-                        <li>
-                            The appraiser has assumed that there are no hidden or unapparent conditions of the property, subsoil, or structures, which would render it more or less valuable. The appraiser assumes no responsibility for such conditions, or for engineering which might
-                            be required to discover such factors.
-                        </li>
-
-                        <li>
-                            Information, estimates, and opinions furnished to the appraiser, and contained in the report, were obtained from sources considered reliable and believed to be true and correct. However, no responsibility for accuracy of such items furnished to the appraiser
-                            can be assumed by the appraiser.
-                        </li>
-
-                        <li>
-                            Possession of this report, or a copy thereof, does not carry with it the right of publication, nor may it be used for any purpose by any but the client without the previous written consent of the appraiser or the client.
-                        </li>
-
-                        <li>
-                            The appraiser is not required to give testimony or attendance in court by reason of this appraisal, with reference to the property in question, unless arrangements have been previously made.
-                        </li>
-
-                        <li>
-                            Neither all, nor any part of the content of the report, or copy thereof (including conclusions as to the property value, the identity of the appraiser, professional designations, reference to any professional appraisal organizations, or the firm with
-                            which the appraiser is connected), shall be used for any purposes by anyone but the client without the previous written consent of the appraiser.
-                        </li>
-
-                        <li>
-                            This appraisal is to be used only for the purpose stated herein. While distribution of this appraisal in its entirety is at the discretion of the client, individual sections shall not be distributed; this report is intended to be used in whole and not
-                            in part.
-                        </li>
-                    </ol>
+                    <p class="leading-relaxed text-gray-700">The appraiser is not responsible for any unauthorized use of this report.</p>
+                    
+                    <div class="mt-6 pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-500">By accepting this report, the client acknowledges and agrees to the terms and conditions stated herein.</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Summary and Conclusion Page -->
         <div class="page min-h-screen p-10 relative" id="summary-conclusion">
-            <div class="footer absolute bottom-0 left-0 right-0 p-4 text-sm text-gray-600 border-t border-gray-300">
-                <div class="flex justify-between">
+            <div class="footer absolute bottom-0 left-0 right-0 p-5 text-sm text-gray-600 border-t border-gray-300">
+                <div class="flex justify-between items-center">
                     <div>
-                        <div>301-15 Great Plains Rd Emerald Park, SK S4L 1C6</div>
-                        <div>{{companyWebsite}}</div>
+                        <div>{{companyAddress}}</div>
+                    </div>
+                    <div class="footer-right">
+                        <div class="footer-contact">
+                            <a href="mailto:{{companyEmail}}" class="text-gray-600">
+                                <span class="text-gray-500">email</span> {{companyEmail}}
+                            </a>
+                        </div>
+                        <div class="footer-contact">
+                            <a href="https://{{companyWebsite}}" target="_blank" class="text-gray-600">
+                                <span class="text-gray-500">web</span> {{companyWebsite}}
+                            </a>
+                        </div>
                     </div>
                     <div class="page-number">9 | Page</div>
                 </div>
             </div>
 
-            <div class="header relative p-5 border-b border-black z-10 bg-white bg-opacity-90">
+            <div class="header relative p-6 border-b-2 border-gray-800 z-10 bg-white bg-opacity-95 shadow-sm">
                 <div class="flex justify-between items-center">
-                    <img src="/public/companylogo.jpg" alt="Company Logo" class="h-12">
-                    <h2 class="text-xl font-bold">Summary and Conclusion</h2>
+                    <img src="{{companyLogoUrl}}" alt="Company Logo" class="h-16 object-contain">
+                    <h2 class="text-xl font-bold text-gray-700">Full Appraisal Report</h2>
                 </div>
             </div>
 
-            <div class="mt-10">
-                <h2 class="text-2xl font-bold mb-6">6. Summary and Conclusion</h2>
-
-                <div class="text-justify space-y-4">
-                    <p>Based on the analysis conducted, the total appraised value of the items listed in this report is <strong>{{currencySymbol}}{{totalValue}}</strong>.</p>
-
-                    <p>This valuation represents our professional assessment of the fair market value as of the effective date of this report. The valuation has been conducted in accordance with industry standards and best practices.</p>
-
-                    <p>The opinions expressed in this report are based on our inspection of the items, market research, and professional judgment. The values presented are subject to the assumptions and limiting conditions outlined in this report.</p>
+            <div class="max-w-4xl mx-auto mt-10">
+                <div class="mb-8 border-b-2 border-gray-200 pb-4">
+                    <h2 class="text-2xl font-bold mb-2 text-gray-800">6. SUMMARY AND CONCLUSION</h2>
                 </div>
 
-                <div class="mt-12">
-                    <p class="font-bold">Appraiser Signature:</p>
-                    <div class="h-16 mt-2 border-b border-black relative">
-                        <img src="{{signatureImageUrl}}" alt="Signature" class="absolute bottom-0 left-0 h-14 max-w-[200px] object-contain" onerror="this.style.display='none';">
+                <div class="bg-white p-8 rounded-lg shadow-md border border-gray-200">
+                    <div class="mb-8 pb-6 border-b border-gray-100">
+                        <h3 class="text-xl font-medium text-gray-700 mb-4">Final Valuation</h3>
+                        <div class="flex flex-col md:flex-row justify-between items-center bg-gray-50 p-6 rounded-lg border border-gray-200">
+                            <div>
+                                <p class="text-gray-600 mb-2">Total Appraised Value:</p>
+                                <p class="text-3xl font-bold text-gray-800">{{currencySymbol}}{{totalValue}}</p>
+                            </div>
+                            <div class="mt-4 md:mt-0">
+                                <p class="text-gray-600 text-sm">Effective Date: <span class="font-medium">{{effectiveDate}}</span></p>
+                                <p class="text-gray-600 text-sm">Report Date: <span class="font-medium">{{reportDate}}</span></p>
+                            </div>
+                        </div>
                     </div>
-                    <p class="mt-2">{{appraiserName}}</p>
-                    <p>{{appraiserCompany}}</p>
-                    <p>Date: {{reportDate}}</p>
+                    
+                    <div class="space-y-4 text-justify">
+                        <p class="leading-relaxed text-gray-700">This valuation represents our professional assessment of the fair market value as of the effective date of this report. The valuation has been conducted in accordance with industry standards and best practices.</p>
+
+                        <p class="leading-relaxed text-gray-700">The opinions expressed in this report are based on our inspection of the items, market research, and professional judgment. The values presented are subject to the assumptions and limiting conditions outlined in this report.</p>
+                    </div>
+
+                    <div class="mt-12 pt-6 border-t border-gray-200">
+                        <div class="flex flex-col md:flex-row justify-between items-end">
+                            <div class="md:w-1/2">
+                                <div class="mt-4 space-y-1">
+                                    <p class="font-medium">{{appraiserName}}</p>
+                                    <p class="text-gray-700">{{appraiserCompany}}</p>
+                                    <p class="text-gray-700">Date: <span class="font-medium">{{reportDate}}</span></p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-8 md:mt-0 md:w-1/3 text-right">
+                                <div class="mb-2">
+                                    <img src="{{companyLogoUrl}}" alt="Company Logo" class="h-12 ml-auto object-contain" onerror="this.style.display='none';">
+                                </div>
+                                <p class="text-sm text-gray-600">{{companyName}}</p>
+                                <p class="text-sm text-gray-600">{{companyPhone}}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Appendix sections removed as requested -->
 </body>
 
 </html>

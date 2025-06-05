@@ -1,4 +1,5 @@
-import { Request, Response } from "express";
+import { Response } from "express";
+import { AuthRequest } from "../../types/AuthRequest";
 import Report, { IReport } from "../../models/Report";
 import mongoose from "mongoose";
 import { calculateTotalValue } from "./utilsController";
@@ -6,14 +7,24 @@ import { calculateTotalValue } from "./utilsController";
 /**
  * Get all reports with pagination and filtering options
  */
-export const getReports = async (req: Request, res: Response) => {
+export const getReports = async (req: AuthRequest, res: Response) => {
   try {
+    // Check if user is authenticated
+    if (!req.userId) {
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication required to access reports'
+      });
+    }
+    
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
 
-    // Build filter query
-    const filterQuery: any = {};
+    // Build filter query with userId to only show user's reports
+    const filterQuery: any = {
+      userId: req.userId // Filter reports by authenticated user
+    };
 
     // Apply type filter if provided
     if (req.query.type) {
@@ -85,8 +96,16 @@ export const getReports = async (req: Request, res: Response) => {
 /**
  * Get a specific report by ID with detailed information
  */
-export const getReportById = async (req: Request, res: Response) => {
+export const getReportById = async (req: AuthRequest, res: Response) => {
   try {
+    // Check if user is authenticated
+    if (!req.userId) {
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication required to access reports'
+      });
+    }
+    
     const { id } = req.params;
 
     // Validate ID format
@@ -97,7 +116,8 @@ export const getReportById = async (req: Request, res: Response) => {
       });
     }
 
-    const report = await Report.findById(id);
+    // Find report by ID and ensure it belongs to the authenticated user
+    const report = await Report.findOne({ _id: id, userId: req.userId });
 
     if (!report) {
       return res.status(404).json({

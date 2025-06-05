@@ -47,9 +47,10 @@ export async function getMarketValueWithCondition(
         { 
           role: "system", 
           content: `You are an expert appraiser who provides accurate market valuations for various items. 
-                   Provide valuations in ${currency}. 
+                   Provide valuations in ${currency}.
                    ${wearTear ? 'Analyze wear and tear to estimate repair costs.' : ''}
-                   ${language !== 'en' ? `Respond in ${language} language.` : 'Respond in English.'}`
+                   Respond in ${language === 'fr' ? 'French' : 'English'} language.
+                   ${language === 'fr' && wearTear ? 'Analysez l\'usure pour estimer les coûts de réparation si nécessaire.' : ''}`
         },
         { role: "user", content: prompt }
       ],

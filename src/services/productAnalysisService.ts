@@ -13,6 +13,7 @@ export interface ProductAnalysisOptions {
   includeTearWear?: boolean;
   singleItem?: boolean;
   originalFilenames?: Record<string, string>; // Mapping of image paths to original filenames
+  language?: string; // Language code (e.g., 'en', 'fr') for localized AI responses
 }
 
 export interface ProductItem {
@@ -56,7 +57,7 @@ export const analyzeProductFromImage = async (
     const imageBuffer = fs.readFileSync(processedImage);
 
     // First analyze the image with OpenAI
-    const aiValuation = await analyzeImage(imageBuffer);
+    const aiValuation = await analyzeImage(imageBuffer, options?.language || 'en');
 
     // Apply deduplication if needed
     const processedValuation = aiValuation;
@@ -114,7 +115,7 @@ export const analyzeProductFromImageBatch = async (
     );
 
     // Analyze all images in a single API call to OpenAI
-    const aiValuation = await analyzeImagesBatch(imageBuffers);
+    const aiValuation = await analyzeImagesBatch(imageBuffers, options?.language || 'en');
 
     // Skip duplicate detection if singleItem is false
     let finalValuation = aiValuation;

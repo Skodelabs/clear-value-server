@@ -5,6 +5,9 @@ export interface IReport extends Document {
   name: string;           // PDF filename
   path: string;           // File path on server
   
+  // User information
+  userId: mongoose.Schema.Types.ObjectId;  // Reference to the user who created the report
+  
   // Report metadata
   reportName: string;     // User-friendly report name
   reportType: 'full' | 'standard' | 'asset-listing' | 'main' | 'basic';
@@ -43,6 +46,13 @@ const ReportSchema: Schema = new Schema({
   },
   path: {
     type: String,
+    required: true
+  },
+  
+  // User information
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true
   },
   

@@ -7,8 +7,12 @@ import {
   downloadReport,
   deleteReport
 } from '../controllers/reportController';
+import { authMiddleware } from '../middleware/auth';
 
 const router = Router();
+
+// Apply authentication middleware to all report routes
+router.use(authMiddleware);
 
 // Route for generating market reports based on user-edited product details
 router.post('/generate', generateMarketReport);

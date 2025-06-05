@@ -1,4 +1,5 @@
-import { Request, Response } from "express";
+import { Response } from "express";
+import { AuthRequest } from "../../types/AuthRequest";
 import { getMarketResearch } from "../../services/marketResearchService";
 import {
   generatePDFReport,
@@ -10,96 +11,8 @@ import Report from "../../models/Report";
 import { getMarketValueWithCondition } from "./marketValueController";
 import fs from "fs";
 import path from "path";
-
-// Helper function to convert local file paths to public URLs
-const convertToPublicImageUrl = (
-  imagePath: string | undefined
-): string | undefined => {
-  if (!imagePath) return undefined;
-
-  // Check if it's already a URL
-  if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
-    // If it's already a URL but doesn't have /image/ in the path, check if it's a local URL
-    if (
-      !imagePath.includes("/image/") &&
-      (imagePath.includes("localhost") ||
-        imagePath.includes("127.0.0.1") ||
-        imagePath.includes("192.168."))
-    ) {
-      // Extract the filename from the URL
-      const urlParts = imagePath.split("/");
-      const filename = urlParts[urlParts.length - 1];
-
-      // Create proper public URL
-      const baseUrl = process.env.BASE_URL || "http://localhost:5000";
-      return `${baseUrl}/image/${filename}`;
-    }
-    return imagePath;
-  }
-
-  try {
-    // Extract filename from path
-    const filename = path.basename(imagePath);
-
-    // Create public URL
-    const baseUrl = process.env.BASE_URL || "http://localhost:5000";
-    return `${baseUrl}/image/${filename}`;
-  } catch (error) {
-    console.error("Error converting image path to URL:", error);
-    return undefined;
-  }
-};
-
-/**
- * Interface for the new report generation request with support for different report types
- */
-export interface ReportTypeRequest {
-  // Items array - the products to be included in the report
-  items: {
-    id?: string | number;
-    name: string;
-    description?: string;
-    details?: string;
-    condition: string;
-    price?: number;
-    imageUrl?: string;
-  }[];
-
-  // Report configuration options
-  reportType: "full" | "basic";
-  subType?: "asset" | "real-estate" | "salvage";
-  currency: "USD" | "CAD";
-  reportName?: string; // User-friendly report name
-
-  // Additional options
-  language?: string;
-  wearTear?: boolean;
-  companyName?: string;
-
-  // Additional fields for main report (appraisal report)
-  reportDate?: string;
-  effectiveDate?: string;
-  recipientName?: string;
-  appraisedEntity?: string;
-  premise?: string;
-  appraiserName?: string;
-  appraiserCompany?: string;
-  totalValue?: string;
-  inspectorName?: string;
-  inspectionDate?: string;
-  ownerName?: string;
-  industry?: string;
-  locationsInspected?: string;
-  companyContacts?: string;
-  companyWebsite?: string;
-  headOfficeAddress?: string;
-  valuationMethod?: string;
-  assetType?: string;
-  assetCondition?: string;
-  valueEstimate?: string;
-  informationSource?: string;
-  appraisalPurpose?: string;
-}
+import { convertToPublicImageUrl } from "../../utils/imageUtils";
+import { ReportTypeRequest } from "../../types/ReportType";
 
 /**
  * Generates a report based on the specified report type and subtype
@@ -108,14 +21,11 @@ export interface ReportTypeRequest {
  * Generates a simplified report based on the specified report type and subtype
  * with a focus on a clean, single-page table layout
  */
-export const generateTypedReport = async (req: Request, res: Response) => {
+export const generateTypedReport = async (req: AuthRequest, res: Response) => {
   try {
     const reportRequest: ReportTypeRequest = req.body;
-    console.log(
-      "Report request received:",
-      JSON.stringify(reportRequest, null, 2)
-    );
 
+    console.log(req.body);
     // Validate request
     if (
       !reportRequest.items ||
@@ -155,41 +65,50 @@ export const generateTypedReport = async (req: Request, res: Response) => {
       wearTear: reportRequest.wearTear || false,
     };
 
-    // For main reports, add additional fields for the appraisal report
+    // For full reports, add additional fields for the appraisal report
     if (reportRequest.reportType === "full") {
       // Format current date as YYYY-MM-DD
       const today = new Date();
       const formattedDate = today.toISOString().split("T")[0];
 
-      // Add all the appraisal report fields
-      options.reportDate = reportRequest.reportDate || formattedDate;
-      options.effectiveDate = reportRequest.effectiveDate || formattedDate;
-      options.recipientName = reportRequest.recipientName;
-      options.clientName = reportRequest.companyName || "Client";
+      // Extract companyInfo if it exists
+      const companyInfo = reportRequest.companyInfo || {};
+      
+      // Log the companyInfo to debug
+      console.log("Company Info received:", companyInfo);
+
+      // Add all the appraisal report fields, checking both direct properties and companyInfo
+      options.reportDate = reportRequest.reportDate || companyInfo.reportDate || formattedDate;
+      options.effectiveDate = reportRequest.effectiveDate || companyInfo.effectiveDate || formattedDate;
+      options.recipientName = reportRequest.recipientName || companyInfo.recipientName;
+      options.clientName = reportRequest.companyName || companyInfo.companyName || "Client";
       options.appraisedEntity =
-        reportRequest.appraisedEntity || reportRequest.companyName;
+        reportRequest.appraisedEntity || companyInfo.appraisedEntity || reportRequest.companyName || companyInfo.companyName;
       options.premise =
-        reportRequest.premise || "market value in continued use";
-      options.appraiserName = reportRequest.appraiserName || "Appraiser";
+        reportRequest.premise || companyInfo.premise || "market value in continued use";
+      options.appraiserName = reportRequest.appraiserName || companyInfo.appraiserName || "Appraiser";
       options.appraiserCompany =
-        reportRequest.appraiserCompany || "ClearValue Appraisals";
+        reportRequest.appraiserCompany || companyInfo.appraiserCompany || "ClearValue Appraisals";
       options.inspectorName =
-        reportRequest.inspectorName || reportRequest.appraiserName;
-      options.inspectionDate = reportRequest.inspectionDate || formattedDate;
-      options.ownerName = reportRequest.ownerName || reportRequest.companyName;
-      options.industry = reportRequest.industry;
-      options.locationsInspected = reportRequest.locationsInspected;
-      options.companyContacts = reportRequest.companyContacts;
-      options.companyWebsite = reportRequest.companyWebsite;
-      options.headOfficeAddress = reportRequest.headOfficeAddress;
+        reportRequest.inspectorName || companyInfo.inspectorName || options.appraiserName;
+      options.inspectionDate = reportRequest.inspectionDate || companyInfo.inspectionDate || formattedDate;
+      options.ownerName = reportRequest.ownerName || companyInfo.ownerName || options.clientName;
+      options.industry = reportRequest.industry || companyInfo.industry;
+      options.locationsInspected = reportRequest.locationsInspected || companyInfo.locationsInspected;
+      options.companyContacts = reportRequest.companyContacts || companyInfo.companyContacts;
+      options.companyWebsite = reportRequest.companyWebsite || companyInfo.companyWebsite;
+      options.headOfficeAddress = reportRequest.headOfficeAddress || companyInfo.headOfficeAddress;
       options.valuationMethod =
-        reportRequest.valuationMethod || "Market and Cost Approaches";
-      options.assetType = reportRequest.assetType;
-      options.assetCondition = reportRequest.assetCondition || "Average";
+        reportRequest.valuationMethod || companyInfo.valuationMethod || "Market and Cost Approaches";
+      options.assetType = reportRequest.assetType || companyInfo.assetType;
+      options.assetCondition = reportRequest.assetCondition || companyInfo.assetCondition || "Average";
       options.informationSource =
-        reportRequest.informationSource || reportRequest.companyName;
+        reportRequest.informationSource || companyInfo.informationSource || options.clientName;
       options.appraisalPurpose =
-        reportRequest.appraisalPurpose || "Financial Consideration";
+        reportRequest.appraisalPurpose || companyInfo.appraisalPurpose || "Financial Consideration";
+      
+      // Log the options after processing to debug
+      console.log("Processed options for full report:", options);
     }
 
     // Process items - if price is not provided, try to get market value
@@ -221,8 +140,12 @@ export const generateTypedReport = async (req: Request, res: Response) => {
 
         // Otherwise, try to get market value
         try {
-          // First try market research service with language support
-          const marketResearch = await getMarketResearch(item.name, reportRequest.language || 'en');
+          // First try market research service with language and currency support
+          const marketResearch = await getMarketResearch(
+            item.name,
+            reportRequest.language || "en",
+            reportRequest.currency || "USD"
+          );
 
           if (marketResearch.averagePrice && marketResearch.averagePrice > 0) {
             return {
@@ -283,7 +206,7 @@ export const generateTypedReport = async (req: Request, res: Response) => {
     // Generate the PDF report
     let pdfResult;
 
-    // For main reports, we use the new EJS template and puppeteer
+    // For full reports, we use the new EJS template and puppeteer
     // For basic reports, we continue to use the existing PDF generation
     pdfResult = await generatePDFReport(reportData);
 
@@ -299,7 +222,7 @@ export const generateTypedReport = async (req: Request, res: Response) => {
       );
     }, 0);
 
-    // For main reports, set the totalValue in the options and populate appraisal-specific fields
+    // For full reports, set the totalValue in the options and populate appraisal-specific fields
     if (reportRequest.reportType === "full") {
       // Format the total value as a currency string using AI market valuation
       const formatter = new Intl.NumberFormat("en-US", {
@@ -337,20 +260,33 @@ export const generateTypedReport = async (req: Request, res: Response) => {
       // Set the logo URL for the report
       options.logoUrl =
         options.logoUrl ||
-        `${process.env.BASE_URL || "http://localhost:5000"}/logo.png`;
+        `${process.env.BASE_URL || "http://localhost:3000"}/logo.png`;
 
       // Use the appraisal-report.ejs template
       options.templateName = "appraisal-report.ejs";
 
       // Set valueEstimate based on AI market valuation
-      options.valueEstimate = `${options.premise || "Fair Market Value"} of ${options.totalValue}`;
+      options.valueEstimate = `${options.premise || "Fair Market Value"} of ${
+        options.totalValue
+      }`;
     }
 
-    // Save report to database with simplified structure
+    // Check if user is authenticated
+    if (!req.userId) {
+      return res.status(401).json({
+        success: false,
+        error: "Authentication required to generate reports",
+      });
+    }
+
+    // Save report to database with simplified structure and userId
     const report = new Report({
       // File information
       name: reportName,
       path: reportPath,
+
+      // User information
+      userId: req.userId, // Associate report with authenticated user
 
       // Report metadata
       reportName:
