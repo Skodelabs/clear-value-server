@@ -25,31 +25,50 @@ export const generateFullReportTailwind = async (
     let templateFileName = "full-report-template.html";
     if (language !== "en") {
       const langSpecificTemplate = `full-report-template-${language}.html`;
-      const langSpecificPath = path.join(
-        process.cwd(),
-        "src",
-        "templates",
-        "reports",
-        langSpecificTemplate
-      );
       
-      // Check if language-specific template exists
-      if (fs.existsSync(langSpecificPath)) {
+      // Check both possible template locations (development vs production)
+      const devPath = path.join(process.cwd(), "src", "templates", "reports", langSpecificTemplate);
+      const prodPath = path.join(process.cwd(), "dist", "templates", "reports", langSpecificTemplate);
+      const templateDirPath = path.join(process.cwd(), "templates", "reports", langSpecificTemplate);
+      
+      // Check if language-specific template exists in any of the possible locations
+      if (fs.existsSync(devPath)) {
         templateFileName = langSpecificTemplate;
-        console.log(`Using language-specific template: ${langSpecificTemplate}`);
+        console.log(`Using language-specific template: ${langSpecificTemplate} (dev path)`);
+      } else if (fs.existsSync(prodPath)) {
+        templateFileName = langSpecificTemplate;
+        console.log(`Using language-specific template: ${langSpecificTemplate} (prod path)`);
+      } else if (fs.existsSync(templateDirPath)) {
+        templateFileName = langSpecificTemplate;
+        console.log(`Using language-specific template: ${langSpecificTemplate} (template dir path)`);
       } else {
         console.log(`Language-specific template not found: ${langSpecificTemplate}, using default template`);
       }
     }
     
-    // Read the HTML template
-    const templatePath = path.join(
-      process.cwd(),
-      "src",
-      "templates",
-      "reports",
-      templateFileName
-    );
+    // Try multiple possible paths for the template file
+    let templatePath;
+    const possiblePaths = [
+      path.join(process.cwd(), "src", "templates", "reports", templateFileName),      // Development path
+      path.join(process.cwd(), "dist", "templates", "reports", templateFileName),     // Production path after build
+      path.join(process.cwd(), "templates", "reports", templateFileName)              // Alternative path
+    ];
+    
+    // Find the first path that exists
+    for (const possiblePath of possiblePaths) {
+      if (fs.existsSync(possiblePath)) {
+        templatePath = possiblePath;
+        console.log(`Template found at: ${templatePath}`);
+        break;
+      }
+    }
+    
+    // If no template is found, throw an error
+    if (!templatePath) {
+      console.error(`Template not found: ${templateFileName}`);
+      console.error(`Tried paths: ${JSON.stringify(possiblePaths, null, 2)}`);
+      throw new Error(`Template file not found: ${templateFileName}`);
+    }
     let templateHtml = fs.readFileSync(templatePath, "utf8");
 
     // Process the data and replace placeholders in the template
