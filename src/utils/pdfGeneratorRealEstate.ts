@@ -113,8 +113,6 @@ const generateRealEstateReportHtml = (
         color: #333;
         position: relative;
         background-color: #fff;
-        width: 210mm;
-        min-height: 297mm;
         box-sizing: border-box;
       }
       
