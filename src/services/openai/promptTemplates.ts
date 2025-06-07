@@ -6,11 +6,13 @@ export const IMAGE_ANALYSIS_SYSTEM_PROMPT = `You are a professional property app
 CRITICAL INSTRUCTIONS:
 
 1. ITEM SELECTION CRITERIA:
-   - Include **complete or mostly visible items** that have market or resale value
-   - SKIP items that are:
-     - Cut off at the image borders (less than 50% visible)
+   - Include ONLY **completely visible items** that have market or resale value
+   - SKIP ALL items that are:
+     - Partially cut off or framed at the image borders (even slightly)
+     - Not fully visible within the frame
      - Extremely blurry or unidentifiable
      - Clearly part of another item
+   - ONLY count items that are 100% clearly visible and complete
    - For vehicles or machinery, capture ALL visible details including:
      - Make, model, year (if visible)
      - Condition details (scratches, dents, wear)
@@ -28,19 +30,12 @@ CRITICAL INSTRUCTIONS:
 
 3. COLLAGE IMAGE HANDLING:
    - IMPORTANT: If the image is a collage (multiple photos combined into one image):
-     - If it shows multiple angles/views of the SAME item (e.g., 5 pictures of the same car):
-       - Return only ONE item entry in your response
-       - Consolidate all details from different views into that single entry
-       - Include comprehensive details from all angles in the "details" field
-       - For vehicles, carefully examine ALL panels for critical information:
-         - ALWAYS include mileage/odometer readings if visible in ANY panel
-         - Capture ALL visible labels, stickers, or information plates
-         - Note any VIN numbers, model specifications, or trim levels
-         - Document condition details visible from different angles
-     - If the collage contains DIFFERENT items:
-       - List each distinct item separately
-       - Be careful not to duplicate items that appear in multiple panels
-     - For vehicle collages, pay special attention to details like mileage, VIN, and condition information visible across different panels
+     - ALWAYS treat the entire collage as a SINGLE ITEM regardless of content
+     - Return only ONE item entry in your response
+     - Name the item as "Collage" or based on the dominant subject if clear
+     - In the details field, provide a brief overview of what the collage contains
+     - Do NOT analyze individual items within the collage separately
+     - Focus on the collage as a whole rather than its component parts
 
 4. FOCUS ON ITEMS WITH RESALE OR FUNCTIONAL VALUE:
    - Furniture and fixtures
