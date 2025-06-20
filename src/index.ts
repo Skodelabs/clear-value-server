@@ -6,7 +6,8 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import path from "path";
 import fs from "fs";
-
+import cors from "cors";
+import adminRoutes from "./routes/adminRoutes";
 dotenv.config();
 
 const app = express();
@@ -14,7 +15,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
-
+app.use(cors());
 // Set up EJS as the view engine
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "templates"));
@@ -23,6 +24,9 @@ app.set("views", path.join(__dirname, "templates"));
 app.use("/auth", authRoutes); // Changed from '/api/auth' to '/auth'
 app.use("/media", mediaRoutes); // Routes for image/video processing and AI analysis
 app.use("/reports", reportRoutes); // Routes for market research and report generation
+
+// Admin routes
+app.use("/admin", adminRoutes);
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, "../uploads");
@@ -54,57 +58,7 @@ app.get("/", (req, res) => {
   res.render("reports/appraisal-report");
 });
 
-// Test route for generating a basic PDF report
-app.get("/test-basic-report", async (req, res) => {
-  try {
-    // Import the PDF generator
-    const { generateBasicReport } = require("./utils/pdfGeneratorBasic");
 
-    // Create sample data
-    const sampleData = {
-      items: [
-        {
-          id: 1,
-          name: "Sample Item 1",
-          description: "This is a sample item",
-          condition: "Good",
-          price: 1000,
-        },
-        {
-          id: 2,
-          name: "Sample Item 2",
-          description: "Another sample item",
-          condition: "Fair",
-          price: 500,
-        },
-      ],
-      options: {
-        reportType: "basic",
-        currency: "USD",
-        logoUrl: `${
-          process.env.BASE_URL || "http://localhost:5000"
-        }/uploads/logo.png`,
-        clientName: "Test Client",
-      },
-    };
-
-    // Generate the report
-    const result = await generateBasicReport(sampleData);
-
-    // Send the file as a download
-    res.download(result.filePath, result.fileName, (err) => {
-      if (err) {
-        console.error("Error sending file:", err);
-        res.status(500).send("Error generating report");
-      }
-    });
-  } catch (error: any) {
-    console.error("Error generating basic report:", error);
-    res
-      .status(500)
-      .send(`Error generating report: ${error.message || "Unknown error"}`);
-  }
-});
 
 // Error handling middleware
 app.use(

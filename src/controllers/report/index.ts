@@ -6,6 +6,7 @@ import { deleteReport } from './deleteController';
 import { getMarketValueWithCondition } from './marketValueController';
 import { calculateTotalValue } from './utilsController';
 import { generateTypedReport } from './reportTypesController';
+import { getAllReports } from './adminRetrievalController';
 
 export {
   // Report generation
@@ -15,6 +16,7 @@ export {
   // Report retrieval
   getReports,
   getReportById,
+  getAllReports,
   
   // Report download
   downloadReport,

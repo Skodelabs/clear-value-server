@@ -5,14 +5,16 @@ import {
   getReports,
   getReportById,
   downloadReport,
-  deleteReport
+  deleteReport,
+  getAllReports
 } from '../controllers/reportController';
-import { authMiddleware } from '../middleware/auth';
+import { combinedAuthMiddleware } from '../middleware/combinedAuth';
 
 const router = Router();
 
-// Apply authentication middleware to all report routes
-router.use(authMiddleware);
+// Apply combined authentication middleware to all report routes
+// This allows both regular users and admins to access reports
+router.use(combinedAuthMiddleware);
 
 // Route for generating market reports based on user-edited product details
 router.post('/generate', generateMarketReport);
@@ -22,6 +24,7 @@ router.post('/generate-typed', generateTypedReport);
 
 // Routes for retrieving reports
 router.get('/', getReports);
+router.get('/all', getAllReports);
 router.get('/:id', getReportById);
 
 // Route for downloading a report
