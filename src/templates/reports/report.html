@@ -4,35 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insurance Appraisal Report</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            color: #333;
-            line-height: 1.6;
-            font-size: 12px;
+            color: #000;
+            line-height: 1.2;
+            font-size: 11px;
         }
         
         .page {
             width: 210mm;
             min-height: 297mm;
             margin: 0 auto;
-            padding: 20mm 25mm;
+            padding: 15mm 20mm;
             box-sizing: border-box;
             position: relative;
             page-break-after: always;
         }
         
-        .page:last-child {
-            page-break-after: auto;
-        }
-        
         .logo-container {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         
         .logo {
@@ -40,12 +35,38 @@
             height: auto;
         }
         
-        .report-title {
-            font-size: 16px;
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 5px 0 15px 0;
+        }
+        
+        .info-table td {
+            border: 1px solid #000;
+            padding: 5px 8px;
+            vertical-align: top;
+        }
+        
+        .info-table .label {
             font-weight: bold;
-            text-align: center;
-            margin: 10px 0 20px;
+            background-color: #f0f0f0;
+            width: 20%;
+        }
+        
+        .section-title {
+            font-weight: bold;
             text-transform: uppercase;
+            margin: 15px 0 5px 0;
+            font-size: 12px;
+        }
+        
+        .full-width {
+            width: 100%;
+        }
+        
+        .signature {
+            margin-top: 30px;
+            line-height: 1.6;
         }
         
         .info-grid {
@@ -167,127 +188,101 @@
 <body>
     <div class="page">
         <div class="logo-container">
-            <!-- Replace src with your actual logo path -->
-            <img src="/companylogo.jpg" alt="Company Logo" class="logo">
+            <img src="{{companyLogoUrl}}" alt="Company Logo" class="h-24 object-contain">
+            <h1 style="text-align: center; margin: 10px 0 20px 0; font-size: 12px; font-weight: bold;">REPORT: One</h1>
         </div>
 
-        <div class="info-grid">
-            <div class="info-item">
-                <div class="label">Today's Date:</div>
-                <div>December 14, 2023</div>
-            </div>
-            <div class="info-item">
-                <div class="label">Our File Number:</div>
-                <div>77906</div>
-            </div>
-            <div class="info-item">
-                <div class="label">Appraiser:</div>
-                <div>Curt McChessdsney</div>
-            </div>
-            <div class="info-item">
-                <div class="label">Office Telephone:</div>
-                <div>306-570-146547</div>
-            </div>
-            <div class="info-item">
-                <div class="label">Email Address:</div>
-                <div>Curt.M@Mdls.com</div>
-            </div>
-        </div>
+        <table class="info-table">
+            <tr>
+                <td class="label">Today's Date</td>
+                <td>December 14, 2023</td>
+                <td class="label">Our File Number</td>
+                <td>77906</td>
+            </tr>
+            <tr>
+                <td class="label">Appraiser</td>
+                <td>Curt McChesney</td>
+                <td class="label">Office Telephone</td>
+                <td>306-570-1465</td>
+            </tr>
+            <tr>
+                <td class="label">Email Address</td>
+                <td colspan="3">Curt.M@Mdls.com</td>
+            </tr>
+        </table>
 
-        <div class="section">
-            <div class="section-title">ASSIGNMENT</div>
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="label">Company:</div>
-                    <div>Northbridge Insurance</div>
-                </div>
-                <div class="info-item">
-                    <div class="label">Address:</div>
-                    <div>745 Thurlow Street Vancouver BC, V6E0C5</div>
-                </div>
-                <div class="info-item">
-                    <div class="label">Date Received:</div>
-                    <div>December 6, 2023</div>
-                </div>
-                <div class="info-item">
-                    <div class="label">File / Claim Number:</div>
-                    <div>6707A4514</div>
-                </div>
-                <div class="info-item">
-                    <div class="label">Name of Adjuster:</div>
-                    <div>Jerome Jkjihihi</div>
-                </div>
-                <div class="info-item">
-                    <div class="label">Name of Insured:</div>
-                    <div>REDHEAD EQUIPMENT</div>
-                </div>
-                <div class="info-item">
-                    <div class="label">Policy Number:</div>
-                    <div>4092297d666</div>
-                </div>
-                <div class="info-item">
-                    <div class="label">Date of Loss:</div>
-                    <div>September 19, 2023</div>
-                </div>
-            </div>
-            <div class="info-item">
-                <div class="label">Reported Type of Loss:</div>
-                <div>Damage to combine - struck rock during use</div>
-            </div>
-        </div>
+        <div class="section-title">ASSIGNMENT</div>
+        <table class="info-table">
+            <tr>
+                <td class="label">Company</td>
+                <td>Northbridge Insurance</td>
+                <td class="label">Address</td>
+                <td>745 Thurlow Street Vancouver BC, V6E0C5</td>
+            </tr>
+            <tr>
+                <td class="label">Date Received</td>
+                <td>December 6, 2023</td>
+                <td class="label">File / Claim Number</td>
+                <td>6707A4514</td>
+            </tr>
+            <tr>
+                <td class="label">Name of Adjuster</td>
+                <td>Jerome Jkjihihi</td>
+                <td class="label">Policy Number</td>
+                <td>4092297d666</td>
+            </tr>
+            <tr>
+                <td class="label">Name of Insured</td>
+                <td colspan="3">REDHEAD EQUIPMENT</td>
+            </tr>
+            <tr>
+                <td class="label">Reported Type of Loss</td>
+                <td colspan="3">Damage to combine - struck rock during use</td>
+            </tr>
+        </table>
 
-        <div class="section">
-            <div class="section-title">OUR OPINION – CAUSE OF LOSS</div>
-            <div class="info-item">
-                <div class="label">Type:</div>
-                <div>In my opinion the damage to the subject draper header is consistent with damages caused by impacting a rock on the right side of the header.</div>
-            </div>
-            <div class="info-item">
-                <div class="label">Comments:</div>
-                <div>None</div>
-            </div>
-        </div>
+        <div class="section-title">OUR OPINION – CAUSE OF LOSS</div>
+        <table class="info-table">
+            <tr>
+                <td class="label">Type</td>
+                <td>In my opinion the damage to the subject draper header is consistent with damages caused by impacting a rock on the right side of the header.</td>
+            </tr>
+            <tr>
+                <td class="label">Comments</td>
+                <td>None</td>
+            </tr>
+        </table>
 
-        <div class="section">
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="label">RECOMMENDED RESERVE:</div>
-                    <div>$40,000.00</div>
-                </div>
-                <div class="info-item">
-                    <div class="label">SALVAGE VALUE:</div>
-                    <div>N/A</div>
-                </div>
-            </div>
-        </div>
+        <table class="info-table">
+            <tr>
+                <td class="label">RECOMMENDED RESERVE</td>
+                <td>$40,000.00</td>
+            </tr>
+            <tr>
+                <td class="label">SALVAGE VALUE</td>
+                <td>N/A</td>
+            </tr>
+        </table>
 
-        <div class="section">
-            <div class="section-title">COMMENTS</div>
-            <div>
-                <p>In my opinion the subject draper header should be considered repairable.</p>
-                <p>As the dealership where the header is located is not set up for the type of header frame repairs that this header requires, I recommend moving the header to a facility of the insured's choosing, that has the experience, and tooling to
-                    complete MacDon header frame repair. Once there, a detailed estimate should be prepared before proceeding with the repair. For the purpose of this estimate I have asked Stewart Steel to supply an estimate based off my pictures as they
-                    are very experienced with this type of repair. I also recommend that Redhead Equipment perform the final adjustments to make this header field ready after the header has been returned to them from the frame repair.</p>
-            </div>
-        </div>
+        <div class="section-title">COMMENTS</div>
+        <p>In my opinion the subject draper header should be considered repairable.</p>
+        <p>As the dealership where the header is located is not set up for the type of header frame repairs that this header requires, I recommend moving the header to a facility of the insured's choosing, that has the experience, and tooling to complete
+            MacDon header frame repair. Once there, a detailed estimate should be prepared before proceeding with the repair. For the purpose of this estimate I have asked Stewart Steel to supply an estimate based off my pictures as they are very experienced
+            with this type of repair. I also recommend that Redhead Equipment perform the final adjustments to make this header field ready after the header has been returned to them from the frame repair.</p>
 
-        <div class="section">
-            <div class="section-title">FOLLOW UP</div>
-            <div class="info-item">
-                <div class="label">Next Report Due:</div>
-                <div>Upon Request</div>
-            </div>
-        </div>
+        <div class="section-title">FOLLOW UP</div>
+        <table class="info-table">
+            <tr>
+                <td class="label">Next Report Due:</td>
+                <td>Upon Request</td>
+            </tr>
+        </table>
 
         <div class="signature">
             <div>Curt McChesney, CPPA</div>
-            <div>Appraiser, RSE - Journeyman Mechanic</div>
-            <div>Cell: 639-328-2621656sss</div>
+            <div>Appraiser, RSE - Journeyman Mechanic </div>
+            <div>Cell: 639-328-2621</div>
             <div>Email: curt.m@mcdappraisals.com</div>
-        </div>
-
-        <div class="footer">
-            CONFIDENTIAL - This report is intended solely for the use of the individual or entity to whom it is addressed.
         </div>
     </div>
 
@@ -405,32 +400,44 @@
                     <td class="amount">$36,002.88</td>
                 </tr>
             </table>
+            <div style="margin: 15px 0; display: flex; gap: 30px;">
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <input type="checkbox" checked style="width: 15px; height: 15px;">
+                    <strong>ACTUAL CASH VALUE</strong>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <input type="checkbox" checked style="width: 15px; height: 15px;">
+                    <strong>REPLACEMENT COST</strong>
+                </div>
+            </div>
         </div>
 
         <div class="section">
-            <h2>ACTUAL CASH VALUE</h2>
             <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-                <div>
+                <div style="width: 48%;">
                     <div><strong>Our Opinion</strong></div>
                     <div>$120,000.00</div>
-                    <div style="margin-top: 10px;"><strong>References</strong></div>
-                    <div>Iron Guides, MarketBook.ca, Kijiji</div>
                 </div>
-                <div>
-                    <div><strong>REPLACEMENT COST</strong></div>
+                <div style="width: 48%;">
+                    <div><strong>RECOMMENDED RESERVE</strong></div>
+                    <div>$40,000.00</div>
                 </div>
             </div>
-            <div style="margin-top: 30px;">
-                <div><strong>RECOMMENDED RESERVE</strong></div>
-                <div>$40,000.00</div>
-                <div style="margin-top: 10px;"><strong>SALVAGE VALUE</strong></div>
-                <div>N/A</div>
+            <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                <div style="width: 48%;">
+                    <div><strong>References</strong></div>
+                    <div>Iron Guides, MarketBook.ca, Kijiji</div>
+                </div>
+                <div style="width: 48%;">
+                    <div><strong>SALVAGE VALUE</strong></div>
+                    <div>N/A</div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Third Page -->
-    <div class="page" style="display: flex; justify-content: center; align-items: center;">
+    <div class="page" style="display: flex; justify-content: center; align-items: center; overflow: hidden;">
         <img src="/page3.png" alt="Report Page 3" style="max-width: 100%; max-height: 100%; object-fit: contain;">
     </div>
 </body>
