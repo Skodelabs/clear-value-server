@@ -29,7 +29,7 @@
             width: 210mm;
             min-height: 297mm;
             margin: 0 auto;
-            padding: 15mm 20mm;
+            padding: 15mm 20mm 30mm;
             box-sizing: border-box;
             position: relative;
             page-break-after: always;
@@ -47,11 +47,13 @@
             page-break-inside: avoid;
             break-inside: avoid;
             height: 297mm;
+            position: relative;
+            overflow: visible;
         }
         
         .page-image {
             width: 100%;
-            height: 100%;
+            height: calc(100% - 30mm); /* Leave space for the footer */
             object-fit: contain;
             page-break-before: avoid;
             page-break-after: avoid;
@@ -207,16 +209,26 @@
             margin-bottom: 5px;
         }
         
-        .footer {
+        .page-footer {
             position: absolute;
             bottom: 20mm;
-            left: 25mm;
-            right: 25mm;
+            left: 20mm;
+            right: 20mm;
             text-align: center;
-            font-size: 10px;
-            color: #666;
-            border-top: 1px solid #ccc;
-            padding-top: 5px;
+            font-size: 12px;
+            color: #555;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            line-height: 1.8;
+        }
+        .page-footer .footer-content {
+            margin-bottom: 5px;
+        }
+        .page-footer .footer-content span {
+            margin: 0 10px;
+        }
+        .page-footer .footer-content span.separator {
+            color: #ddd;
         }
     </style>
 </head>
@@ -319,6 +331,20 @@
             <div>Appraiser, RSE - Journeyman Mechanic </div>
             <div>Cell: 639-328-2621</div>
             <div>Email: curt.m@mcdappraisals.com</div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="page-footer">
+            <div class="footer-content">
+                <span>📮 P.O. Box 3081 Regina, SK S4P 3G7</span>
+            </div>
+            <div class="footer-content">
+                <span>🌐 www.McDougallBay.com</span>
+                <span class="separator">•</span>
+                <span>📞 (306) 757-1747</span>
+                <span class="separator">•</span>
+                <span>✉️ remarketing@mcdauction.com</span>
+            </div>
         </div>
     </div>
 
@@ -480,24 +506,103 @@
                     <div>N/A</div>
                 </div>
             </div>
+            
+            <!-- Footer -->
+            <div class="page-footer">
+                <div class="footer-content">
+                    <span>📮 P.O. Box 3081 Regina, SK S4P 3G7</span>
+                </div>
+                <div class="footer-content">
+                    <span>🌐 www.McDougallBay.com</span>
+                    <span class="separator">•</span>
+                    <span>📞 (306) 757-1747</span>
+                    <span class="separator">•</span>
+                    <span>✉️ remarketing@mcdauction.com</span>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Image Pages (3-7) -->
     <div class="image-page">
         <img src="/page3.png" alt="Report Page 3" class="page-image">
+        <!-- Footer -->
+        <div class="page-footer">
+            <div class="footer-content">
+                <span>📮 P.O. Box 3081 Regina, SK S4P 3G7</span>
+            </div>
+            <div class="footer-content">
+                <span>🌐 www.McDougallBay.com</span>
+                <span class="separator">•</span>
+                <span>📞 (306) 757-1747</span>
+                <span class="separator">•</span>
+                <span>✉️ remarketing@mcdauction.com</span>
+            </div>
+        </div>
     </div>
     <div class="image-page">
         <img src="/page4.png" alt="Report Page 4" class="page-image">
+        <!-- Footer -->
+        <div class="page-footer">
+            <div class="footer-content">
+                <span>📮 P.O. Box 3081 Regina, SK S4P 3G7</span>
+            </div>
+            <div class="footer-content">
+                <span>🌐 www.McDougallBay.com</span>
+                <span class="separator">•</span>
+                <span>📞 (306) 757-1747</span>
+                <span class="separator">•</span>
+                <span>✉️ remarketing@mcdauction.com</span>
+            </div>
+        </div>
     </div>
     <div class="image-page">
         <img src="/page5.png" alt="Report Page 5" class="page-image">
+        <!-- Footer -->
+        <div class="page-footer">
+            <div class="footer-content">
+                <span>📮 P.O. Box 3081 Regina, SK S4P 3G7</span>
+            </div>
+            <div class="footer-content">
+                <span>🌐 www.McDougallBay.com</span>
+                <span class="separator">•</span>
+                <span>📞 (306) 757-1747</span>
+                <span class="separator">•</span>
+                <span>✉️ remarketing@mcdauction.com</span>
+            </div>
+        </div>
     </div>
     <div class="image-page">
         <img src="/page6.png" alt="Report Page 6" class="page-image">
+        <!-- Footer -->
+        <div class="page-footer">
+            <div class="footer-content">
+                <span>📮 P.O. Box 3081 Regina, SK S4P 3G7</span>
+            </div>
+            <div class="footer-content">
+                <span>🌐 www.McDougallBay.com</span>
+                <span class="separator">•</span>
+                <span>📞 (306) 757-1747</span>
+                <span class="separator">•</span>
+                <span>✉️ remarketing@mcdauction.com</span>
+            </div>
+        </div>
     </div>
     <div class="image-page">
         <img src="/page7.png" alt="Report Page 7" class="page-image">
+        <!-- Footer -->
+        <div class="page-footer">
+            <div class="footer-content">
+                <span>📮 P.O. Box 3081 Regina, SK S4P 3G7</span>
+            </div>
+            <div class="footer-content">
+                <span>🌐 www.McDougallBay.com</span>
+                <span class="separator">•</span>
+                <span>📞 (306) 757-1747</span>
+                <span class="separator">•</span>
+                <span>✉️ remarketing@mcdauction.com</span>
+            </div>
+        </div>
     </div>
 
     <!-- Page 8 - Comparable Sales -->
@@ -549,24 +654,17 @@
             <div><strong>Asking Price:</strong> $122,900.00 CAD</div>
         </div>
 
-        <div style="margin-top: 30px; text-align: center; font-size: 12px; color: #555; padding-top: 15px; border-top: 1px solid #eee; line-height: 1.8;">
-            <div style="margin-bottom: 5px;">
-                <span style="margin-right: 15px;">
-                    <span style="color: #2c3e50; margin-right: 5px;">📮</span> P.O. Box 3081 Regina, SK S4P 3G7
-                </span>
+        <!-- Footer -->
+        <div class="page-footer">
+            <div class="footer-content">
+                <span>📮 P.O. Box 3081 Regina, SK S4P 3G7</span>
             </div>
-            <div>
-                <span style="margin: 0 10px;">
-                    <span style="color: #2c3e50; margin-right: 5px;">🌐</span> www.McDougallBay.com
-                </span>
-                <span style="margin: 0 10px; color: #ddd;">•</span>
-                <span style="margin: 0 10px;">
-                    <span style="color: #2c3e50; margin-right: 5px;">📞</span> (306) 757-1747
-                </span>
-                <span style="margin: 0 10px; color: #ddd;">•</span>
-                <span style="margin: 0 10px;">
-                    <span style="color: #2c3e50; margin-right: 5px;">✉️</span> remarketing@mcdauction.com
-                </span>
+            <div class="footer-content">
+                <span>🌐 www.McDougallBay.com</span>
+                <span class="separator">•</span>
+                <span>📞 (306) 757-1747</span>
+                <span class="separator">•</span>
+                <span>✉️ remarketing@mcdauction.com</span>
             </div>
         </div>
     </div>
