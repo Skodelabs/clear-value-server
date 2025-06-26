@@ -15,6 +15,16 @@
             font-size: 11px;
         }
         
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        
         .page {
             width: 210mm;
             min-height: 297mm;
@@ -23,6 +33,29 @@
             box-sizing: border-box;
             position: relative;
             page-break-after: always;
+            overflow: hidden;
+        }
+        /* Remove page break after the last page */
+        
+        .page:last-child {
+            page-break-after: auto;
+            min-height: 0;
+        }
+        
+        .image-page {
+            page-break-after: always;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            height: 297mm;
+        }
+        
+        .page-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            page-break-before: avoid;
+            page-break-after: avoid;
+            page-break-inside: avoid;
         }
         
         .logo-container {
@@ -58,6 +91,7 @@
             text-transform: uppercase;
             margin: 15px 0 5px 0;
             font-size: 12px;
+            text-align: center;
         }
         
         .full-width {
@@ -88,6 +122,7 @@
             border-bottom: 2px solid #333;
             padding-bottom: 5px;
             text-transform: uppercase;
+            text-align: center;
         }
         
         .info-table {
@@ -164,6 +199,7 @@
             border-bottom: 1px solid #000;
             margin-bottom: 10px;
             padding-bottom: 3px;
+            text-align: center;
         }
         
         .signature {
@@ -287,9 +323,12 @@
     </div>
 
     <!-- Second Page -->
-    <div class="page">
-        <div class="section">
-            <h2>AGRICULTURAL EQUIPMENT #1</h2>
+    <div class="page" style="padding: 10mm 15mm;">
+        <div class="logo-container" style="margin-bottom: 10px; text-align: center;">
+            <img src="{{companyLogoUrl}}" alt="Company Logo" style="max-width: 150px; height: auto; margin: 0 auto;">
+        </div>
+        <div class="section" style="margin-bottom: 8px;">
+            <h2 style="font-size: 14px; margin: 5px 0 8px 0;">AGRICULTURAL EQUIPMENT #1</h2>
             <table class="info-table">
                 <tr>
                     <td>Type</td>
@@ -320,7 +359,11 @@
 
         <div class="section">
             <h2>OUR INSPECTION</h2>
-            <table class="info-table">
+            <table class="info-table" style="margin: 5px 0 8px 0;">
+                <colgroup>
+                    <col style="width: 30%;">
+                    <col style="width: 70%;">
+                </colgroup>
                 <tr>
                     <td>Condition</td>
                     <td>Fair</td>
@@ -338,15 +381,15 @@
                     <td>Included in our report.</td>
                 </tr>
             </table>
-            <div class="comments">
-                <strong>Comments</strong>
-                <p>I inspected this header with the shop foreman at Redhead - Melfort, after it had been removed from the combine and returned to the dealership.</p>
+            <div class="comments" style="margin: 5px 0 8px 0;">
+                <div><strong>Comments</strong></div>
+                <div style="font-size: 10px; line-height: 1.2; margin-top: 2px;">I inspected this header with the shop foreman at Redhead - Melfort, after it had been removed from the combine and returned to the dealership.</div>
             </div>
         </div>
 
         <div class="section">
             <h2>DAMAGE</h2>
-            <table class="info-table full-width">
+            <table class="info-table full-width" style="margin: 5px 0 8px 0; font-size: 10px;">
                 <tr>
                     <td><strong>Description of Damage</strong></td>
                     <td colspan="3">The rock appears to have impacted the right Contour Buddy, pushing the right side of the header in and back. This caused damage to the Contour Buddy as well as frame damage to the right wing of the header.</td>
@@ -362,15 +405,19 @@
                     <td colspan="3">Redhead Equipment with sublet for frame repair.</td>
                 </tr>
             </table>
-            <div class="comments">
-                <strong>Comments</strong>
-                <p>As Redhead Equipment - Melfort is not equipped to perform header frame repair, the frame repair will need to be sublet with Redhead performing the final set up and adjustment to make the header field ready.</p>
+            <div class="comments" style="margin: 5px 0 8px 0;">
+                <div><strong>Comments</strong></div>
+                <div style="font-size: 10px; line-height: 1.2; margin-top: 2px;">As Redhead Equipment - Melfort is not equipped to perform header frame repair, the frame repair will need to be sublet with Redhead performing the final set up and adjustment to make the header field ready.</div>
             </div>
         </div>
 
         <div class="section">
             <h2>REPAIR ESTIMATE</h2>
-            <table class="cost-table">
+            <table class="cost-table" style="margin: 8px 0; width: 100%; font-size: 10px;">
+                <colgroup>
+                    <col style="width: 80%;">
+                    <col style="width: 20%;">
+                </colgroup>
                 <tr>
                     <td>Parts</td>
                     <td class="amount">$1,500.00</td>
@@ -387,7 +434,7 @@
                     <td>Shop Supplies</td>
                     <td class="amount">$65.88</td>
                 </tr>
-                <tr>
+                <tr style="page-break-inside: avoid;">
                     <td>Miscellaneous</td>
                     <td class="amount">$33,855.00</td>
                 </tr>
@@ -436,9 +483,92 @@
         </div>
     </div>
 
-    <!-- Third Page -->
-    <div class="page" style="display: flex; justify-content: center; align-items: center; overflow: hidden;">
-        <img src="/page3.png" alt="Report Page 3" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+    <!-- Image Pages (3-7) -->
+    <div class="image-page">
+        <img src="/page3.png" alt="Report Page 3" class="page-image">
+    </div>
+    <div class="image-page">
+        <img src="/page4.png" alt="Report Page 4" class="page-image">
+    </div>
+    <div class="image-page">
+        <img src="/page5.png" alt="Report Page 5" class="page-image">
+    </div>
+    <div class="image-page">
+        <img src="/page6.png" alt="Report Page 6" class="page-image">
+    </div>
+    <div class="image-page">
+        <img src="/page7.png" alt="Report Page 7" class="page-image">
+    </div>
+
+    <!-- Page 8 - Comparable Sales -->
+    <div class="page" style="padding: 15mm 20mm; font-size: 13px; line-height: 1.4;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+            <h2 style="margin: 0; font-size: 24px; font-weight: bold; text-align: left;">Comparable Sales</h2>
+            <img src="{{companyLogoUrl}}" alt="Company Logo" style="max-height: 50px; width: auto; margin: 0;">
+        </div>
+
+        <div style="margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; background-color: #f9f9f9;">
+            <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px; color: #2c3e50;">2020 MacDon FD140 Combine</div>
+            <div style="margin-bottom: 4px;"><strong>Location:</strong> Taber, AB</div>
+            <div><strong>Asking Price:</strong> $130,000.00 CAD</div>
+        </div>
+
+        <div style="margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; background-color: #f9f9f9;">
+            <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px; color: #2c3e50;">2020 MacDon FD140 Combine</div>
+            <div style="margin-bottom: 4px;"><strong>Location:</strong> Steinbach, MB</div>
+            <div><strong>Asking Price:</strong> $125,900.00 CAD</div>
+        </div>
+
+        <div style="margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; background-color: #f9f9f9;">
+            <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px; color: #2c3e50;">2020 MacDon FD140 Combine</div>
+            <div style="margin-bottom: 4px;"><strong>Location:</strong> Melfort, SK</div>
+            <div><strong>Asking Price:</strong> $125,000.00 CAD</div>
+        </div>
+
+        <div style="margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; background-color: #f9f9f9;">
+            <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px; color: #2c3e50;">2020 MacDon FD140 Combine</div>
+            <div style="margin-bottom: 4px;"><strong>Location:</strong> Dauphin, MB</div>
+            <div><strong>Asking Price:</strong> $135,000.00 CAD</div>
+        </div>
+
+        <div style="margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; background-color: #f9f9f9;">
+            <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px; color: #2c3e50;">2020 MacDon FD140 Combine</div>
+            <div style="margin-bottom: 4px;"><strong>Location:</strong> Crossfield, AB</div>
+            <div><strong>Asking Price:</strong> $122,900.00 CAD</div>
+        </div>
+
+        <div style="margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; background-color: #f9f9f9;">
+            <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px; color: #2c3e50;">2020 MacDon FD140 Combine</div>
+            <div style="margin-bottom: 4px;"><strong>Location:</strong> Assiniboia, SK</div>
+            <div><strong>Asking Price:</strong> $119,000.00 CAD</div>
+        </div>
+
+        <div style="margin-bottom: 15px; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; background-color: #f9f9f9;">
+            <div style="font-weight: bold; margin-bottom: 8px; font-size: 16px; color: #2c3e50;">2020 MacDon FD140 Combine</div>
+            <div style="margin-bottom: 4px;"><strong>Location:</strong> Crossfield, AB</div>
+            <div><strong>Asking Price:</strong> $122,900.00 CAD</div>
+        </div>
+
+        <div style="margin-top: 30px; text-align: center; font-size: 12px; color: #555; padding-top: 15px; border-top: 1px solid #eee; line-height: 1.8;">
+            <div style="margin-bottom: 5px;">
+                <span style="margin-right: 15px;">
+                    <span style="color: #2c3e50; margin-right: 5px;">📮</span> P.O. Box 3081 Regina, SK S4P 3G7
+                </span>
+            </div>
+            <div>
+                <span style="margin: 0 10px;">
+                    <span style="color: #2c3e50; margin-right: 5px;">🌐</span> www.McDougallBay.com
+                </span>
+                <span style="margin: 0 10px; color: #ddd;">•</span>
+                <span style="margin: 0 10px;">
+                    <span style="color: #2c3e50; margin-right: 5px;">📞</span> (306) 757-1747
+                </span>
+                <span style="margin: 0 10px; color: #ddd;">•</span>
+                <span style="margin: 0 10px;">
+                    <span style="color: #2c3e50; margin-right: 5px;">✉️</span> remarketing@mcdauction.com
+                </span>
+            </div>
+        </div>
     </div>
 </body>
 
