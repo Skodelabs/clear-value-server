@@ -11,7 +11,7 @@
             size: A4;
             margin: 0;
         }
-
+        
         body {
             margin: 0;
             padding: 0;
@@ -20,7 +20,7 @@
             line-height: 1.6;
             background-color: white;
         }
-
+        
         .page {
             /* width: 210mm;
             min-height: 297mm; */
@@ -30,9 +30,10 @@
             background-color: white;
             display: block;
         }
-
+        
         @media print {
-            html, body {
+            html,
+            body {
                 /* width: 210mm;
                 height: 297mm; */
                 -webkit-print-color-adjust: exact;
@@ -106,17 +107,17 @@
             max-height: 90px;
             object-fit: cover;
         }
-        
         /* Section break handling */
+        
         .section {
             page-break-inside: avoid;
         }
-        
         /* Appendix sections */
-        #appendix-photos, #appendix-documents {
+        
+        #appendix-photos,
+        #appendix-documents {
             page-break-before: always;
         }
-        
         /* Total row styling */
         
         .total-row {
@@ -129,8 +130,8 @@
         .total-row td {
             border-color: #a51a30;
         }
-        
         /* Enhanced header and footer styling */
+        
         .header {
             border-bottom: 2px solid #334155;
             padding-bottom: 1rem;
@@ -148,14 +149,17 @@
             font-weight: 600;
             color: #475569;
         }
-        
         /* Enhanced typography */
-        h1, h2, h3, h4 {
+        
+        h1,
+        h2,
+        h3,
+        h4 {
             color: #1e293b;
             line-height: 1.3;
         }
-        
         /* Watermark styling */
+        
         .watermark {
             position: absolute;
             top: 50%;
@@ -227,7 +231,7 @@
                     <!-- Enhanced Title -->
                     <h1 class="text-3xl mb-6 text-gray-800 tracking-wide font-bold">{{title}}</h1>
                     <div class="h-1 w-40 bg-gradient-to-r from-red-500 to-red-700 mx-auto mb-10"></div>
-                    
+
                     <!-- Enhanced Report Date and Effective Date Box -->
                     <div class="mx-auto mb-10 bg-white p-6 border border-gray-200 rounded-lg shadow-lg w-[350px] transition-shadow hover:shadow-xl">
                         <div class="mb-5">
@@ -288,13 +292,13 @@
                     <h2 class="text-2xl font-bold text-gray-800 mb-2">TRANSMITTAL LETTER</h2>
                     <p class="text-gray-500">Reference: {{reportReference}}</p>
                 </div>
-                
+
                 <div class="leading-relaxed mb-8 text-lg text-gray-700">
                     <p class="mb-4 font-medium">Dear {{recipientName}},</p>
 
                     <p class="mb-4 text-justify">
-                        At the request of <span class="font-medium">{{clientName}}</span>, we have prepared an appraisal of certain assets owned by <span class="font-medium">{{ownerName}}</span>, a copy of which is enclosed. This appraisal report is intended for exclusive use by {{clientName}} and is intended only for establishing values of
-                        the listed assets.
+                        At the request of <span class="font-medium">{{clientName}}</span>, we have prepared an appraisal of certain assets owned by <span class="font-medium">{{ownerName}}</span>, a copy of which is enclosed. This appraisal report is intended
+                        for exclusive use by {{clientName}} and is intended only for establishing values of the listed assets.
                     </p>
 
                     <p class="mb-4 text-justify">
@@ -306,8 +310,7 @@
                     </p>
 
                     <p class="mb-4 text-justify">
-                        After a thorough analysis of the assets and information made available to us, it is our opinion that as of the Effective Date, these assets have a <span class="font-medium">{{valueEstimate}}</span> in <span class="font-medium">{{currency === 'CAD' ? 'Canadian' : 'US'}} Funds</span> as shown on the certificate that we
-                        have prepared.
+                        After a thorough analysis of the assets and information made available to us, it is our opinion that as of the Effective Date, these assets have a <span class="font-medium">{{valueEstimate}}</span> in <span class="font-medium">{{currency === 'CAD' ? 'Canadian' : 'US'}} Funds</span>                        as shown on the certificate that we have prepared.
                     </p>
 
                     <p class="mb-4 text-justify">
@@ -393,7 +396,7 @@
                         </p>
 
                         <p class="mb-5">
-                            After a thorough analysis of the assets and information made available to us, it is our opinion that as of the Effective Date, these assets have a <span class="font-medium">{{valueEstimate}}</span> in <span class="font-medium">{{currency === 'CAD' ? 'Canadian' : 'US'}} Funds</span> as shown below.
+                            After a thorough analysis of the assets and information made available to us, it is our opinion that as of the Effective Date, these assets have a <span class="font-medium">{{valueEstimate}}</span> in <span class="font-medium">{{currency === 'CAD' ? 'Canadian' : 'US'}} Funds</span>                            as shown below.
                         </p>
                     </div>
                 </div>
@@ -530,7 +533,7 @@
                             <div class="w-6 h-0.5 bg-gray-300"></div>
                         </div>
                     </div>
-                    
+
                     <!-- No appendices section -->
                 </div>
             </div>
@@ -563,7 +566,8 @@
 
                 <div class="mt-8">
                     <h3 class="text-xl font-bold mb-4">Purpose of Appraisal</h3>
-                    <p class="text-justify">{{appraisalPurpose || "This appraisal has been prepared to establish the fair market value of the items listed in this report for insurance purposes. The valuation represents our professional assessment of the items' worth based on current market conditions, comparable sales data, and industry expertise."}}</p>
+                    <p class="text-justify">{{appraisalPurpose || "This appraisal has been prepared to establish the fair market value of the items listed in this report for insurance purposes. The valuation represents our professional assessment of the items' worth based on
+                        current market conditions, comparable sales data, and industry expertise."}}</p>
                 </div>
             </div>
         </div>
@@ -724,12 +728,13 @@
                 <div class="text-justify space-y-5 bg-white p-8 rounded-lg shadow-md border border-gray-200">
                     <h3 class="text-xl font-medium text-gray-700 mb-4">Market Conditions</h3>
                     <p class="leading-relaxed text-gray-700">{{marketAnalysis}}</p>
-                    
+
                     <div class="mt-8 pt-6 border-t border-gray-200">
                         <h3 class="text-xl font-medium text-gray-700 mb-4">Market Trends</h3>
                         <div class="flex flex-col md:flex-row gap-6">
                             <div class="flex-1">
-                                <p class="leading-relaxed text-gray-700">The market for these types of items has shown <span class="font-medium">{{marketTrend}}</span> over the past <span class="font-medium">{{marketPeriod}}</span>. Factors influencing valuation include condition, provenance, rarity, and current market demand.</p>
+                                <p class="leading-relaxed text-gray-700">The market for these types of items has shown <span class="font-medium">{{marketTrend}}</span> over the past <span class="font-medium">{{marketPeriod}}</span>. Factors influencing valuation include condition, provenance,
+                                    rarity, and current market demand.</p>
                             </div>
                             <div class="flex-1">
                                 <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -788,15 +793,17 @@
                     <div class="bg-gray-50 p-4 rounded border-l-4 border-gray-400">
                         <p class="italic text-gray-600 text-sm">This document contains important legal information regarding the appraisal. Please read carefully.</p>
                     </div>
-                    
+
                     <p class="leading-relaxed text-gray-700">This appraisal report is prepared for the sole and exclusive use of the client identified in this report. No third parties are authorized to rely upon this report without the express written consent of both the client and the appraiser.</p>
 
-                    <p class="leading-relaxed text-gray-700">The appraiser has made every effort to ensure the accuracy of the information contained in this report. However, the appraiser assumes no responsibility for legal matters, nor does the appraiser render any opinion as to the title of the subject property.</p>
+                    <p class="leading-relaxed text-gray-700">The appraiser has made every effort to ensure the accuracy of the information contained in this report. However, the appraiser assumes no responsibility for legal matters, nor does the appraiser render any opinion as to the title of
+                        the subject property.</p>
 
-                    <p class="leading-relaxed text-gray-700">The values stated in this report are based on the appraiser's analysis and judgment as of the effective date of the appraisal. The values may change over time due to various factors including economic conditions, market trends, and changes in the condition of the items.</p>
+                    <p class="leading-relaxed text-gray-700">The values stated in this report are based on the appraiser's analysis and judgment as of the effective date of the appraisal. The values may change over time due to various factors including economic conditions, market trends, and
+                        changes in the condition of the items.</p>
 
                     <p class="leading-relaxed text-gray-700">The appraiser is not responsible for any unauthorized use of this report.</p>
-                    
+
                     <div class="mt-6 pt-4 border-t border-gray-200">
                         <p class="text-sm text-gray-500">By accepting this report, the client acknowledges and agrees to the terms and conditions stated herein.</p>
                     </div>
@@ -853,7 +860,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="space-y-4 text-justify">
                         <p class="leading-relaxed text-gray-700">This valuation represents our professional assessment of the fair market value as of the effective date of this report. The valuation has been conducted in accordance with industry standards and best practices.</p>
 
@@ -869,7 +876,7 @@
                                     <p class="text-gray-700">Date: <span class="font-medium">{{reportDate}}</span></p>
                                 </div>
                             </div>
-                            
+
                             <div class="mt-8 md:mt-0 md:w-1/3 text-right">
                                 <div class="mb-2">
                                     <img src="{{companyLogoUrl}}" alt="Company Logo" class="h-12 ml-auto object-contain" onerror="this.style.display='none';">
